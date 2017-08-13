@@ -1,0 +1,23 @@
+{
+  "name": "kakuilan/phalwoo",
+  "description": "Lkk sites system",
+  "keywords": [
+    "swoole","phalcon"
+  ],
+  "license": "No license",
+  "authors": [
+    {
+      "name": "kakuilan",
+      "email": "kakuilan@163.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "monolog/monolog": "^1.22",
+    "phpunit/phpunit": "^6.1"
+  },
+  "require-dev": {
+    "kakuilan/kphplib": "dev-master",
+    "kakuilan/phalwoo": "dev-master"
+  }
+}
