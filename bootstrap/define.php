@@ -24,15 +24,14 @@ define('CONFDIR',   ROOTDIR .'config'       . DS );
 define('DATADIR',   ROOTDIR .'data'         . DS );
 define('KENGDIR',   ROOTDIR .'kengine'      . DS );
 define('RUNTDIR',   ROOTDIR .'runtime'      . DS );
-define('SERVDIR',   ROOTDIR .'server'       . DS );
 define('TESTDIR',   ROOTDIR .'tests'        . DS );
 
 define('LOGDIR',    RUNTDIR .'logs'         . DS );
 define('PIDDIR',    RUNTDIR .'pids'         . DS );
-define('MODULDIR',  APPSDIR .'modules'      . DS ); //应用模块目录
-define('CTASKDIR',  MODULDIR .'cli/tasks'   . DS ); //CLI任务目录
-define('MODELDIR',  APPSDIR .'models'       . DS ); //数据模型类目录
-define('VIEWDIR',   APPSDIR .'views'        . DS ); //视图目录
+define('MODULDIR',  APPSDIR .'Modules'      . DS ); //应用模块目录
+define('CTASKDIR',  MODULDIR .'Cli/Tasks'   . DS ); //CLI任务目录
+define('MODELDIR',  APPSDIR .'Models'       . DS ); //数据模型类目录
+define('VIEWDIR',   APPSDIR .'Views'        . DS ); //视图目录
 define('UPLODIR',   WWWDIR .'upload'        . DS ); //上传目录
 
 define('REDIS_CACHE_DB', 0); //用于存储CACHE的redis库
