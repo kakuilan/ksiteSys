@@ -9,3 +9,6 @@ eaglewu/swoole-ide-helper
 License
 -------
 No license.本系统不授权.  
+
+swoole orm:  
+https://github.com/heikezy/Sworm  
