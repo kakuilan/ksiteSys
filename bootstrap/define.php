@@ -11,6 +11,7 @@
 define('STARTTIME', microtime(true));
 define('DS', str_replace('\\', '/', DIRECTORY_SEPARATOR));
 define('PS', PATH_SEPARATOR);
+define('PHPEXT', '.php');
 
 define('KSERVER_NAME', 'KSS');
 define('KSERVER_VERS', '0.0.0.1');
@@ -34,6 +35,7 @@ define('MODELDIR',  APPSDIR .'Models'       . DS ); //数据模型类目录
 define('VIEWDIR',   APPSDIR .'Views'        . DS ); //视图目录
 define('UPLODIR',   WWWDIR .'upload'        . DS ); //上传目录
 
-define('REDIS_CACHE_DB', 0); //用于存储CACHE的redis库
-define('REDIS_SESSION_DB', 1); //用于存储SESSION的redis库
+define('REDIS_CACHE_DB',    0); //用于存储CACHE的redis库
+define('REDIS_SESSION_DB',  1); //用于存储SESSION的redis库
+define('REDIS_QUEUE_DB',    2); //用于存储队列的redis库
 

@@ -18,3 +18,4 @@ $loader->addPsr4('Kengine\\',   KENGDIR);
 $loader->addPsr4('Tests\\',     TESTDIR);
 
 //TODO
+Kengine\Engine::runWebApp();
