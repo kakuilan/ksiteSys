@@ -118,8 +118,6 @@ class LkkServer extends SwooleServer {
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
 
-        var_dump('get data', $request->get);
-
         //加密组件放在cookie和denAgent前面
         $crypt = LkkCmponent::crypt();
         $di->setShared('crypt', $crypt);
@@ -186,10 +184,11 @@ class LkkServer extends SwooleServer {
         $res3 = yield $asyncMysql->rollback();
         var_dump('sql res', $res1, $res2, $res3);*/
 
-        $asyncMysql = self::getPoolManager()->get('mysql_master')->pop();
-        $sql = "SELECT  COUNT(1) AS num  FROM `lkk_cnarea` WHERE `lkk_cnarea`.`level` = 1 ORDER BY `lkk_cnarea`.`id` ASC";
-        $res2 = yield $asyncMysql->execute($sql, true);
-        var_dump('sql res', $res2);
+        /*$asyncMysql = self::getPoolManager()->get('mysql_master')->pop();
+        //$sql = "SELECT  COUNT(1) AS num  FROM `lkk_cnarea` WHERE `lkk_cnarea`.`level` = 1 ORDER BY `lkk_cnarea`.`id` ASC";
+        $sql = "SELECT  *  FROM `lkk_cnarea` WHERE `lkk_cnarea`.`level` = 1 ORDER BY `lkk_cnarea`.`id` ASC LIMIT 5,3 ";
+        $res2 = yield $asyncMysql->execute($sql, false);
+        var_dump('sql res', $res2);*/
 
 
 

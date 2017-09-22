@@ -17,6 +17,7 @@ use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
 use Lkk\Helpers\EncryptHelper;
 use Lkk\LkkMacAddress;
 use Lkk\Phalwoo\Server\SwooleServer;
+use Lkk\Phalwoo\Phalcon\Paginator\Adapter\AsyncMysql as PaginatorAsyncMysql;
 
 class LkkModel extends Model {
 
@@ -664,7 +665,7 @@ class LkkModel extends Model {
         $data = self::filterColumnsData($data, $table);
         if(empty($data)) return false;
 
-        $_conn = LkkCmponent::dbMaster();
+        $_conn = LkkCmponent::SyncDbMaster('');
         $res = $_conn->insert($table, array_values($data), array_keys($data));
         $res && $res = $_conn->lastInsertId();
         return $res;
@@ -689,7 +690,7 @@ class LkkModel extends Model {
         $checkDiff = array_diff($insertFields, $tabFields);
         if(!empty($checkDiff)) return false;
 
-        $_conn = LkkCmponent::dbMaster();
+        $_conn = LkkCmponent::SyncDbMaster('');
         $rowsString = sprintf('`%s`', implode('`,`', $insertFields));
         $fieldCount = count($data[0]);
         $affectedRows = 0;
@@ -750,7 +751,7 @@ class LkkModel extends Model {
         if(empty($data)) return false;
         $where = self::parseWhere2PDO($where);
 
-        $_conn = LkkCmponent::dbMaster();
+        $_conn = LkkCmponent::SyncDbMaster('');
         return $_conn->update($table, array_keys($data), array_values($data), $where);
     }
 
@@ -763,7 +764,7 @@ class LkkModel extends Model {
      */
     public static function delData($where, $table=null) {
         if(empty($table)) $table = self::getTableName();
-        $_conn = LkkCmponent::dbMaster();
+        $_conn = LkkCmponent::SyncDbMaster('');
         $where = self::parseWhere2PDO($where);
         return $_conn->delete($table, $where['conditions'], $where['bind']);
     }
