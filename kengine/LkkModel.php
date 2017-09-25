@@ -70,13 +70,33 @@ class LkkModel extends Model {
     }
 
 
+    /**
+     * Gets the connection used to read data for the model 重写
+     *
+     * @return \Phalcon\Db\AdapterInterface
+     */
+    public function getReadConnection() {
+        return LkkCmponent::SyncDbSlave('');
+    }
+
+
+    /**
+     * Gets the connection used to write data to the model 重写
+     *
+     * @return \Phalcon\Db\AdapterInterface
+     */
+    public function getWriteConnection() {
+        return LkkCmponent::SyncDbMaster('');
+    }
+
+
 
     /**
      * 获取表名
      * @return mixed|string
      */
     public static function getTableName($table='') {
-        $prefix = getConf('database','table_prefix');
+        $prefix = getConf('pool','mysql_master')['table_prefix'];
         if(empty($table)) {
             $class = explode('\\', get_called_class());
             $table = end($class);
@@ -155,7 +175,7 @@ class LkkModel extends Model {
 
 
     /**
-     * value分析
+     * value分析(where条件中的value)
      * @param $value
      *
      * @return array|string
@@ -174,6 +194,44 @@ class LkkModel extends Model {
             if($value=='') $value = '\'\'';
         }else{
             $value = strval($value);
+        }
+
+        return $value;
+    }
+
+
+    /**
+     * 分析insert/update的值
+     * @param $value
+     *
+     * @return array|string
+     */
+    public static function parseInsertValue($value) {
+        if (is_array($value)) {
+            return array_map('self::parseInsertValue', $value);
+        }elseif (is_null($value)) {
+            return 'null';
+        }elseif (is_bool($value)) {
+            return $value ? '1' : '0';
+        }
+
+        if(is_string($value) || is_numeric($value)) {
+            $value = trim($value);
+        }else{
+            $value = strval($value);
+        }
+
+        if(is_numeric($value)) {
+            return $value;
+        }elseif ($value=='') {
+            return '\'\'';
+        }
+
+        //字符串处理
+        if(substr_count($value, "'")==0) {
+            $value = "'" . $value . "'";
+        }else{
+            $value = "'" . str_replace("'", "\'", $value) . "'";
         }
 
         return $value;
@@ -652,7 +710,7 @@ class LkkModel extends Model {
 
 
     /**
-     * 插入单条记录
+     * 插入单条记录(同步)
      * @param array  $data 数据(键值对)
      * @param string $table 表名
      *
@@ -673,14 +731,55 @@ class LkkModel extends Model {
 
 
     /**
-     * 插入多条数据
-     * @param array  $data 数据(三维数组)
-     * @param string $table 表名
-     * @param bool   $ignore 是否忽略重复记录
+     * 插入单条记录(异步)
+     * @param array  $data 一维数组
+     * @param string $table
      *
      * @return bool|int
      */
-    public static function addMultiData(array $data=[], $table='', $ignore=false) {
+    public static function addDataAsync(array $data =[], $table='') {
+        if(!is_array($data) || empty($data) ) return false;
+        if(empty($table)) $table = self::getTableName();
+
+        $data = self::filterColumnsData($data, $table);
+        if(empty($data)) return false;
+
+        //检查表字段
+        $tabFields = self::getTableColumns($table);
+        $insertFields = array_keys($data);
+        $checkDiff = array_diff($insertFields, $tabFields);
+        if(!empty($checkDiff)) return false;
+
+        $rowsString = sprintf('`%s`', implode('`,`', $insertFields));
+        $insertString = "INSERT INTO `%s` (%s) VALUE %s";
+
+        $valueArr = array_values($data);
+        foreach ($valueArr as &$item) {
+            $item = self::parseInsertValue($item);
+        }
+        $valueString = '(' . implode(', ', $valueArr) . ')';
+        $query = sprintf($insertString,
+            $table,
+            $rowsString,
+            $valueString
+        );
+
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        $res = yield $asyncMysql->execute($query, true);
+        return ($res && $res['code']==0) ? $res['insert_id'] : false;
+    }
+
+
+    /**
+     * 插入多条数据(同步)
+     * @param array  $data 数据(二维数组)
+     * @param string $table 表名
+     * @param bool   $ignore 是否忽略重复记录
+     * @param int    $sliceNum 每批数量
+     *
+     * @return bool|int
+     */
+    public static function addMultiData(array $data=[], $table='', $ignore=false, $sliceNum=25) {
         if(!is_array($data) || empty($data) ) return false;
         if(empty($table)) $table = self::getTableName();
 
@@ -699,9 +798,9 @@ class LkkModel extends Model {
         } else {
             $insertString = "INSERT INTO `%s` (%s) VALUES %s";
         }
-        //每批50
-        for ($i = 0, $total = count($data); $i < $total; $i += 50){
-            $batchData = array_slice($data, $i, 50);
+
+        for ($i = 0, $total = count($data); $i < $total; $i += $sliceNum){
+            $batchData = array_slice($data, $i, $sliceNum);
             $valueCount = count($batchData);
 
             $placeholders = [];
@@ -737,7 +836,64 @@ class LkkModel extends Model {
 
 
     /**
-     * 更新数据
+     * 插入多条数据(异步)
+     * @param array  $data 数据(二维数组)
+     * @param string $table 表名
+     * @param bool   $ignore 是否忽略重复记录
+     * @param int    $sliceNum 每批数量
+     *
+     * @return bool|int
+     */
+    public static function addMultiDataAsync(array $data=[], $table='', $ignore=false, $sliceNum=25) {
+        if(!is_array($data) || empty($data) ) return false;
+        if(empty($table)) $table = self::getTableName();
+
+        //检查表字段
+        $tabFields = self::getTableColumns($table);
+        $insertFields = array_keys(current($data));
+        $checkDiff = array_diff($insertFields, $tabFields);
+        if(!empty($checkDiff)) return false;
+
+        $affectedRows = 0;
+        $rowsString = sprintf('`%s`', implode('`,`', $insertFields));
+        if($ignore){
+            $insertString = "INSERT IGNORE INTO `%s` (%s) VALUES %s";
+        } else {
+            $insertString = "INSERT INTO `%s` (%s) VALUES %s";
+        }
+
+        //数组分段
+        $slices = array_chunk($data, $sliceNum, true);
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        foreach ($slices as $slice) {
+            $mulVals = [];
+            foreach ($slice as $row) {
+                $valueArr = array_values($row);
+                foreach ($valueArr as &$item) {
+                    $item = self::parseInsertValue($item);
+                }
+                $mulVals[] = '(' . implode(', ', $valueArr) . ')';
+            }
+            $valuesString = implode(', ', $mulVals);
+
+            $query = sprintf($insertString,
+                $table,
+                $rowsString,
+                $valuesString
+            );
+
+            $insertRes = yield $asyncMysql->execute($query, true);
+            if($insertRes['code']==0) $affectedRows += $insertRes['affected_rows'];
+        }
+
+        return $affectedRows;
+    }
+
+
+
+
+    /**
+     * 更新数据(同步)
      * @param array $data
      * @param string $where
      * @param null $table
@@ -757,7 +913,45 @@ class LkkModel extends Model {
 
 
     /**
-     * 删除数据
+     * 更新数据(异步)
+     * @param array  $data
+     * @param string $where
+     * @param null   $table
+     *
+     * @return bool
+     */
+    public static function upDataAsync(array $data=[], $where='', $table=null) {
+        if(!is_array($data) || empty($data) ) return false;
+        if(empty($table)) $table = self::getTableName();
+
+        $data = self::filterColumnsData($data, $table);
+        if(empty($data) || empty($where)) return false;
+        $whereString = self::parseWhere($where, false);
+
+        $updateString = "UPDATE `%s` SET %s WHERE %s";
+
+        $valusArr = [];
+        foreach ($data as $key=>$vue) {
+            $vue = self::parseInsertValue($vue);
+            $valusArr[] = "`{$key}` = ".$vue;
+        }
+        $valuesString = implode(', ', $valusArr);
+
+        $query = sprintf($updateString,
+            $table,
+            $valuesString,
+            $whereString
+        );
+
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        $res = yield $asyncMysql->execute($query, true);
+        return ($res && $res['code']==0) ? $res['affected_rows'] : false;
+    }
+
+
+
+    /**
+     * 删除数据(同步)
      * @param $where
      * @param null $table
      * @return bool
@@ -771,7 +965,32 @@ class LkkModel extends Model {
 
 
     /**
-     * 获取当前表分页对象
+     * 删除记录(异步)
+     * @param      $where
+     * @param null $table
+     *
+     * @return bool
+     */
+    public static function delDataAsync($where, $table=null) {
+        if(empty($where)) return false;
+        if(empty($table)) $table = self::getTableName();
+
+        $whereString = self::parseWhere($where, false);
+        $deleteString = "DELETE FROM `%s` WHERE %s";
+
+        $query = sprintf($deleteString,
+            $table,
+            $whereString
+        );
+
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        $res = yield $asyncMysql->execute($query, true);
+        return ($res && $res['code']==0) ? $res['affected_rows'] : false;
+    }
+
+
+    /**
+     * 获取当前表分页对象(同步)
      * @param string $columns 字段
      * @param string $where 条件
      * @param string $order 排序
@@ -807,7 +1026,45 @@ class LkkModel extends Model {
 
 
     /**
-     * 获取一条记录
+     * 获取当前表分页对象(异步)
+     * @param string $columns
+     * @param string $where
+     * @param string $order
+     * @param int    $limit
+     * @param int    $page
+     *
+     * @return PaginatorAsyncMysql
+     */
+    public static function getPaginatorAsync($columns='*', $where='', $order='', $limit=10, $page=1) {
+        $table = self::getTableName();
+        $tableColumns = self::getTableColumns($table, true);
+        if(empty($columns)) $columns = implode(',', $tableColumns['all']);
+        if(empty($where)) $where = '1=1';
+        $where = self::parseWhere($where, false);
+        if(empty($order)) $order = (empty($tableColumns['pri']) ? $tableColumns['all'][0] : $tableColumns['pri']);
+
+        $params = [
+            'models'     => get_called_class(),
+            'columns'    => array_filter(explode(',', $columns), 'trim'),
+            'conditions' => [array_values($where)],
+            'order'      => empty($order) ? null : $order,
+        ];
+
+        $builder = new QueryBuilder($params);
+
+        return new PaginatorAsyncMysql(
+            [
+                "builder" => $builder,
+                "limit"   => $limit,
+                "page"    => $page
+            ]
+        );
+    }
+
+
+
+    /**
+     * 获取一条记录(同步)
      * @param mixed  $where 条件(字符串或数组)
      * @param string $field 字段
      * @param string $order 排序
@@ -834,6 +1091,37 @@ class LkkModel extends Model {
 
         return $res;
     }
+
+
+    /**
+     * 获取一条记录(异步)
+     * @param string $where
+     * @param string $field
+     * @param string $order
+     * @param string $table
+     *
+     * @return bool|array
+     */
+    public static function getRowAsync($where='', $field='*', $order='', $table='') {
+        if(empty($table)) $table = self::getTableName();
+        if(empty($where)) $where ='1=1';
+        $whereString = self::parseWhere($where, false);
+
+        $selectString = "SELECT %s FROM `%s` WHERE %s";
+        $query = sprintf($selectString,
+            $field,
+            $table,
+            $whereString
+        );
+
+        if($order) $query .= " ORDER BY {$order}";
+        $query .= " LIMIT 1";
+
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        $res = yield $asyncMysql->execute($query, true);
+        return ($res && $res['code']==0) ? $res['data'] : false;
+    }
+
 
 
     /**
@@ -870,6 +1158,36 @@ class LkkModel extends Model {
     }
 
 
+    /**
+     * 获取记录列表(异步)
+     * @param string $where
+     * @param string $field
+     * @param string $order
+     * @param int    $limit
+     * @param string $table
+     *
+     * @return bool
+     */
+    public static function getListAsync($where='', $field='*', $order='', $limit=0, $table='') {
+        if(empty($table)) $table = self::getTableName();
+        if(empty($where)) $where ='1=1';
+        $whereString = self::parseWhere($where, false);
+
+        $selectString = "SELECT %s FROM `%s` WHERE %s";
+        $query = sprintf($selectString,
+            $field,
+            $table,
+            $whereString
+        );
+
+        if($order) $query .= " ORDER BY {$order}";
+        if($limit) $query .= " LIMIT {$limit}";
+
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        $res = yield $asyncMysql->execute($query, false);
+        return ($res && $res['code']==0) ? $res['data'] : false;
+    }
+
 
     /**
      * 获取count统计
@@ -888,6 +1206,30 @@ class LkkModel extends Model {
         $res = $queryBuilder->getQuery()->getSingleResult();
 
         return (int)$res->total;
+    }
+
+
+    /**
+     * 统计记录(异步)
+     * @param        $where
+     * @param string $table
+     *
+     * @return bool|int
+     */
+    public static function getCountAsync($where, $table='') {
+        if(empty($table)) $table = self::getTableName();
+        if(empty($where)) $where ='1=1';
+        $whereString = self::parseWhere($where, false);
+
+        $countString = "SELECT COUNT(1) AS total FROM `%s` WHERE %s";
+        $query = sprintf($countString,
+            $table,
+            $whereString
+        );
+
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
+        $res = yield $asyncMysql->execute($query, true);
+        return ($res && $res['code']==0) ? ($res['data']['total']??0) : false;
     }
 
 

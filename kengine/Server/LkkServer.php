@@ -26,7 +26,8 @@ use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Kengine\LkkCmponent;
 use Kengine\LkkCookies;
-
+use Kengine\LkkModel;
+use Apps\Models\Test;
 
 class LkkServer extends SwooleServer {
 
@@ -190,9 +191,43 @@ class LkkServer extends SwooleServer {
         $res2 = yield $asyncMysql->execute($sql, false);
         var_dump('sql res', $res2);*/
 
+        /*$res = yield LkkModel::addDataAsync([
+            'name' => "'hello'",
+            'title' => '"yes\'',
+            'create_time' => time(),
+            'update_time' => time(),
+        ], 'lkk_test');
+        var_dump('insert', $res);*/
+
+        /*$now = time();
+        $mdata = [
+            ['name'=>'a1','title'=>'b1','create_time'=>$now],
+            ['name'=>'a2','title'=>'b2','create_time'=>$now],
+            ['name'=>'a3','title'=>'b3','create_time'=>$now],
+            ['name'=>'a4','title'=>'b4','create_time'=>$now],
+        ];
+        $res = yield LkkModel::addMultiDataAsync($mdata, 'lkk_test');
+        var_dump($res);*/
+
+        /*$res = yield LkkModel::upDataAsync([
+            'name' => 'lkk',
+            'title' => 'world',
+            'create_time' => time(),
+        ], ['create_time'=>1506243372], 'lkk_test');
+        var_dump($res);*/
 
 
+        /*$res = yield LkkModel::delDataAsync(['id'=>2], 'lkk_test');
+        var_dump($res);*/
 
+        //$res = yield LkkModel::getRowAsync(['id'=>4],'*', '', 'lkk_test');
+        //$res = yield LkkModel::getListAsync('','*', '', 5, 'lkk_test');
+        //$res = yield LkkModel::getCountAsync('', 'lkk_test');
+
+        /*$page = 2;
+        $size = 2;
+        $paginator = Test::getPaginatorAsync('*', '', 'id desc', $size, $page);
+        $pageObj = yield $paginator->getPaginate();*/
 
         $response->end('ok');
 

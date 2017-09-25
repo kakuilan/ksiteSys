@@ -10,6 +10,7 @@
 
 use \Kengine\LkkConfig;
 use \Lkk\Helpers\CommonHelper;
+use \voku\helper\AntiXSS;
 
 function mytest() {
     //TODO
@@ -50,3 +51,20 @@ function getSiteUrl() {
     return $url;
 }
 
+
+/**
+ * 防跨站xss过滤
+ * @param string $str
+ *
+ * @return array|bool|string
+ */
+function xssClean(string $str) {
+    static $antiXss;
+    if(empty($str)) return '';
+
+    if(is_null($antiXss)) {
+        $antiXss = new AntiXSS();
+    }
+
+    return $antiXss->xss_clean($str);
+}
