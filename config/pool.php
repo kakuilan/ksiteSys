@@ -26,6 +26,7 @@ return [
             'password'  => '123456',        // 密码
             'database'  => 'test',          // 数据库名称
             'open_log'  => true,
+            'slow_query' => 20, //慢查询20毫秒
         ]
     ],
 
@@ -46,6 +47,7 @@ return [
             'password'  => '123456',        // 密码
             'database'  => 'test',          // 数据库名称
             'open_log'  => true,
+            'slow_query' => 20, //慢查询20毫秒
         ]
     ],
 
