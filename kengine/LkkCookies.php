@@ -17,30 +17,14 @@ class LkkCookies extends PwCookies {
 
 
     /**
-     * 获取带前缀的cookie名称
-     * @param $name
+     * 获取cookie的值
+     * @param      $name
+     * @param null $encrypt
      *
-     * @return string
+     * @return mixed
      */
-    public static function getPrefixedName($name) {
-        $conf = getConf('cookie');
-        $prefixedName = $conf->pre .$name;
-        return $prefixedName;
-    }
-
-
-    public function set($name, $value = null, $expire = 0, $path = "/", $secure = false, $domain = null, $httpOnly = false, $encrypt=null) {
-        $conf = getConf('cookie');
-        if(empty($path)) $path = $conf->path;
-        if(empty($domain)) $domain = $conf->domain;
-        if(empty($expire)) $expire = $conf->lifetime;
-
-        return parent::set(self::getPrefixedName($name), $value, $expire, $path, $secure, $domain, $httpOnly, $encrypt);
-    }
-
-
-    public function get($name, $encrypt=null) {
-        $cookie = parent::get(self::getPrefixedName($name), $encrypt);
+    public function getValue($name, $encrypt=null) {
+        $cookie = parent::get($name, $encrypt);
         $res = $cookie->getValue();
         $len = strlen($res);
         if($len%2==0 && $len>=88 && substr($res,-1)=='=') {//加密的
@@ -53,18 +37,17 @@ class LkkCookies extends PwCookies {
     }
 
 
-    public function has($name) {
-        return parent::has(self::getPrefixedName($name));
-    }
-
-
+    /**
+     * 重写del方法
+     * @param $name
+     *
+     * @return bool
+     */
     public function del($name) {
         $res = false;
-        $prefixedName = self::getPrefixedName($name);
-        $cookie = parent::get($prefixedName);
+        $cookie = parent::get($name);
         if($cookie) {
-            $conf = getConf('cookie');
-            $res = parent::set($prefixedName, null, -86400,  $conf->path, false, $conf->domain, false, false)
+            $res = parent::set($name, null, -86400,  $this->conf['path'], false, $this->conf['domain'], false, false)
                 && $cookie->delete();
         }
 

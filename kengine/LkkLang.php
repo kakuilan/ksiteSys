@@ -9,42 +9,20 @@
 
 
 namespace Kengine;
-use Phalcon\Translate\Adapter\NativeArray;
 
-class LkkLang {
+use Phalcon\Translate\Adapter\NativeArray;
+use Lkk\LkkService;
+
+class LkkLang extends LkkService {
 
     private $_config = [];
     protected $_cache = [];
-    private static $_instance;
 
 
-    /**
-     * 实例化-单例
-     * @return LkkLang
-     */
-    public static function instance() {
-        if(empty(self::$_instance)) {
-            self::$_instance = new LkkLang();
-        }
+    public function __construct(array $vars = []) {
+        parent::__construct($vars);
 
-        return self::$_instance;
-    }
-
-
-    /**
-     * 构造函数
-     * LkkLang constructor.
-     */
-    public function __construct() {
         $this->_config = getConf('lang')->toArray();
-    }
-
-
-    /**
-     * 克隆
-     */
-    private function __clone() {
-        //TODO
     }
 
 
@@ -63,6 +41,12 @@ class LkkLang {
     }
 
 
+    /**
+     * 加载语言文件
+     * @param string $lang
+     *
+     * @return NativeArray
+     */
     private function load($lang='') {
         $content = [];
 
@@ -70,14 +54,6 @@ class LkkLang {
         $sysfile = $this->_config['systemdir'] . $lang . PHPEXT;
         if( file_exists($sysfile)) {
             $messages = require $sysfile;
-            $content = array_merge($content, $messages);
-        }
-
-        //模块语言文件
-        $module = getModuleName();
-        $modulefile = MODULDIR . $module . DS . $this->_config['moduledir']. DS . $lang . PHPEXT;
-        if($module && file_exists($modulefile) ) {
-            $messages = require $modulefile;
             $content = array_merge($content, $messages);
         }
 
@@ -113,5 +89,5 @@ class LkkLang {
     }
 
 
-
 }
+

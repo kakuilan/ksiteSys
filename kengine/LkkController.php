@@ -9,9 +9,11 @@
 
 
 namespace Kengine;
+
 use Phalcon\Mvc\Controller;
 use Phalcon\Mvc\View;
 use Phalcon\Http\Response;
+use Lkk\Helpers\ArrayHelper;
 
 class LkkController extends Controller {
 
@@ -94,7 +96,7 @@ class LkkController extends Controller {
         !isset($data['msg']) && $data['msg'] = '发生错误';
 
         $type = strtolower($type);
-        if(!dstrpos($type, array('success','info','warning','danger')) ) {
+        if(!ArrayHelper::dstrpos($type, array('success','info','warning','danger')) ) {
             $type = 'warning';
         }
         $data['type'] = $type;
@@ -121,7 +123,6 @@ class LkkController extends Controller {
      */
     public function json($res=[], $callback='') {
         $response = new Response();
-        $response->setHeader("X-Powered-By", LKKSYSTEM);
         $response->setHeader("Content-Type", "application/json; charset=UTF-8");
         $response->setHeader("Access-Control-Allow-Origin", "*");
         $response->setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");

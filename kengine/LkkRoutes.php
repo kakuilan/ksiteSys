@@ -10,6 +10,7 @@
 
 namespace Kengine;
 use Phalcon\Mvc\Router\Group;
+use Lkk\LkkObject;
 
 abstract class LkkRoutes extends LkkObject {
 

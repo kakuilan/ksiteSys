@@ -10,7 +10,11 @@
 
 namespace Kengine\Server;
 
-use Phalcon\Mvc\Application;
+use Kengine\Engine;
+use Kengine\LkkCmponent;
+use Kengine\LkkCookies;
+use Kengine\LkkModel;
+use Lkk\Helpers\CommonHelper;
 use Lkk\LkkService;
 use Lkk\Phalwoo\Phalcon\Di as PwDi;
 use Lkk\Phalwoo\Phalcon\Http\Request as PwRequest;
@@ -18,16 +22,14 @@ use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
 use Lkk\Phalwoo\Phalcon\Http\Response\Cookies as PwCookies;
 use Lkk\Phalwoo\Phalcon\Session\Adapter\Redis as PwSession;
 use Lkk\Phalwoo\Server\Component\Client\Mysql;
+use Lkk\Phalwoo\Server\Component\Client\Redis;
 use Lkk\Phalwoo\Server\Component\Log\Handler\AsyncStreamHandler;
 use Lkk\Phalwoo\Server\Component\Log\SwooleLogger;
 use Lkk\Phalwoo\Server\Component\Pool\PoolManager;
 use Lkk\Phalwoo\Server\Concurrent\Promise;
 use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
-use Kengine\LkkCmponent;
-use Kengine\LkkCookies;
-use Kengine\LkkModel;
-use Apps\Models\Test;
+use Phalcon\Mvc\Application;
 
 class LkkServer extends SwooleServer {
 
@@ -104,6 +106,13 @@ class LkkServer extends SwooleServer {
         $sendRes = parent::onSwooleRequest($request, $response);
         if(!$sendRes) return $sendRes;
 
+        $shareTable = SwooleServer::getShareTable();
+        $stopping = intval($shareTable->get('server', 'stopping'));
+        if($stopping) {
+            $response->end('server stopping');
+            return false;
+        }
+
         //协程
         Promise::co(function() use ($request, $response){
             yield LkkServer::doSwooleRequest($request, $response);
@@ -119,6 +128,15 @@ class LkkServer extends SwooleServer {
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
 
+        /*$logger = self::getLogger();
+        $logger->info('request:', [
+            'header' => $request->header ?? '',
+            'server' => $request->server ?? '',
+            'get' => $request->get ?? '',
+            'post' => $request->post ?? '',
+            'cookie' => $request->cookie ?? '',
+        ]);*/
+
         //加密组件放在cookie和denAgent前面
         $crypt = LkkCmponent::crypt();
         $di->setShared('crypt', $crypt);
@@ -127,13 +145,15 @@ class LkkServer extends SwooleServer {
         $denAgent = new DenyUserAgent();
         $denAgent->setRequest($request);
         $denAgent->setDI($di);
+
+        //允许压测
         $denAgent->setAllowBench(true);
         $agentUuid = $denAgent->getAgentUuid();
         $di->setShared('denAgent', $denAgent);
 
         $chkAgen = $denAgent->checkAll();
         if(!$chkAgen) {
-            return $response->end();
+            return $response->end($denAgent->error());
         }
 
         self::resetRequestGlobal($request);
@@ -147,7 +167,10 @@ class LkkServer extends SwooleServer {
         $pwResponse->setDi($di);
         $di->setShared('response', $pwResponse);
 
+        //TODO 设置dispatcher
+
         $cookies = new LkkCookies();
+        $cookies->setConf(getConf('cookie')->toArray());
         $cookies->useEncryption(false);
         $cookies->setDI($di);
         $di->setShared('cookies', $cookies);
@@ -159,83 +182,110 @@ class LkkServer extends SwooleServer {
         $session = new PwSession($sessionConf);
         $session->setDI($di);
         $di->setShared('session', $session);
-        $session->start();
+        yield $session->start();
+
+        //session的pv检查
+        $userQps = $session->getQps();
+        if($userQps>9) {
+            return $response->end('访问过于频繁');
+        }
+
+        //注册各模块
+        $moduleConf = getConf('modules')->toArray();
+        $app->registerModules($moduleConf);
+
+        //设置路由
+        $router = Engine::setRouter();
+        $di->setShared('router', $router);
+
+        //多模块应用的视图设置
+        $eventsManager = $di->get('eventsManager');
+        $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
+            $router = $di->get('router');
+            $curModule = $router->getModuleName();
+            $view = Engine::getModuleView($curModule);
+            $di->setShared('view', $view);
+        });
+        $app->setEventsManager($eventsManager);
 
         // URL设置
         $di->setShared('url', LkkCmponent::url());
-
-        //crypt
-        $di->setShared('crypt', LkkCmponent::crypt());
 
         //缓存服务
         $di->setShared('cache', LkkCmponent::siteCache());
 
         //数据库-主从
         //压测时会出现SQLSTATE[08004] [1040] Too many connections
-        $dbMaster = LkkCmponent::SyncDbMaster($requestUuid);
-        $dbSlave = LkkCmponent::SyncDbSlave($requestUuid);
+        $dbMaster = LkkCmponent::SyncDbMaster();
+        $dbSlave = LkkCmponent::SyncDbSlave();
         $di->setShared('dbMaster', $dbMaster);
         $di->setShared('dbSlave', $dbSlave);
 
-        /*$asyncMysql = self::getPoolManager()->get('mysql_master')->pop();
-        $sql = "INSERT INTO lkk_test (`name`,`title`) VALUE ('li4','hello') ";
-        $res1 = yield $asyncMysql->begin();
-        $res2 = yield $asyncMysql->execute($sql, true);
-        //yield $asyncMysql->commit();
-        $res3 = yield $asyncMysql->rollback();
-        var_dump('sql res', $res1, $res2, $res3);*/
+        //注入app,以便actioin里面访问
+        $di->setShared('app', $app);
+        $app->setDI($di);
 
-        /*$asyncMysql = self::getPoolManager()->get('mysql_master')->pop();
-        //$sql = "SELECT  COUNT(1) AS num  FROM `lkk_cnarea` WHERE `lkk_cnarea`.`level` = 1 ORDER BY `lkk_cnarea`.`id` ASC";
-        $sql = "SELECT  *  FROM `lkk_cnarea` WHERE `lkk_cnarea`.`level` = 1 ORDER BY `lkk_cnarea`.`id` ASC LIMIT 5,3 ";
-        $res2 = yield $asyncMysql->execute($sql, false);
-        var_dump('sql res', $res2);*/
+        //phalcon处理
+        $_uri = $request->get['_url'] ?? $request->server['request_uri'];
+        $resp = yield $app->handle($_uri);
+        if ($resp instanceof PwResponse) {
+            if($resp->hasFile()) {
+                $resp->sendFile();
+                yield $response->end();
+            }else{
+                yield $resp->send();
+                yield $response->end($resp->getContent());
+            }
+        } else if (is_string($resp)) {
+            $response->end($resp);
+        } else {
+            $response->end('none');
+        }
+        //return $response->end('ok');
 
-        /*$res = yield LkkModel::addDataAsync([
-            'name' => "'hello'",
-            'title' => '"yes\'',
-            'create_time' => time(),
-            'update_time' => time(),
-        ], 'lkk_test');
-        var_dump('insert', $res);*/
-
-        /*$now = time();
-        $mdata = [
-            ['name'=>'a1','title'=>'b1','create_time'=>$now],
-            ['name'=>'a2','title'=>'b2','create_time'=>$now],
-            ['name'=>'a3','title'=>'b3','create_time'=>$now],
-            ['name'=>'a4','title'=>'b4','create_time'=>$now],
-        ];
-        $res = yield LkkModel::addMultiDataAsync($mdata, 'lkk_test');
-        var_dump($res);*/
-
-        /*$res = yield LkkModel::upDataAsync([
-            'name' => 'lkk',
-            'title' => 'world',
-            'create_time' => time(),
-        ], ['create_time'=>1506243372], 'lkk_test');
-        var_dump($res);*/
-
-
-        /*$res = yield LkkModel::delDataAsync(['id'=>2], 'lkk_test');
-        var_dump($res);*/
-
-        //$res = yield LkkModel::getRowAsync(['id'=>4],'*', '', 'lkk_test');
-        //$res = yield LkkModel::getListAsync('','*', '', 5, 'lkk_test');
-        //$res = yield LkkModel::getCountAsync('', 'lkk_test');
-
-        /*$page = 2;
-        $size = 2;
-        $paginator = Test::getPaginatorAsync('*', '', 'id desc', $size, $page);
-        $pageObj = yield $paginator->getPaginate();*/
-
-        $response->end('ok');
-
-        $dbMaster->close();
-        $dbSlave->close();
+        self::logRequest($request);
         self::afterSwooleResponse($request, $pwRequest);
+        yield self::logPv();
+        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session);
 
         return true;
+    }
+
+
+    /**
+     * 记录请求日志
+     * @param \swoole_http_request $request
+     *
+     * @return bool
+     */
+    protected static function logRequest(\swoole_http_request $request) {
+        if(!isset($request->server['request_time_float'])) return false;
+
+        $startTime = $request->server['request_time_float'] * 1000;
+        $useTime = CommonHelper::getMillisecond() - $startTime;
+        if($useTime> self::instance()->conf['sys_log']['slow_request']) {
+            self::getLogger()->info("http request execute time[slow_request]", [$useTime, $request->server]);
+        }
+
+        //TODO 拆成队列，整除10,批量入库
+
+        return true;
+    }
+
+
+    /**
+     * 记录pv
+     * @return int
+     */
+    protected static function logPv() {
+        $res  = false;
+        $key = self::instance()->conf['pv']['day_real_pv'];
+        $redis = self::getPoolManager()->get('redis_site')->pop();
+        if(is_object($redis) && ($redis instanceof Redis)) {
+            $res = intval(yield $redis->incrBy($key, 1));
+        }
+
+        return $res;
     }
 
 
@@ -244,7 +294,6 @@ class LkkServer extends SwooleServer {
         $reqUuid = $phalconRequest->getRequestUuid();
         LkkCmponent::destroyRequests($reqUuid);
 
-        //unset($swooleRequest, $phalconRequest);
     }
 
 
@@ -253,7 +302,7 @@ class LkkServer extends SwooleServer {
         parent::onSwooleClose($serv, $fd, $fromId);
 
         //随机写日志
-        if(mt_rand(0, 2)==1 || true) {
+        if(mt_rand(0, 5)==1) {
             $di = SwooleServer::getServerDi();
             $eventManager = $di->get('eventsManager');
             $eventManager->fire('SwooleServer:onSwooleClose', self::instance());
@@ -279,6 +328,24 @@ class LkkServer extends SwooleServer {
         parent::onSwooleShutdown($serv);
 
     }
+
+
+    /**
+     * 当检测到其他进程正停止服务时
+     */
+    public static function onStopping() {
+        echo "onStopping ...\r\n";
+
+        $shareTable = SwooleServer::getShareTable();
+        $shareTable->setSubItem('server', ['stopping'=>1]);
+
+        //写日志
+        $di = SwooleServer::getServerDi();
+        $eventManager = $di->get('eventsManager');
+        $eventManager->fire('SwooleServer:onSwooleClose', self::instance());
+
+    }
+
 
 
 

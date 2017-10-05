@@ -9,8 +9,8 @@
 
 
 return [
-    'domain'    => '127.0.0.1',   //Cookie 作用域
+    'domain'    => 'my.com',   //Cookie 作用域
     'path'      => '/',         //Cookie 作用路径
     'lifetime'  => 0,           //Cookie 生命周期, 0为随浏览器进程
-    'pre'       => 'ks_',       //Cookie 前缀
+    'prefix'    => 'ks_',       //Cookie 前缀
 ];

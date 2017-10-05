@@ -11,8 +11,44 @@
 namespace Kengine;
 
 use Phalcon\Mvc\View\Engine\Volt;
+use Phalcon\DiInterface;
+use Phalcon\Mvc\View\Exception;
 
 class LkkVolt extends Volt {
+
+    /**
+     * Dependency Injector
+     *
+     * @var null|DiInterface
+     * @access protected
+     */
+    protected $_dependencyInjector;
+
+
+    /**
+     * Sets the dependency injector
+     *
+     * @param DiInterface $dependencyInjector
+     * @throws Exception
+     */
+    public function setDI(DiInterface $dependencyInjector) {
+        if (!is_object($dependencyInjector)||
+            $dependencyInjector instanceof DiInterface === false) {
+            throw new Exception('Dependency Injector is invalid');
+        }
+
+        $this->_dependencyInjector = $dependencyInjector;
+    }
+
+    /**
+     * Returns the internal dependency injector
+     *
+     * @return DiInterface|null
+     */
+    public function getDI() {
+        return $this->_dependencyInjector;
+    }
+
 
 
     /**

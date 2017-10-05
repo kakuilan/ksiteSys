@@ -3,9 +3,9 @@
 /**
  * Copyright (c) 2017 LKK/lianq.net All rights reserved
  * User: kakuilan@163.com
- * Date: 2017/8/17
- * Time: 22:11
- * Desc: -服务器启动脚本
+ * Date: 2017/10/2
+ * Time: 12:12
+ * Desc: -cli应用启动脚本
  */
 
 
@@ -19,4 +19,12 @@ $loader->addPsr4('Kengine\\',   KENGDIR);
 $loader->addPsr4('Tests\\',     TESTDIR);
 
 //TODO
-Kengine\Engine::runWebApp();
+//Kengine\Engine::runCliApp();
+
+use GuzzleHttp\Promise\Promise;
+
+$promise = new Promise(function () use (&$promise) {
+    $promise->resolve('foo');
+});
+$res = $promise->wait();
+var_dump($res);

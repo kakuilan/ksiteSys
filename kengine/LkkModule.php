@@ -44,7 +44,7 @@ class LkkModule implements ModuleDefinitionInterface {
         $refClass = new \ReflectionClass($this);
         $namespace = $refClass->getNamespaceName();
         $moduleName = strtolower(pathinfo($namespace)['basename']);
-        $namespace .= ('cli'!=$moduleName) ? '\Controllers' : '\Tasks';
+        $namespace .= (stripos($moduleName, 'cli')===false) ? '\Controllers' : '\Tasks';
         $dispatcher = $di->get('dispatcher');
         $dispatcher->setDefaultNamespace($namespace);
 
@@ -60,8 +60,8 @@ class LkkModule implements ModuleDefinitionInterface {
                     case Dispatcher::EXCEPTION_CYCLIC_ROUTING:
                     case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
                     case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-                    case ('cli'==$moduleName && PHP_SAPI !== 'cli') : //非命令行下不能运行cli模块
-                        $notfoundConf = (PHP_SAPI == 'cli' && 'cli'==$moduleName) ?
+                    case (stripos($moduleName, 'cli')!==false && PHP_SAPI !== 'cli') : //非命令行下不能运行cli模块
+                        $notfoundConf = (PHP_SAPI == 'cli' && stripos($moduleName, 'cli')!==false) ?
                             [
                                 'namespace' => 'Apps\Modules\Cli\Tasks',
                                 'module' => 'cli',
@@ -77,7 +77,9 @@ class LkkModule implements ModuleDefinitionInterface {
                             ];
 
                         $dispatcher->forward($notfoundConf);
-                        Engine::setModuleView($di, $notfoundConf['module']); //重新设置视图
+                        //重新设置视图
+                        $view = Engine::getModuleView($notfoundConf['module']);
+                        $di->setShared('view', $view);
                         return false;
                         break;
                     default:

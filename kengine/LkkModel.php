@@ -76,7 +76,7 @@ class LkkModel extends Model {
      * @return \Phalcon\Db\AdapterInterface
      */
     public function getReadConnection() {
-        return LkkCmponent::SyncDbSlave('');
+        return LkkCmponent::SyncDbSlave();
     }
 
 
@@ -86,7 +86,7 @@ class LkkModel extends Model {
      * @return \Phalcon\Db\AdapterInterface
      */
     public function getWriteConnection() {
-        return LkkCmponent::SyncDbMaster('');
+        return LkkCmponent::SyncDbMaster();
     }
 
 
@@ -864,6 +864,7 @@ class LkkModel extends Model {
 
         //数组分段
         $slices = array_chunk($data, $sliceNum, true);
+        unset($data);
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         foreach ($slices as $slice) {
             $mulVals = [];

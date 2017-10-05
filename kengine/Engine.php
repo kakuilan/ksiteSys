@@ -12,6 +12,8 @@ namespace Kengine;
 
 use Phalcon\Loader;
 use Phalcon\Mvc\View;
+use Phalcon\Mvc\Router;
+use Phalcon\Mvc\Router\Group;
 use Kengine\Server\LkkServer;
 use Kengine\LkkVolt;
 use Lkk\Helpers\CommonHelper;
@@ -46,6 +48,8 @@ class Engine {
 
         self::defineAppConstant();
         self::loadNamespaces();
+        self::setRouter();
+        self::setModuleViews();
     }
 
 
@@ -67,12 +71,16 @@ class Engine {
     }
 
 
+    /**
+     * 载入各模块的命名空间
+     * @return bool
+     */
     public static function loadNamespaces() {
         $loader = new Loader();
         $workNamespaces = [
             'Apps\Modules'      => MODULDIR,
             'Apps\Models'       => MODELDIR,
-            'Apps\Services'     => APPSDIR . 'services/',
+            'Apps\Services'     => APPSDIR . 'Services/',
         ];
 
         //加载各模块目录
@@ -102,57 +110,151 @@ class Engine {
     }
 
 
-
     /**
-     * 设置模块的视图服务
-     * @param        $di
-     * @param string $moduleName
      *
-     * @return bool
+     * @return Router
      */
-    public static function setModuleView($di, $moduleName='') {
-        if(empty($moduleName)) return false;
+    public static function setRouter() {
+        static $router;
+        if(is_null($router)) {
+            $router = new Router();
 
-        //视图
-        $view = new View();
-        $viewConf = getConf('view')->toArray();
-        if(in_array($moduleName, $viewConf['denyModules'])) {
-            //设置渲染等级
-            $view->setRenderLevel(View::LEVEL_NO_RENDER);
-            $view->disable();
-        }else{
-            //视图模板目录
-            $viewpath = APPSDIR . 'views/' . getConf('common','theme') . "/{$moduleName}/";
-            $comppath = RUNTDIR . 'volt/';
-            if(!file_exists($comppath)) {
-                DirectoryHelper::mkdirDeep($comppath);
+            //默认路由o
+            $defaultModule = 'home';
+            $defaultNamespace = '/';
+            $router->setDefaultModule($defaultModule);
+            $router->setDefaultController('index');
+            $router->setDefaultAction('index');
+
+            $allmodules = getConf('modules');
+            foreach ($allmodules as $module => $options) {
+                $module = strtolower($module);
+                $namespace = preg_replace('/Module$/', 'Controllers', $options["className"]);
+                if($defaultModule == $module) $defaultNamespace = $namespace;
+
+                $router->add('/'.$module.'/:params', [
+                    'namespace' => $namespace,
+                    'module' => $module,
+                    'controller' => 'index',
+                    'action' => 'index',
+                    'params' => 1
+                ])->setName($module);
+                $router->add('/'.$module.'/:controller/:params', [
+                    'namespace' => $namespace,
+                    'module' => $module,
+                    'controller' => 1,
+                    'action' => 'index',
+                    'params' => 2
+                ]);
+                $router->add('/'.$module.'/:controller/:action/:params', [
+                    'namespace' => $namespace,
+                    'module' => $module,
+                    'controller' => 1,
+                    'action' => 2,
+                    'params' => 3
+                ]);
+
+                //载入各模块的路由组设置
+                $rouGroups = new Group([
+                    'module' => $module,
+                ]);
+
+                //设置模块别名
+                $rouGroups->setPrefix('/' . (isset($options['alias']) ? $options['alias'] : $module));
+                $rouGroups->add('/((?!\d)\w+)/((?!\d)\w+)/:params', [
+                    'controller' => 1, //非数字开头的\w, \w is [a-zA-Z_0-9]
+                    'action' => 2,
+                    'params' => 3
+                ]);
+
+                $routesClassName = pathinfo($options['className'])['dirname'].'\\Routes';
+                if (class_exists($routesClassName)) {
+                    $routesClass = new $routesClassName();
+                    $routesClass->add($rouGroups);
+                }
+
+                //挂载模块路由组
+                $router->mount($rouGroups);
             }
 
-            $view->setViewsDir($viewpath);
-            $view->registerEngines([
-                '.php' => function($view, $di) use($comppath) {
-                    $volt = new LkkVolt($view, $di);
-                    $volt->setOptions([
-                        //模板缓存目录
-                        'compiledPath' => $comppath,
-                        //编译后的扩展名
-                        'compiledExtension' => '',
-                        //编译分隔符
-                        'compiledSeparator' => '%',
-                    ]);
+            //首页
+            $router->add('/', [
+                'namespace' => $defaultNamespace,
+                'module' => $defaultModule,
+                'controller' => 'index',
+                'action' => 'index',
+            ])->setName('default');
 
-                    //添加自定义模板函数
-                    $volt->extendFuncs();
-                    return $volt;
-                }
-            ]);
+            //处理结尾额外的斜杆
+            $router->removeExtraSlashes(true);
         }
 
-        $di->setShared('view', $view);
+        //TODO 以下交给具体onRequest去处理
+        //$di->setShared('router', $router);
 
-        return true;
+        return $router;
     }
 
+
+    /**
+     * 设置各模块的视图
+     * @return mixed
+     */
+    public static function setModuleViews() {
+        static $views;
+        if(is_null($views)) {
+            $viewConf = getConf('view')->toArray();
+            $compPath = RUNTDIR . 'volt/';
+            if(!file_exists($compPath)) {
+                DirectoryHelper::mkdirDeep($compPath);
+            }
+
+            $allmodules = getConf('modules');
+            foreach ($allmodules as $moduleName => $options) {
+                $view = new View();
+                if(in_array($moduleName, $viewConf['denyModules'])) {
+                    //设置渲染等级
+                    $view->setRenderLevel(View::LEVEL_NO_RENDER);
+                    $view->disable();
+                }else{
+                    //视图模板目录
+                    $viewpath = APPSDIR . 'views/' . getConf('common','theme') . "/{$moduleName}/";
+
+                    $view->setViewsDir($viewpath);
+                    $view->registerEngines([
+                        '.php' => function($view) use($compPath) {
+                            $volt = new LkkVolt($view);
+                            $volt->setOptions([
+                                //模板缓存目录
+                                'compiledPath' => $compPath,
+                                //编译后的扩展名
+                                'compiledExtension' => '',
+                                //编译分隔符
+                                'compiledSeparator' => '%',
+                            ]);
+
+                            //添加自定义模板函数
+                            $volt->extendFuncs();
+                            return $volt;
+                        }
+                    ]);
+                }
+
+                $views[$moduleName] = $view;
+
+                //TODO 以下交给具体onRequest去处理
+                //$di->setShared('view', $view);
+            }
+        }
+
+        return $views;
+    }
+
+
+    public static function getModuleView(string $moduleName) {
+        $views = self::setModuleViews();
+        return $views[$moduleName] ?? null;
+    }
 
 
     /**
@@ -166,7 +268,83 @@ class Engine {
     }
 
 
+    /**
+     * 运行cli应用
+     */
+    public static function runCliApp() {
+        self::init();
 
+        //DI容器
+        $di = LkkCmponent::cliDi();
+
+        $app = new LkkConsole($di);
+
+        //注册各模块
+        $moduleConf = getConf('modules')->toArray();
+        $app->registerModules($moduleConf);
+
+        self::loadNamespaces();
+
+        //设置事件管理器
+        $eventsManager = $di->get('eventsManager');
+        $app->setEventsManager($eventsManager);
+
+        //分发器,设置默认命名空间
+        $dispatcher = $di->get('dispatcher');
+        $dispatcher->setDefaultNamespace('Apps\Modules\Cli\Tasks');
+        $di->setShared('dispatcher', $dispatcher);
+
+        //cli视图服务
+        $view = Engine::getModuleView('cli');
+        $di->setShared('view', $view);
+
+        // URL设置
+        $di->setShared('url', LkkCmponent::url());
+
+        //数据库-主从
+        $dbMaster = LkkCmponent::SyncDbMaster('cli');
+        $dbSlave = LkkCmponent::SyncDbSlave('cli');
+        $di->setShared('dbMaster', $dbMaster);
+        $di->setShared('dbSlave', $dbSlave);
+
+        //crypt
+        $di->setShared('crypt', LkkCmponent::crypt());
+
+        //缓存服务
+        $di->setShared('cache', LkkCmponent::siteCache());
+
+        //注入app,以便actioin里面访问
+        $di->setShared('app', $app);
+        $app->setDI($di);
+
+        //处理命令行应用的参数
+        //例如 php private/cli.php main main
+        //$argc = $_SERVER['argc'];
+        //$argv = $_SERVER['argv'];
+        global $argc, $argv;
+        $arguments = ['module' => 'cli'];
+        foreach ($argv as $k => $arg) {
+            if ($k == 1) {
+                $arguments['task'] = $arg;
+            } elseif ($k == 2) {
+                $arguments['action'] = $arg;
+            } elseif ($k >= 3) {
+                $arguments['params'][] = $arg;
+            }
+        }
+
+        if(!isset($arguments['task'])) $arguments['task'] = 'main';
+        if(!isset($arguments['action'])) $arguments['action'] = 'main';
+
+        try {
+            $app->handle($arguments);
+        } catch (\Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+            echo $e->getTraceAsString() . PHP_EOL;
+            exit(255);
+        }
+
+    }
 
 
 

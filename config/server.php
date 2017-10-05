@@ -28,6 +28,16 @@ return [
     'sys_log' => [
         'name' => 'kslog', //日志名
         'file' => LOGDIR .'kslog.log', //日志文件路径
+        'slow_request' => 500, //慢请求,毫秒
+    ],
+
+    //pv访问次数记录
+    'pv' => [
+        //每日真实pv的redis缓存key
+        'day_real_pv' => 'dayRealPv',
+        //每日有效pv的redis缓存key
+        'day_vali_pv' => 'dayValiPv',
+        'times' => 10000, //TODO 每1W次更新数据表,每天23.55再入库
     ],
 
     //服务配置
@@ -84,6 +94,38 @@ return [
 
     //定时任务
     'timer_tasks' => [
+        //检测是否有其他进程正在停止服务
+        [
+            'type' => ServerConst::SERVER_TASK_TIMER,
+            'message' => [
+                'title' => 'checkStopping',
+                'callback' => ['\Apps\Timers\Server','checkStopping'],
+                'params' => [],
+            ],
+            'run_interval_time' => 1,
+        ],
+
+        //session入库redis
+        [
+            'type' => ServerConst::SERVER_TASK_TIMER,
+            'message' => [
+                'title' => 'writeSession',
+                'callback' => ['\Apps\Timers\Server','writeSession'],
+                'params' => [],
+            ],
+            'run_interval_time' => 0.2,
+        ],
+
+        //session数据清理
+        [
+            'type' => ServerConst::SERVER_TASK_TIMER,
+            'message' => [
+                'title' => 'sessionGc',
+                'callback' => ['\Apps\Timers\Server','sessionGc'],
+                'params' => [],
+            ],
+            'run_interval_time' => 30,
+        ],
 
     ],
 

@@ -113,13 +113,14 @@ class LkkCmponent {
     }
 
 
+
     /**
      * 单例 同步模式-主库
      * @param string $requestUuid
      *
      * @return mixed
      */
-    public static function SyncDbMaster(string $requestUuid) {
+    public static function SyncDbMaster(string $requestUuid ='') {
         $key = $requestUuid . __FUNCTION__;
         if(!isset(self::$objects[$key]) ) {
             $conf = getConf('pool');
@@ -146,7 +147,7 @@ class LkkCmponent {
      *
      * @return mixed
      */
-    public static function SyncDbSlave(string $requestUuid) {
+    public static function SyncDbSlave(string $requestUuid ='') {
         $key = $requestUuid . __FUNCTION__;
         if(!isset(self::$objects[$key]) ) {
             $conf = getConf('pool');
@@ -164,6 +165,7 @@ class LkkCmponent {
 
         return self::$objects[$key];
     }
+
 
 
     /**

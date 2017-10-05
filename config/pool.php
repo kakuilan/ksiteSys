@@ -26,7 +26,7 @@ return [
             'password'  => '123456',        // 密码
             'database'  => 'test',          // 数据库名称
             'open_log'  => true,
-            'slow_query' => 20, //慢查询20毫秒
+            'slow_query' => 0, //慢查询20毫秒
         ]
     ],
 
@@ -47,7 +47,7 @@ return [
             'password'  => '123456',        // 密码
             'database'  => 'test',          // 数据库名称
             'open_log'  => true,
-            'slow_query' => 20, //慢查询20毫秒
+            'slow_query' => 0, //慢查询20毫秒
         ]
     ],
 
@@ -57,7 +57,7 @@ return [
      */
     'redis_system' => [
         'type'  => 'redis',                 // 连接池类型
-        'size' => 10,                        // 默认为 1 连接, 无需设置
+        'size' => 10,                        // 连接池大小
 
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
@@ -74,7 +74,7 @@ return [
      */
     'redis_site' => [
         'type'  => 'redis',                 // 连接池类型
-        'size' => 10,                        // 默认为 1 连接, 无需设置
+        'size' => 10,                        // 连接池大小
 
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
@@ -82,6 +82,23 @@ return [
             'auth'      => null,            // 口令
             'select'    => 0,               // 库编号
             'prefix'    => 'sit:',          // 前缀
+        ]
+    ],
+
+
+    /**
+     * Session的Redis 连接池,有前缀
+     */
+    'redis_session' => [
+        'type'  => 'redis',                 // 连接池类型
+        'size' => 10,                        // 连接池大小
+
+        'args'  => [
+            'host'      => '127.0.0.1',     // 主机名
+            'port'      => 6379,            // 端口号
+            'auth'      => null,            // 口令
+            'select'    => REDIS_SESSION_DB, // 库编号
+            'prefix'    => '',          // 前缀,具体前缀放在session配置
         ]
     ],
 
