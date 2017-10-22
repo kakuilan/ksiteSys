@@ -18,6 +18,7 @@ use Kengine\Server\LkkServer;
 use Kengine\LkkVolt;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\DirectoryHelper;
+use Lkk\Phalwoo\Phalcon\Mvc\Router as PwRouter;
 
 
 class Engine {
@@ -111,13 +112,14 @@ class Engine {
 
 
     /**
-     *
-     * @return Router
+     * 设置路由器
+     * @return mixed
      */
     public static function setRouter() {
         static $router;
         if(is_null($router)) {
-            $router = new Router();
+            //$router = new Router();
+            $router = new PwRouter();
 
             //默认路由o
             $defaultModule = 'home';

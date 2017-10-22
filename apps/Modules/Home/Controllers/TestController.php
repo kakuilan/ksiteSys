@@ -36,14 +36,20 @@ class TestController extends  LkkController {
 
     public function asyncAction() {
         //协程
-        $prom = Promise::co(function(){
+        /*$prom = Promise::co(function(){
             $row = yield Test::getRowAsync();
             SwooleServer::getLogger()->error("ASYNC mysql result", $row);
             $str = var_export($row, true);
             echo $str;
         });
 
-        $str = var_export($prom, true);
+        $str = var_export($prom, true);*/
+
+        $row = yield Test::getRowAsync();
+        SwooleServer::getLogger()->error("ASYNC mysql result", $row);
+        $str = var_export($row, true);
+        echo $str;
+
         return $str;
     }
 

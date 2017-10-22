@@ -28,6 +28,7 @@
   "require-dev": {
     "kakuilan/kphplib": "dev-master",
     "kakuilan/phalwoo": "dev-master",
+    "phalcon/ide-stubs": "*",
     "eaglewu/swoole-ide-helper": "dev-master"
   },
   "repositories": {

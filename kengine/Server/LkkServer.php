@@ -30,6 +30,8 @@ use Lkk\Phalwoo\Server\Concurrent\Promise;
 use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Phalcon\Mvc\Application;
+use Lkk\Phalwoo\Phalcon\Mvc\Application as PwApplication;
+use Lkk\Phalwoo\Phalcon\Mvc\Dispatcher as PwDispatcher;
 
 class LkkServer extends SwooleServer {
 
@@ -124,7 +126,8 @@ class LkkServer extends SwooleServer {
 
     public static function doSwooleRequest($request, $response) {
         $di = new PwDi();
-        $app = new Application($di);
+        //$app = new Application($di);
+        $app = new PwApplication($di);
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
 
@@ -197,6 +200,10 @@ class LkkServer extends SwooleServer {
         //设置路由
         $router = Engine::setRouter();
         $di->setShared('router', $router);
+
+        //设置分发器
+        $dispatcher = new PwDispatcher();
+        $di->setShared('dispatcher', $dispatcher);
 
         //多模块应用的视图设置
         $eventsManager = $di->get('eventsManager');
