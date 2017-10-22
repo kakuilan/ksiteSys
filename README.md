@@ -3,23 +3,19 @@ base on swoole and phalcon web sites system
   
 
 部署时,composer去掉2个IDE插件  
-phalcon/incubator  
+phalcon/ide-stubs
 eaglewu/swoole-ide-helper  
 
 License
 -------
 No license.本系统不授权.  
 
-swoole orm:  
-https://github.com/heikezy/Sworm  
-
 
 TODO:  
 swoole里SQL注入处理  
 修复StringHelper::getText  
-session的redis使用连接池  
-取消LkkModel和LkkServer的dbMaster/dbSlave  
-重写Application支持异步  
+使用php7 xhprof
+nginx 配置
 
 
 nginx配置  

@@ -51,6 +51,11 @@ class Engine {
         self::loadNamespaces();
         self::setRouter();
         self::setModuleViews();
+
+        //加载xhprof类库
+        require WWWDIR. 'monitor/xhprof/xhprof_lib/utils/xhprof_lib.php';
+        require WWWDIR. 'monitor/xhprof/xhprof_lib/utils/xhprof_runs.php';
+
     }
 
 

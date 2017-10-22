@@ -31,6 +31,10 @@ return [
         'slow_request' => 500, //慢请求,毫秒
     ],
 
+    //xhprof性能日志
+    'xhprof_enable' => true, //是否开启xhprof
+    'xhprof_ratio' => 1, //取样概率,1/N
+
     //pv访问次数记录
     'pv' => [
         //每日真实pv的redis缓存key

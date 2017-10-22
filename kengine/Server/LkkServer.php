@@ -125,6 +125,14 @@ class LkkServer extends SwooleServer {
 
 
     public static function doSwooleRequest($request, $response) {
+        //xhprof
+        $xhprofEnable = true;
+        if($xhprofEnable && function_exists('xhprof_enable')) {
+            // cpu:XHPROF_FLAGS_CPU 内存:XHPROF_FLAGS_MEMORY
+            // 如果两个一起：XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY
+            xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
+        }
+
         $di = new PwDi();
         //$app = new Application($di);
         $app = new PwApplication($di);
@@ -253,8 +261,22 @@ class LkkServer extends SwooleServer {
         self::logRequest($request);
         self::afterSwooleResponse($request, $pwRequest);
         yield self::logPv();
-        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session);
 
+        if($xhprofEnable && function_exists('xhprof_disable')) {
+            $xhprofData = xhprof_disable();
+            $xhprofRuns = new \XHProfRuns_Default();
+
+            $module = ucfirst($router->getModuleName());
+            $controller = ucfirst($router->getControllerName());
+            $action = ucfirst($router->getActionName());
+            $reportFile = "{$module}{$controller}{$action}{$request->server['request_time_float']}";
+            $runId = $xhprofRuns->save_run($xhprofData, 'profiler', str_replace('.','T',$reportFile));
+            //$runId = $xhprofRuns->save_run($xhprofData, 'xhprof_test');
+            //$xhprofUrl = "http://127.0.0.1/monitor/xhprof/xhprof_html/index.php?run=" . $runId . '&source=xhprof_test';
+            //self::getLogger()->info($xhprofUrl);
+        }
+
+        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session);
         return true;
     }
 
