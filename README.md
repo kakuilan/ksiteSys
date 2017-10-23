@@ -15,17 +15,17 @@ TODO:
 swoole里SQL注入处理  
 修复StringHelper::getText  
 使用php7 xhprof
-nginx 配置
+
 
 
 nginx配置  
 ``` bash
 server {
     listen 80;
-    root /home/wwwroot/default;
-    server_name my.com;
     charset utf-8;
-    index index.html index.htm default.html default.htm index.php;
+    server_name my.com;
+    index index.html index.htm index.php default.html default.htm default.php;
+    root /home/wwwroot/default;
     
     #client_header_buffer_size 32k;
     #large_client_header_buffers 4 32k;
@@ -38,18 +38,25 @@ server {
     proxy_buffers             4 64k;
     proxy_busy_buffers_size    128k;
     proxy_temp_file_write_size 128k;
-    
+
+    proxy_http_version 1.1;
+    proxy_set_header Connection "keep-alive";
+    proxy_set_header X-Real-IP  $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header Host $host;
+
     location / {
         try_files $uri $uri/ /index.php?_url=$uri&$args;
+        if (!-e $request_filename) {
+            proxy_pass http://127.0.0.1:6666;
+        }
     }
     
-    location ~ ^/(index)\.php(/|$) {
-        proxy_http_version 1.1;
-        proxy_set_header Connection "keep-alive";
-        proxy_set_header X-Real-IP  $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header Host $host;
-        proxy_pass http://127.0.0.1:6666;
+    location ~ [^/]\.php(/|$) {
+        try_files $uri =404;
+        fastcgi_pass  unix:/tmp/php-cgi.sock;
+        fastcgi_index index.php;
+        include fastcgi.conf;
     }
     
     location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|htm)$ {
