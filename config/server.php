@@ -28,12 +28,12 @@ return [
     'sys_log' => [
         'name' => 'kslog', //日志名
         'file' => LOGDIR .'kslog.log', //日志文件路径
-        'slow_request' => 500, //慢请求,毫秒
+        'slow_request' => 10, //慢请求,毫秒
     ],
 
     //xhprof性能日志
-    'xhprof_enable' => true, //是否开启xhprof
-    'xhprof_ratio' => 1, //取样概率,1/N
+    'xhprof_enable' => false, //是否开启xhprof
+    'xhprof_ratio' => 2, //取样概率,1/N
 
     //pv访问次数记录
     'pv' => [

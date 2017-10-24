@@ -124,10 +124,24 @@ class LkkServer extends SwooleServer {
     }
 
 
+    /**
+     * 是否开启xhprof
+     * @param bool $useRatio 使用随机率
+     *
+     * @return bool
+     */
+    public static function isXhprofEnable($useRatio=false) {
+        $res = false;
+        $res = self::instance()->conf['xhprof_enable'] && function_exists('xhprof_enable');
+
+        if($useRatio) $res = $res && mt_rand(1, self::instance()->conf['xhprof_ratio']) == self::instance()->conf['xhprof_ratio'];
+        return $res;
+    }
+
+
     public static function doSwooleRequest($request, $response) {
         //xhprof
-        $xhprofEnable = true;
-        if($xhprofEnable && function_exists('xhprof_enable')) {
+        if(self::isXhprofEnable()) {
             // cpu:XHPROF_FLAGS_CPU 内存:XHPROF_FLAGS_MEMORY
             // 如果两个一起：XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY
             xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
@@ -258,11 +272,11 @@ class LkkServer extends SwooleServer {
         }
         //return $response->end('ok');
 
-        self::logRequest($request);
-        self::afterSwooleResponse($request, $pwRequest);
-        yield self::logPv();
+        //设置请求用时
+        $useTime = CommonHelper::getMillisecond() - ($request->server['request_time_float'] ?? $request->server['request_time']) * 1000;
+        $pwRequest->setUseMillisecond($useTime);
 
-        if($xhprofEnable && function_exists('xhprof_disable')) {
+        if(self::isXhprofEnable(true) && $useTime > self::instance()->conf['sys_log']['slow_request']) {
             $xhprofData = xhprof_disable();
             $xhprofRuns = new \XHProfRuns_Default();
 
@@ -271,12 +285,13 @@ class LkkServer extends SwooleServer {
             $action = ucfirst($router->getActionName());
             $reportFile = "{$module}{$controller}{$action}{$request->server['request_time_float']}";
             $runId = $xhprofRuns->save_run($xhprofData, 'profiler', str_replace('.','T',$reportFile));
-            //$runId = $xhprofRuns->save_run($xhprofData, 'xhprof_test');
-            //$xhprofUrl = "http://127.0.0.1/monitor/xhprof/xhprof_html/index.php?run=" . $runId . '&source=xhprof_test';
-            //self::getLogger()->info($xhprofUrl);
+            //$xhprofUrl = "http://127.0.0.1/monitor/xhprof/xhprof_html/index.php?run=" . $runId . '&source=profiler';
         }
 
-        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session);
+        self::afterSwooleResponse($request, $pwRequest);
+        yield self::logPv();
+
+        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session, $dispatcher);
         return true;
     }
 
@@ -287,13 +302,10 @@ class LkkServer extends SwooleServer {
      *
      * @return bool
      */
-    protected static function logRequest(\swoole_http_request $request) {
-        if(!isset($request->server['request_time_float'])) return false;
-
-        $startTime = $request->server['request_time_float'] * 1000;
-        $useTime = CommonHelper::getMillisecond() - $startTime;
-        if($useTime> self::instance()->conf['sys_log']['slow_request']) {
-            self::getLogger()->info("http request execute time[slow_request]", [$useTime, $request->server]);
+    protected static function logRequest(\swoole_http_request $request, PwRequest $pwRequest) {
+        $useTime = $pwRequest->getUseMillisecond();
+        if($useTime > self::instance()->conf['sys_log']['slow_request']) {
+            self::getLogger()->info("http request execute time[http_slow_request]:{$useTime}", $request->server);
         }
 
         //TODO 拆成队列，整除10,批量入库
@@ -320,9 +332,10 @@ class LkkServer extends SwooleServer {
 
 
     protected static function afterSwooleResponse($swooleRequest, $phalconRequest) {
+        self::logRequest($swooleRequest, $phalconRequest);
+
         $reqUuid = $phalconRequest->getRequestUuid();
         LkkCmponent::destroyRequests($reqUuid);
-
     }
 
 
