@@ -19,12 +19,4 @@ $loader->addPsr4('Kengine\\',   KENGDIR);
 $loader->addPsr4('Tests\\',     TESTDIR);
 
 //TODO
-//Kengine\Engine::runCliApp();
-
-use GuzzleHttp\Promise\Promise;
-
-$promise = new Promise(function () use (&$promise) {
-    $promise->resolve('foo');
-});
-$res = $promise->wait();
-var_dump($res);
+Kengine\Engine::runCliApp();
