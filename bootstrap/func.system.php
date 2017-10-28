@@ -10,7 +10,12 @@
 
 use \Kengine\LkkConfig;
 use \Lkk\Helpers\CommonHelper;
+use \Lkk\Phalwoo\Server\SwooleServer;
+use \Monolog\Formatter\LineFormatter;
+use \Monolog\Logger as Monologger;
+use \Monolog\Handler\StreamHandler as MonoStreamHandler;
 use \voku\helper\AntiXSS;
+
 
 function mytest() {
     //TODO
@@ -178,4 +183,36 @@ function asyncCli($task, $action, $params=[]){
 
     $res = pclose(popen("{$cmd} &", 'r'));
     return $res;
+}
+
+
+/**
+ * 获取日志对象
+ * @param string $logname
+ * @param bool   $useServerLog 使用服务器异步日志
+ *
+ * @return mixed
+ */
+function getLogger($logname='', $useServerLog=false) {
+    static $monLoggers;
+
+    if($useServerLog && is_object(SwooleServer::getServer())) { //在swoole服务里面
+        return SwooleServer::getLogger();
+    }else{
+        $logname = trim($logname);
+        if($logname=='') $logname='commm';
+        if(!isset($monLoggers[$logname])) {
+            $file = LOGDIR . "{$logname}.log";
+            //设置日期格式
+            $dateFormat = "Y-m-d H:i:s.u";
+            $formatter = new LineFormatter(null, $dateFormat);
+            $logger = new Monologger($logname);
+            $handler = new MonoStreamHandler($file, Monologger::INFO);
+            $handler->setFormatter($formatter);
+            $logger->pushHandler($handler);
+            $monLoggers[$logname] = $logger;
+        }
+
+        return $monLoggers[$logname];
+    }
 }

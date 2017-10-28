@@ -37,5 +37,5 @@ define('UPLODIR',   WWWDIR .'upload'        . DS ); //上传目录
 
 define('REDIS_CACHE_DB',    0); //用于存储CACHE的redis库
 define('REDIS_SESSION_DB',  1); //用于存储SESSION的redis库
-define('REDIS_QUEUE_DB',    2); //用于存储队列的redis库
+define('REDIS_QUEUE_DB',    9); //用于存储队列的redis库
 
