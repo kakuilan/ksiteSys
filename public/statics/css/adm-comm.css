@@ -1,0 +1,25 @@
+/* admin common style */
+
+.ui-jqgrid .ui-jqgrid-htable thead th div {
+    overflow: visible;
+}
+
+/*jqgrid无数据显示*/
+.norecords {
+    border-width: 2px !important;
+    display:none;
+    font-weight: bold;
+    left: 0;
+    margin: 5px;
+    padding: 6px;
+    position: relative;
+    text-align: center;
+    top: 45%;
+    width: auto;
+    z-index: 102;
+}
+
+/*jqgrid标题-显示排序图标*/
+.ui-jqgrid .ui-jqgrid-hdiv {
+    line-height:10px;
+}

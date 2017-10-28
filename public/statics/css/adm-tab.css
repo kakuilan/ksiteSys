@@ -1,0 +1,182 @@
+/* admin ifram-tab style */
+
+.content-tabs {
+    position: relative;
+    height: 41px;
+    background: #fafafa;
+    line-height: 40px;
+    margin: 0;
+}
+
+.content-tabs .roll-nav, .page-tabs-list {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    color: #999;
+    top: 0
+}
+
+.content-tabs .roll-left {
+    left: 0;
+    border-right: solid 1px #eee
+}
+
+.content-tabs .roll-right {
+    right: 0;
+    border-left: solid 1px #eee
+}
+
+.content-tabs button {
+    background: #fff;
+    border: 0;
+    height: 40px;
+    width: 40px;
+    outline: 0
+}
+
+.content-tabs button:hover {
+    background: #fafafa
+}
+
+.content-tabs a {
+    text-decoration: none;
+}
+
+nav.page-tabs {
+    margin-left: 40px;
+    width: calc(100% - 40px);
+    height: 40px;
+    overflow: hidden
+}
+
+nav.page-tabs .page-tabs-content {
+    float: left
+}
+
+.page-tabs a {
+    display: block;
+    float: left;
+    border-right: solid 1px #eee;
+    padding: 0 10px
+}
+
+.page-tabs a i:hover {
+    color: #c00
+}
+
+.content-tabs .roll-nav:hover, .page-tabs a:hover {
+    color: #777;
+    background: #f2f2f2;
+    cursor: pointer
+}
+
+.page-tabs a {
+    color: #999
+}
+
+.page-tabs a i {
+    color: #ccc
+}
+
+.page-tabs a.active i:hover, .page-tabs a.active:hover {
+    background: #dff0d8;
+    color: #69aa46;
+}
+
+.roll-right.lkk_tabRight {
+    right: 140px
+}
+
+.roll-right.btn-group {
+    right: 60px;
+    width: 80px;
+    padding: 0
+}
+
+.roll-right.btn-group button {
+    width: 80px
+}
+.roll-right.lkk_tabExit {
+    background: #fff;
+    height: 40px;
+    width: 60px;
+    outline: 0
+}
+
+/* page content*/
+
+body, body.full-height-layout #main-container, html{
+    height: 100%;
+}
+#main-container .main-content{
+    position: relative;
+}
+.main-content .main-content-inner{
+    height: 100%;
+    width: 100%;
+    position: absolute;
+}
+.main-content-inner .page-content{
+    height: 100%;
+    width: 100%;
+    min-height: 100%;
+}
+#main-container .page-content{
+    height: 100%;
+    padding: 0;
+}
+#content-main {
+    height: 100%;
+    overflow: hidden;
+    padding: 0 12px;
+}
+
+/* 皮肤 */
+.skin-1 .breadcrumbs{
+    margin: 0;
+}
+.skin-2 .breadcrumbs{
+    margin: 0;
+}
+.skin-3 .breadcrumbs{
+    margin: 0;
+}
+
+.no-skin .page-tabs a.active {
+    background: #7db4d8;
+    color: #FFF;
+}
+.skin-1 .page-tabs a.active {
+    background: #dff0d8;
+    color: #3c763d;
+}
+.skin-2 .page-tabs a.active {
+    background: #f2dede;
+    color: #a94442;
+}
+.skin-3 .page-tabs a.active {
+    background: #ddd;
+    color: #3c763d;
+}
+
+.skin-1 .breadcrumbs {
+    background-color: #f2f3f5;
+}
+.skin-2 .breadcrumbs {
+    background-color: #f3e4f1;
+}
+.skin-3 .breadcrumbs {
+    background-color: #ebf0f3;
+}
+
+.skin-1 .navbar {
+    background: #292a2b;
+}
+.skin-2 .navbar {
+    background: #e04386;
+}
+.skin-3 .navbar {
+    background: #aaa;
+}
+

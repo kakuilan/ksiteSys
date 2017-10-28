@@ -26,7 +26,8 @@ server {
     server_name my.com;
     index index.html index.htm index.php default.html default.htm default.php;
     root /home/wwwroot/default;
-    
+    server_tokens off;
+
     #client_header_buffer_size 32k;
     #large_client_header_buffers 4 32k;
     client_max_body_size    20m;
@@ -40,6 +41,7 @@ server {
     proxy_temp_file_write_size 128k;
 
     proxy_http_version 1.1;
+    proxy_pass_header Server;
     proxy_set_header Connection "keep-alive";
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
