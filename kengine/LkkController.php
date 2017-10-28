@@ -12,7 +12,8 @@ namespace Kengine;
 
 use Phalcon\Mvc\Controller;
 use Phalcon\Mvc\View;
-use Phalcon\Http\Response;
+//use Phalcon\Http\Response;
+use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
 use Lkk\Helpers\ArrayHelper;
 
 class LkkController extends Controller {
@@ -122,7 +123,7 @@ class LkkController extends Controller {
      * @param string $callback 是否有js回调
      */
     public function json($res=[], $callback='') {
-        $response = new Response();
+        $response = $this->response;
         $response->setHeader("Content-Type", "application/json; charset=UTF-8");
         $response->setHeader("Access-Control-Allow-Origin", "*");
         $response->setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
@@ -147,7 +148,9 @@ class LkkController extends Controller {
         //设置输出
         $response->setContent($output);
         // 返回响应到客户端
-        $response->send();
+        //$response->send();
+
+        return $output;
     }
 
 
@@ -156,7 +159,7 @@ class LkkController extends Controller {
      * @param mixed  $msg
      * @param string $callback
      */
-    public function success($msg, $callback='') {
+    public function success($msg='success', $callback='') {
         $data = $this->jsonRes;
 
         if(is_array($msg)) {
@@ -166,7 +169,7 @@ class LkkController extends Controller {
         }
         $data['status'] = true;
 
-        $this->json($data, $callback);
+        return $this->json($data, $callback);
     }
 
 
@@ -175,7 +178,7 @@ class LkkController extends Controller {
      * @param mixed  $msg
      * @param string $callback
      */
-    public function fail($msg, $callback='') {
+    public function fail($msg='fail', $callback='') {
         $data = $this->jsonRes;
 
         if(is_array($msg)) {
@@ -185,7 +188,7 @@ class LkkController extends Controller {
         }
         $data['status'] = false;
 
-        $this->json($data, $callback);
+        return $this->json($data, $callback);
     }
 
 

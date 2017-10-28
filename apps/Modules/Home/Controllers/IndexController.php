@@ -12,8 +12,6 @@ namespace Apps\Modules\Home\Controllers;
 
 use Kengine\LkkController;
 use Lkk\Helpers\CommonHelper;
-//use Lkk\Phalwoo\Server\Concurrent\Promise;
-//use GuzzleHttp\Promise\Promise;
 
 class IndexController extends LkkController {
 
