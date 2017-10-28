@@ -14,16 +14,14 @@
   ],
   "require": {
     "php": ">=7.0.0",
-    "monolog/monolog": "^1.22",
-    "phpunit/phpunit": "^6.1",
-    "phalcon/incubator": "^3.2",
+    "monolog/monolog": "^1.23",
+    "phpunit/phpunit": "^6.4",
     "guzzlehttp/guzzle": "^6.3",
     "overtrue/pinyin": "~3.0",
     "fzaninotto/faker": "^1.6.0",
     "voku/portable-utf8": "^3.1",
     "voku/anti-xss": "^2.1",
-    "bluem/tree": "^1.5",
-    "nilportugues/sql-query-builder": "^1.5"
+    "bluem/tree": "^1.5"
   },
   "require-dev": {
     "kakuilan/kphplib": "dev-master",
