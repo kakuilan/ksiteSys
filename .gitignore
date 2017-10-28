@@ -1,5 +1,6 @@
 .idea
 *.log
+*.pid
 vendor
 composer.lock
 _gsdata_
