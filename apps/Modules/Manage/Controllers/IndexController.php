@@ -16,19 +16,56 @@ use Lkk\Helpers\CommonHelper;
 class IndexController extends LkkController {
 
 
-    /**
-     * 默认动作
-     * 动作说明
-     */
-    public function indexAction(){
-        return 'ManageModule-IndexController-IndexAction '.date('Ymd H:i:s'). ' ' .CommonHelper::getMillisecond();
+    public function initialize () {
+        parent::initialize();
+
+        $this->setHeaderSeo('管理后台', '关键词', '描述');
+
+        //视图变量
+        $this->view->setVars([
+            'headerSeo' => $this->headerSeo,
+        ]);
+
     }
 
 
-    public function testAction() {
-        return $this->fail('shibai4444');
-        /*echo 3333;
-        var_dump($this->response);*/
+    /**
+     * @title -管理后台首页
+     * @desc  -管理后台首页
+     */
+    public function indexAction(){
+        //视图变量
+        $this->view->setVars([
+            'mainUrl' => makeUrl('manage/index/main'),
+            'menuUrl' => makeUrl('manage/menu/authlist'),
+        ]);
+
+        //设置静态资源
+        $this->assets->addCss('statics/css/adm-tab.css');
+        $this->assets->addJs('statics/js/ace-elements.min.js');
+        $this->assets->addJs('statics/js/ace.min.js');
+        $this->assets->addJs('statics/js/lkkTabMenu.js');
+
+        echo 'manage/index';
+    }
+
+
+    /**
+     * @title -管理后台登录页
+     * @desc  -管理后台登录页
+     */
+    public function loginAction() {
+
+    }
+
+
+    /**
+     * @title -后台主页
+     * @desc  -
+     */
+    public function mainAction() {
+
+
     }
 
 
