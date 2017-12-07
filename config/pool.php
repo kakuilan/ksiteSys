@@ -103,4 +103,21 @@ return [
     ],
 
 
+    /**
+     * Queue的Redis 连接池,有前缀
+     */
+    'redis_queue' => [
+        'type'  => 'redis',                 // 连接池类型
+        'size' => 1,                        // 连接池大小
+
+        'args'  => [
+            'host'      => '127.0.0.1',     // 主机名
+            'port'      => 6379,            // 端口号
+            'auth'      => '123456',        // 口令
+            'select'    => REDIS_QUEUE_DB, // 库编号
+            'prefix'    => '',          // 前缀,具体前缀放在session配置
+        ]
+    ],
+
+
 ];
