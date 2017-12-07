@@ -23,10 +23,10 @@ return [
             'host'      => '127.0.0.1',     // 主机名
             'port'      => 3306,            // 端口号
             'user'      => 'root',          // 用户名
-            'password'  => '123456',        // 密码
-            'database'  => 'test',          // 数据库名称
+            'password'  => 'root',          // 密码
+            'database'  => 'test_ksys',     // 数据库名称
             'open_log'  => true,
-            'slow_query' => 0, //慢查询20毫秒
+            'slow_query' => 0,              //慢查询20毫秒
         ]
     ],
 
@@ -44,10 +44,10 @@ return [
             'host'      => '127.0.0.1',     // 主机名
             'port'      => 3306,            // 端口号
             'user'      => 'root',          // 用户名
-            'password'  => '123456',        // 密码
-            'database'  => 'test',          // 数据库名称
+            'password'  => 'root',          // 密码
+            'database'  => 'test_ksys',     // 数据库名称
             'open_log'  => true,
-            'slow_query' => 0, //慢查询20毫秒
+            'slow_query' => 0,              //慢查询20毫秒
         ]
     ],
 
@@ -62,7 +62,7 @@ return [
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
             'port'      => 6379,            // 端口号
-            'auth'      => null,            // 口令
+            'auth'      => '123456',        // 口令
             'select'    => 0,               // 库编号
             'prefix'    => 'sys:',          // 前缀
         ]
@@ -79,7 +79,7 @@ return [
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
             'port'      => 6379,            // 端口号
-            'auth'      => null,            // 口令
+            'auth'      => '123456',        // 口令
             'select'    => 0,               // 库编号
             'prefix'    => 'sit:',          // 前缀
         ]
@@ -96,7 +96,7 @@ return [
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
             'port'      => 6379,            // 端口号
-            'auth'      => null,            // 口令
+            'auth'      => '123456',        // 口令
             'select'    => REDIS_SESSION_DB, // 库编号
             'prefix'    => '',          // 前缀,具体前缀放在session配置
         ]
