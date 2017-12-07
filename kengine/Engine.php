@@ -19,6 +19,7 @@ use Kengine\LkkVolt;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\DirectoryHelper;
 use Lkk\Phalwoo\Phalcon\Mvc\Router as PwRouter;
+use Lkk\Phalwoo\Phalcon\Mvc\View as PwView;
 
 
 class Engine {
@@ -218,14 +219,15 @@ class Engine {
 
             $allmodules = getConf('modules');
             foreach ($allmodules as $moduleName => $options) {
-                $view = new View();
+                //$view = new View();
+                $view = new PwView();
                 if(in_array($moduleName, $viewConf['denyModules'])) {
                     //设置渲染等级
                     $view->setRenderLevel(View::LEVEL_NO_RENDER);
                     $view->disable();
                 }else{
                     //视图模板目录
-                    $viewpath = APPSDIR . 'views/' . getConf('common','theme') . "/{$moduleName}/";
+                    $viewpath = APPSDIR . 'Views/' . getConf('common','theme') . "/{$moduleName}/";
 
                     $view->setViewsDir($viewpath);
                     $view->registerEngines([

@@ -30,6 +30,8 @@ use Lkk\Phalwoo\Server\Concurrent\Promise;
 use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Phalcon\Mvc\Application;
+use Phalcon\Debug as PhDebug;
+use Lkk\Phalwoo\Phalcon\Debug as PwDebug;
 use Lkk\Phalwoo\Phalcon\Mvc\Application as PwApplication;
 use Lkk\Phalwoo\Phalcon\Mvc\Dispatcher as PwDispatcher;
 
@@ -147,6 +149,14 @@ class LkkServer extends SwooleServer {
             xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
         }
 
+        $comConf = getConf('common');
+
+        if($comConf->debug) {
+            $debug = new PwDebug();
+            $debug->setSwooleResponse($response);
+            $debug->listen();
+        }
+
         $di = new PwDi();
         //$app = new Application($di);
         $app = new PwApplication($di);
@@ -256,7 +266,22 @@ class LkkServer extends SwooleServer {
 
         //phalcon处理
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
-        $resp = yield $app->handle($_uri);
+        //$resp = yield $app->handle($_uri);
+        try {
+            $resp = yield $app->handle($_uri);
+        }catch (\Throwable $e) {
+            $resp = "Error code: " . $e->getCode() . '<br>';
+            $resp .= "Error message: " . $e->getMessage() . '<br>';
+            $resp .= "Error file: " . $e->getFile() . '<br>';
+            $resp .= "Error fileline: " . $e->getLine() . '<br>';
+        }
+
+        /*if($comConf->debug && $debug->hasError()) {
+
+        }else{
+
+        }*/
+
         if ($resp instanceof PwResponse) {
             if($resp->hasFile()) {
                 $resp->sendFile();
