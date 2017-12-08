@@ -237,18 +237,22 @@ class LkkServer extends SwooleServer {
         $dispatcher = new PwDispatcher();
         $di->setShared('dispatcher', $dispatcher);
 
+        // URL设置
+        $di->setShared('url', LkkCmponent::url());
+
         //多模块应用的视图设置
         $eventsManager = $di->get('eventsManager');
         $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
             $router = $di->get('router');
             $curModule = $router->getModuleName();
-            $view = Engine::getModuleView($curModule);
+
+            //$view = Engine::getModuleView($curModule);
+            $view = Engine::setModuleViewer($curModule, $di);
             $di->setShared('view', $view);
+
         });
         $app->setEventsManager($eventsManager);
-
-        // URL设置
-        $di->setShared('url', LkkCmponent::url());
+        Phalcon\Tag::setDI($di);
 
         //缓存服务
         $di->setShared('cache', LkkCmponent::siteCache());
@@ -274,6 +278,7 @@ class LkkServer extends SwooleServer {
             $resp .= "Error message: " . $e->getMessage() . '<br>';
             $resp .= "Error file: " . $e->getFile() . '<br>';
             $resp .= "Error fileline: " . $e->getLine() . '<br>';
+            $resp .= "Error trace: " . $e->getTraceAsString() . '<br>';
         }
 
         /*if($comConf->debug && $debug->hasError()) {

@@ -267,6 +267,65 @@ class Engine {
 
 
     /**
+     * 设置视图
+     * @param string $moduleName 模块名
+     * @param object $di DI
+     * @return PwView|null
+     */
+    public static function setModuleViewer($moduleName, $di) {
+        $view = null;
+        if(!is_string($moduleName) || empty($moduleName) || !is_object($di)) {
+            return $view;
+        }
+
+        $viewConf = getConf('view')->toArray();
+        $compPath = RUNTDIR . 'volt/';
+        if(!file_exists($compPath)) {
+            DirectoryHelper::mkdirDeep($compPath);
+        }
+
+        $view = new PwView();
+        if(in_array($moduleName, $viewConf['denyModules'])) {
+            //设置渲染等级
+            $view->setRenderLevel(View::LEVEL_NO_RENDER);
+            $view->disable();
+        }else{
+            //视图模板目录
+            $viewpath = APPSDIR . 'Views/' . getConf('common','theme') . "/{$moduleName}/";
+            $di->setShared('assets', 'Phalcon\Assets\Manager');
+            $view->setViewsDir($viewpath);
+            $view->registerEngines([
+                '.php' => function($view) use($compPath, $di) {
+                    $volt = new LkkVolt($view);
+                    $volt->setOptions([
+                        //模板缓存目录
+                        'compiledPath' => $compPath,
+                        //编译后的扩展名
+                        'compiledExtension' => '',
+                        //编译分隔符
+                        'compiledSeparator' => '%',
+                    ]);
+
+                    //添加自定义模板函数
+                    $volt->extendFuncs();
+                    $volt->setDI($di);
+
+                    $compiler = $volt->getCompiler();
+                    $compiler->setDI($di);
+                    $logger = getLogger('debug');
+                    $logger->info('$compiler11', [$compiler]);
+
+                    return $volt;
+                }
+            ]);
+            $view->setDI($di);
+        }
+
+        return $view;
+    }
+
+
+    /**
      * 运行web应用
      */
     public static function runWebApp() {
