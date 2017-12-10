@@ -292,7 +292,8 @@ class Engine {
         }else{
             //视图模板目录
             $viewpath = APPSDIR . 'Views/' . getConf('common','theme') . "/{$moduleName}/";
-            $di->setShared('assets', 'Phalcon\Assets\Manager');
+            //$di->setShared('assets', 'Phalcon\Assets\Manager');
+            $di->setShared('assets', 'Lkk\Phalwoo\Phalcon\Assets\Manager');
             $view->setViewsDir($viewpath);
             $view->registerEngines([
                 '.php' => function($view) use($compPath, $di) {
@@ -316,7 +317,7 @@ class Engine {
                     return $volt;
                 }
             ]);
-            $view->setDI($di);
+            //$view->setDI($di);
         }
 
         return $view;

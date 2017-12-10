@@ -34,6 +34,7 @@ use Phalcon\Debug as PhDebug;
 use Lkk\Phalwoo\Phalcon\Debug as PwDebug;
 use Lkk\Phalwoo\Phalcon\Mvc\Application as PwApplication;
 use Lkk\Phalwoo\Phalcon\Mvc\Dispatcher as PwDispatcher;
+use Lkk\Phalwoo\Phalcon\Tag as PwTag;
 
 class LkkServer extends SwooleServer {
 
@@ -240,19 +241,20 @@ class LkkServer extends SwooleServer {
         // URL设置
         $di->setShared('url', LkkCmponent::url());
 
+        //Tag注册url服务
+        PwTag::setUrlService(LkkCmponent::url());
+
         //多模块应用的视图设置
         $eventsManager = $di->get('eventsManager');
         $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
             $router = $di->get('router');
             $curModule = $router->getModuleName();
 
-            //$view = Engine::getModuleView($curModule);
             $view = Engine::setModuleViewer($curModule, $di);
             $di->setShared('view', $view);
 
         });
         $app->setEventsManager($eventsManager);
-        //Phalcon\Tag::setDI($di);
 
         //缓存服务
         $di->setShared('cache', LkkCmponent::siteCache());

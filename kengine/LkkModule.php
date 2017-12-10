@@ -78,7 +78,7 @@ class LkkModule implements ModuleDefinitionInterface {
 
                         $dispatcher->forward($notfoundConf);
                         //重新设置视图
-                        $view = Engine::getModuleView($notfoundConf['module']);
+                        $view = Engine::setModuleViewer($notfoundConf['module'], $di);
                         $di->setShared('view', $view);
                         return false;
                         break;
