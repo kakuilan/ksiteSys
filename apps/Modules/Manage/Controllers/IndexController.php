@@ -39,13 +39,12 @@ class IndexController extends LkkController {
             'mainUrl' => makeUrl('manage/index/main'),
             'menuUrl' => makeUrl('manage/menu/authlist'),
         ]);
-        $this->view->setDI($this->di);
 
         //设置静态资源
-        $this->assets->addCss('statics/css/adm-tab.css');
+        /*$this->assets->addCss('statics/css/adm-tab.css');
         $this->assets->addJs('statics/js/ace-elements.min.js');
         $this->assets->addJs('statics/js/ace.min.js');
-        $this->assets->addJs('statics/js/lkkTabMenu.js');
+        $this->assets->addJs('statics/js/lkkTabMenu.js');*/
 
         //echo 'manage/index';
     }

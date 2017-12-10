@@ -312,8 +312,6 @@ class Engine {
 
                     $compiler = $volt->getCompiler();
                     $compiler->setDI($di);
-                    $logger = getLogger('debug');
-                    $logger->info('$compiler11', [$compiler]);
 
                     return $volt;
                 }

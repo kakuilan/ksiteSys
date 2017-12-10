@@ -80,4 +80,6 @@ server {
 }
 ```
 
+useage:  
+php app/index.php status | start | stop | restart | reload | kill [-d]  
 

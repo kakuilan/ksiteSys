@@ -252,7 +252,7 @@ class LkkServer extends SwooleServer {
 
         });
         $app->setEventsManager($eventsManager);
-        Phalcon\Tag::setDI($di);
+        //Phalcon\Tag::setDI($di);
 
         //缓存服务
         $di->setShared('cache', LkkCmponent::siteCache());
