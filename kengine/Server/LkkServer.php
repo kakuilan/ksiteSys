@@ -75,6 +75,9 @@ class LkkServer extends SwooleServer {
         //TODO 读取单独的配置
         $this->setPoolManager(getConf('pool')->toArray());
 
+        //Tag注册url服务
+        PwTag::setUrlService(LkkCmponent::url());
+
         parent::initServer();
 
         $logger = self::getLogger();
@@ -240,9 +243,6 @@ class LkkServer extends SwooleServer {
 
         // URL设置
         $di->setShared('url', LkkCmponent::url());
-
-        //Tag注册url服务
-        PwTag::setUrlService(LkkCmponent::url());
 
         //多模块应用的视图设置
         $eventsManager = $di->get('eventsManager');
