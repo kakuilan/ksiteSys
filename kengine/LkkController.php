@@ -27,7 +27,7 @@ class LkkController extends Controller {
     //要输出的json内容
     public $jsonRes = [
         'status' => false, //状态
-        'code' => 0, //状态码
+        'code' => 200, //状态码
         'data' => [], //数据
         'msg' => '', //提示信息
     ];

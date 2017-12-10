@@ -46,7 +46,7 @@ class IndexController extends LkkController {
         $this->assets->addJs('statics/js/ace.min.js');
         $this->assets->addJs('statics/js/lkkTabMenu.js');
 
-        //echo 'manage/index';
+        return null;
     }
 
 

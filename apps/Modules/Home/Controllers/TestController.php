@@ -54,5 +54,16 @@ class TestController extends  LkkController {
     }
 
 
+    public function getreqAction() {
+        $get = $this->request->getQuery();
+        $post = $this->request->getPost();
+        $reque = $this->request->get();
+
+        var_dump($get, $post, $reque);
+
+    }
+
+
+
 
 }

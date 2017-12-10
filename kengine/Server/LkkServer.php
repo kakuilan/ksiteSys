@@ -200,10 +200,12 @@ class LkkServer extends SwooleServer {
 
         $pwRequest = new PwRequest();
         $pwRequest->setDI($di);
+        $pwRequest->setSwooleRequest($request);
         $di->setShared('request', $pwRequest);
 
         $pwResponse = new PwResponse();
         $pwResponse->setDi($di);
+        $pwResponse->setSwooleResponse($response);
         $di->setShared('response', $pwResponse);
 
         //TODO 设置dispatcher
