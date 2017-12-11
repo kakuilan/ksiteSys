@@ -82,8 +82,10 @@ class AdmMenu extends BaseModel {
         $menuData = [];
         if($childrens = $parentNode->getChildren()) {
             foreach ($childrens as $children) {
+
                 if($onlyEnable && $children->status==0) continue;
                 $menu = $children->toArray();
+                var_dump('$menu', $menu);
                 $_children = self::getMenuTree($children->getId(), $children, $siteId, $onlyEnable);
                 $menu['name'] = (isset($menu['name']) && !empty($menu['name'])) ? $menu['name'] : $menu['title'];
                 $menu['pId'] = $parentId;
