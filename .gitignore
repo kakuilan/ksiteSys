@@ -1,7 +1,11 @@
 .idea
 *.log
 *.pid
+runtime
 vendor
+public/asset
+public/html
+public/upload
 composer.lock
 _gsdata_
 .user.ini
