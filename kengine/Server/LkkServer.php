@@ -26,7 +26,7 @@ use Lkk\Phalwoo\Server\Component\Client\Redis;
 use Lkk\Phalwoo\Server\Component\Log\Handler\AsyncStreamHandler;
 use Lkk\Phalwoo\Server\Component\Log\SwooleLogger;
 use Lkk\Phalwoo\Server\Component\Pool\PoolManager;
-use Lkk\Phalwoo\Server\Concurrent\Promise;
+use Lkk\Concurrent\Promise;
 use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Phalcon\Mvc\Application;
