@@ -201,7 +201,7 @@ class MenuController extends LkkController {
         $num = Action::countEnable();
         $msg = "更新成功，当前系统共{$num}个动作";
 
-        $this->success($msg);
+        return $this->success($msg);
     }
 
 
