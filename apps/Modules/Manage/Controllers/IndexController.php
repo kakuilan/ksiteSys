@@ -13,6 +13,11 @@ namespace Apps\Modules\Manage\Controllers;
 use Kengine\LkkController;
 use Lkk\Helpers\CommonHelper;
 
+
+/**
+ * Class 后台首页控制器
+ * @package Apps\Modules\Manage\Controllers
+ */
 class IndexController extends LkkController {
 
 

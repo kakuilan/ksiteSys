@@ -17,6 +17,10 @@ use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
 
 
+/**
+ * Class 后台用户管理控制器
+ * @package Apps\Modules\Manage\Controllers
+ */
 class UserController extends LkkController {
 
     public function initialize () {
@@ -54,6 +58,8 @@ class UserController extends LkkController {
         $this->assets->addJs('statics/js/plugins/jqgrid/jquery.jqGrid.min.js');
         $this->assets->addJs('statics/js/plugins/jqgrid/i18n/grid.locale-cn.js');
         $this->assets->addJs('statics/js/plugins/chosen/chosen.jquery.min.js');
+
+        return null;
     }
 
 

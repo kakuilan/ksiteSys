@@ -4,7 +4,7 @@
  * User: kakuilan@163.com
  * Date: 2017/10/28
  * Time: 16:20
- * Desc: -系统动作处理服务类
+ * Desc: -系统动作处理服务类,注意要关闭opcache才可获取注释
  */
 
 
@@ -126,6 +126,7 @@ class ActionService extends ServiceBase {
                     'status'        => 1,
                     'title'         => $arr['contrlTitle'],
                     'batch_time'    => $now,
+                    'update_time'   => $now,
                 );
                 $res = Action::upData($data, "ac_id=" . $checkContrl->toArray()['ac_id']);
             }else{
@@ -151,6 +152,7 @@ class ActionService extends ServiceBase {
                     $data = array(
                         'title'         => $actionTitle,
                         'batch_time'    => $now,
+                        'update_time'   => $now,
                     );
                     $res = Action::upData($data, "ac_id=" . $checkAction->toArray()['ac_id']);
                 }else{
@@ -203,9 +205,10 @@ class ActionService extends ServiceBase {
         $refContrlClass = new \ReflectionClass($contrlClassName);
 
         //获取控制器类注释
-        preg_match_all('/Class(.*)\n/i', $refContrlClass->getDocComment(), $match);
+        $docomm = $refContrlClass->getDocComment();
+        preg_match_all('/Class(.*)\n/i', $docomm, $match);
         $contrlTitle = empty($match[1]) ? $contrlName : trim($match[1][0]);
-        //var_dump($filepath, $contrlTitle);
+        //var_dump('$contrlTitle', $match, $contrlTitle, '--------------');
 
         $methods = $refContrlClass ->getMethods();
         if(!empty($methods)) {

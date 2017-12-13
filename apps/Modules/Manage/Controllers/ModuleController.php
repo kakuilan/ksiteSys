@@ -16,6 +16,10 @@ use Apps\Models\AdmModule;
 use Apps\Services\RbacService;
 
 
+/**
+ * Class 后台模块管理控制器
+ * @package Apps\Modules\Manage\Controllers
+ */
 class ModuleController extends LkkController {
 
     public function initialize () {

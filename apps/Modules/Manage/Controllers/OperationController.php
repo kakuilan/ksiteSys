@@ -17,6 +17,10 @@ use Apps\Models\AdmOperation;
 use Apps\Models\AdmOperateAction;
 
 
+/**
+ * Class 后台模块操作管理控制器
+ * @package Apps\Modules\Manage\Controllers
+ */
 class OperationController extends LkkController {
 
     public function initialize () {
