@@ -42,6 +42,7 @@ class UserController extends LkkController {
             'listUrl' => makeUrl('manage/user/list'),
             'editUrl' => makeUrl('manage/user/edit'),
             'pwdUrl' => makeUrl('manage/user/passwd'),
+            'authorizeUrl' => makeUrl('manage/role/authorize'),
         ]);
 
         //设置静态资源
