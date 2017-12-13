@@ -9,9 +9,9 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
+use Kengine\LkkController;
 use Apps\Models\Action;
 use Apps\Models\AdmRoleFunc;
-use Kengine\LkkController;
 use Apps\Models\AdmModule;
 use Apps\Services\RbacService;
 

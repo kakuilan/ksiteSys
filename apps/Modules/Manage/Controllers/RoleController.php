@@ -11,6 +11,7 @@
 namespace Apps\Modules\Manage\Controllers;
 
 use Kengine\LkkController;
+use Lkk\Helpers\ArrayHelper;
 use Apps\Models\AdmModule;
 use Apps\Models\AdmOperateAction;
 use Apps\Models\AdmOperation;
@@ -80,7 +81,7 @@ class RoleController extends LkkController {
         $sidx = trim($this->request->get('sidx'));
         $sord = trim($this->request->get('sord'));
         $order = " sort asc,create_time desc ";
-        if(!empty($sidx) && dstrpos($sidx, $orderFields) && dstrpos($sord, ['asc', 'desc'])) {
+        if(!empty($sidx) && ArrayHelper::dstrpos($sidx, $orderFields) && ArrayHelper::dstrpos($sord, ['asc', 'desc'])) {
             $order = " {$sidx} {$sord} ";
         }
 
@@ -142,6 +143,7 @@ class RoleController extends LkkController {
         $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
         $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
 
+        return null;
     }
 
 

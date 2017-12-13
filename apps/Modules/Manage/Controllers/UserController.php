@@ -11,7 +11,8 @@
 namespace Apps\Modules\Manage\Controllers;
 
 use Kengine\LkkController;
-use Kengine\Helpers\ValidateHelper;
+use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\ValidateHelper;
 use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
 
@@ -74,7 +75,7 @@ class UserController extends LkkController {
         $sidx = trim($this->request->get('sidx'));
         $sord = trim($this->request->get('sord'));
         $order = " uid asc,create_time desc ";
-        if(!empty($sidx) && dstrpos($sidx, $orderFields) && dstrpos($sord, ['asc', 'desc'])) {
+        if(!empty($sidx) && ArrayHelper::dstrpos($sidx, $orderFields) && ArrayHelper::dstrpos($sord, ['asc', 'desc'])) {
             $order = " {$sidx} {$sord} ";
         }
 
