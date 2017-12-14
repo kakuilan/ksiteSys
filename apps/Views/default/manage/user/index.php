@@ -143,7 +143,7 @@ EOT;
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
-                area: ['605px', '350px'],
+                area: ['705px', '550px'],
                 offset: '10px',
                 content: editUrl
             });
@@ -183,7 +183,7 @@ EOT;
             colNames:['操作','编号ID','用户名','邮箱','手机','用户状态','邮箱状态','手机状态','用户类型','创建时间','修改时间'],
             colModel: [
                 { name: 'myact',index:'myact', width:60, fixed:true, sortable:false, resize:false,editable:false},
-                { name: 'uid', index: 'id', sortable: false, width:60, fixed:true},
+                { name: 'uid', index: 'uid', sortable: true, width:60, fixed:true, key:true}, //key:true设为主键ID
                 { name: 'username', index: 'username', sortable: false },
                 { name: 'email', index: 'email', sortable: false },
                 { name: 'mobile', index: 'mobile', sortable: false },
@@ -192,7 +192,7 @@ EOT;
                 { name: 'email_status_desc', index: 'email_status_desc', sortable: false },
                 { name: 'type_desc', index: 'type_desc', sortable: false },
                 { name: 'create_time', index: 'create_time', sortable: true},
-                { name: 'update_time', index: 'update_time', sortable: true}
+                { name: 'update_time', index: 'update_time', sortable: false}
             ],
             rowNum: 15,
             rowList:[2,10,15,20,30,50,100],
@@ -265,7 +265,7 @@ EOT;
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
-                area: ['605px', '350px'],
+                area: ['705px', '550px'],
                 offset: '10px',
                 content: editUrl +'?uid='+row.uid
             });

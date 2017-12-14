@@ -15,6 +15,7 @@ use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\ValidateHelper;
 use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
+use Apps\Services\UserService;
 
 
 /**
@@ -161,7 +162,34 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function baseEditAction() {
+        $uid = intval($this->request->get('uid'));
+        $info = $uid ? UserBase::findFirst($uid) : [];
 
+        $isAdmin = true;
+        if($info && $info->site_id==0 && !$isAdmin) {
+            return $this->alert('无权限编辑该信息');
+        }
+
+        //视图变量
+        $this->view->setVars([
+            'statusArr' => UserBase::getStatusArr(),
+            'mobileStatusArr' => UserBase::getMobileStatusArr(),
+            'emailStatusArr' => UserBase::getEmailStatusArr(),
+            'typesArr' => UserBase::getTypesArr(),
+            'saveUrl' => makeUrl('manage/user/basesave'),
+            'listUrl' => makeUrl('manage/user/baselist'),
+            'uid' => $uid,
+            'info' => $info,
+        ]);
+
+        //设置静态资源
+        $this->assets->addJs('statics/js/lkkFunc.js');
+        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/md5.min.js');
+
+        return null;
     }
 
 
@@ -171,7 +199,79 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function baseSaveAction() {
+        $uid = intval($this->request->get('uid'));
+        $status = intval($this->request->get('status'));
+        $email_status = intval($this->request->get('email_status'));
+        $mobile_status = intval($this->request->get('mobile_status'));
+        $type = intval($this->request->get('type'));
 
+        $username = trim($this->request->get('username'));
+        $email = trim($this->request->get('email'));
+        $password = trim($this->request->get('password'));
+        $passwordCfr = trim($this->request->get('passwordCfr'));
+        $mobile = trim($this->request->get('mobile'));
+
+        $userServ = new UserService();
+        $isAdmin = true;
+
+        if ($password && $password != $passwordCfr) {
+            return $this->fail('2次密码不相同');
+        }elseif($mobile && !$userServ->validateMobile($mobile)) {
+            return $this->fail($userServ->error());
+        }
+
+        $now = time();
+        $data = [
+            'site_id' => $this->siteId,
+            'status' => $status,
+            'mobile_status' => empty($mobile) ? -1 : $mobile_status,
+            'email_status' => $email_status,
+            'type' => $type,
+            'mobile' => $mobile,
+        ];
+
+        if($uid<=0) {
+            //if(!$userServ->validateUsername($username) || !$userServ->validateEmail($email) || $userServ->validateUserpwd($password)) {
+            if(!$userServ->validateUsername($username)) {
+                return $this->fail($userServ->error().'9999');
+            }elseif(!$userServ->validateEmail($email)) {
+                return $this->fail($userServ->error().'8888');
+            }elseif(!$userServ->validateUserpwd($password)) {
+                return $this->fail($userServ->error().'7777');
+            }elseif ($type==0 && !$userServ->checkIsHoldName($username)){ //普通用户检查是否保留的名称
+                return $this->fail($userServ->error().'3333');
+            }elseif (!$userServ->checkUsernameExist($username, $uid)) {
+                return $this->fail($userServ->error().'4444');
+            }
+
+            $data['username'] = $username;
+            $data['create_time'] = $now;
+            $data['create_ip'] = ip2long($this->request->getClientAddress());
+        }else{
+            $user = UserBase::findFirst($uid);
+            if(empty($user)) {
+                return $this->fail('信息不存在');
+            }elseif ($user->site_id==0 && !$isAdmin) {
+                return $this->fail('无权限编辑该信息');
+            }
+        }
+
+        //检查邮箱是否存在
+        if(!$userServ->checkEmailExist($email, $uid)) {
+            return $this->fail($userServ->error().'5555');
+        }
+
+        $data['email'] = $email;
+        $data['update_time'] = $now;
+        if($password) $data['password'] = UserBase::makePasswdHash($password);
+
+        if($uid>0) {
+            $res = UserBase::upData($data, ['uid'=>$uid]);
+        }else{
+            $res = UserBase::addData($data);
+        }
+
+        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
     }
 
     /**
