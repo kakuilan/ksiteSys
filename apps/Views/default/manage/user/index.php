@@ -183,15 +183,16 @@ EOT;
             colNames:['操作','编号ID','用户名','邮箱','手机','用户状态','邮箱状态','手机状态','用户类型','创建时间','修改时间'],
             colModel: [
                 { name: 'myact',index:'myact', width:60, fixed:true, sortable:false, resize:false,editable:false},
-                { name: 'id', index: 'id', sortable: false, width:60, fixed:true},
-                { name: 'name', index: 'name', sortable: false },
-                { name: 'desc', index: 'desc', sortable: false },
+                { name: 'uid', index: 'id', sortable: false, width:60, fixed:true},
+                { name: 'username', index: 'username', sortable: false },
+                { name: 'email', index: 'email', sortable: false },
+                { name: 'mobile', index: 'mobile', sortable: false },
                 { name: 'status_desc', index: 'status_desc', sortable: false },
-                { name: 'sort', index: 'sort', sortable: true },
+                { name: 'mobile_status_desc', index: 'mobile_status_desc', sortable: false },
+                { name: 'email_status_desc', index: 'email_status_desc', sortable: false },
+                { name: 'type_desc', index: 'type_desc', sortable: false },
                 { name: 'create_time', index: 'create_time', sortable: true},
-                { name: 'create_by', index: 'create_by', sortable: false},
-                { name: 'update_time', index: 'update_time', sortable: true},
-                { name: 'update_by', index: 'update_by', sortable: false}
+                { name: 'update_time', index: 'update_time', sortable: true}
             ],
             rowNum: 15,
             rowList:[2,10,15,20,30,50,100],
@@ -207,8 +208,7 @@ EOT;
                     id = ids[i];
                     rowDatas = _this.jqGrid('getRowData', id);
                     btns = '<a class="edit_info" href="javascript:;" title="编辑信息" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-edit"></i></a>';
-                    btns += '<a class="auth_info" href="javascript:;" title="角色授权" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-filter"></i></a>';
-                    btns += '<a class="del_info" href="javascript:;" title="删除信息" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-remove"></i></a>';
+                    btns += '<a class="pwd_info" href="javascript:;" title="修改密码" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-lock"></i></a>';
                     _this.jqGrid('setRowData',ids[i],{myact:btns});
                 }
             },
@@ -267,47 +267,30 @@ EOT;
                 maxmin: true, //开启最大化最小化按钮
                 area: ['605px', '350px'],
                 offset: '10px',
-                content: editUrl +'?id='+row.id
+                content: editUrl +'?uid='+row.uid
             });
             layer.style(indexL,{
                 position: 'absolute',
             });
         });
-        $('table').on('click','.auth_info',function(){
+        $('table').on('click','.pwd_info',function(){
             var idx = $(this).data('id');
             var row = $(grid_selector).jqGrid('getRowData', idx);
             var indexL = layer.open({
                 type: 2,
-                title: '角色授权',
+                title: '修改密码',
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
                 area: ['605px', '350px'],
                 offset: '10px',
-                content: authorizeUrl+'?rid='+row.id
+                content: pwdUrl+'?uid='+row.uid
             });
             layer.style(indexL,{
                 position: 'absolute',
             });
         });
-        $('table').on('click','.del_info',function(){
-            var idx = $(this).data('id');
-            var row = $(grid_selector).jqGrid('getRowData', idx);
-            var msg = '您确定要删除该角色吗？';
-            var new_status = (row.status==0) ? 1 : 0;
-            layer.confirm(msg, {icon: 3, title:'提示'}, function(index){
-                $.getJSON(delUrl, {id: row.id}, function(res){
-                    if(res.status){
-                        layer.alert('操作成功！');
-                        refreshJqGrid('#grid-table');
-                    }else{
-                        layer.alert(res.msg);
-                    }
-                });
-                layer.close(index);
-            });
-            return;
-        });
+
 
         //搜索按钮
         $('#searchBtn').click(function(){

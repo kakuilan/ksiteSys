@@ -47,9 +47,9 @@ class UserController extends LkkController {
             'mobileStatusArr' => UserBase::getMobileStatusArr(),
             'emailStatusArr' => UserBase::getEmailStatusArr(),
             'typesArr' => UserBase::getTypesArr(),
-            'listUrl' => makeUrl('manage/user/list'),
-            'editUrl' => makeUrl('manage/user/edit'),
-            'pwdUrl' => makeUrl('manage/user/passwd'), //修改密码
+            'listUrl' => makeUrl('manage/user/baselist'),
+            'editUrl' => makeUrl('manage/user/baseedit'),
+            'pwdUrl' => makeUrl('manage/user/basepwd'),
         ]);
 
         //设置静态资源
@@ -155,24 +155,46 @@ class UserController extends LkkController {
     }
 
 
+    /**
+     * @title -基本用户编辑页
+     * @desc  -基本用户编辑页
+     * @return mixed
+     */
     public function baseEditAction() {
 
     }
 
 
+    /**
+     * @title -保存基本用户
+     * @desc  -保存基本用户
+     * @return mixed
+     */
     public function baseSaveAction() {
 
     }
 
-
-    public function passwdAction() {
+    /**
+     * @title -基本用户密码页
+     * @desc  -基本用户密码页
+     * @return mixed
+     */
+    public function basePwdAction() {
 
     }
 
 
-    public function passwdSaveAction() {
+    /**
+     * @title -保存基本用户密码
+     * @desc  -保存基本用户密码
+     * @return mixed
+     */
+    public function basePwdsaveAction() {
 
     }
+
+
+
 
 
 
