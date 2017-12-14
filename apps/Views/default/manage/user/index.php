@@ -30,24 +30,80 @@
                                 </button>
 
                                 <label class="inline">
-                                    <span class="lbl">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                    <span class="lbl">&nbsp;&nbsp;</span>
                                 </label>
                                 <label class="inline">
-                                    <span class="lbl">状态：</span>
+                                    <span class="lbl">用户状态：</span>
                                 </label>
                                 <select class="chosen-select" data-placeholder="请选择状态..." name="status" id="status">
                                     <option value="" >全部</option>
-                                    <option value="0" >禁用</option>
-                                    <option value="1" >启用</option>
+                                    {% if statusArr %}
+                                    {% for vue,name in statusArr %}
+                                    <option value="{{vue}}" title="{{name}}" >
+                                        {{name}}
+                                    </option>
+                                    {% endfor %}
+                                    {% endif %}
                                 </select>
 
                                 <label class="inline">
-                                    <span class="lbl">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+                                    <span class="lbl">&nbsp;&nbsp;</span>
+                                </label>
+                                <label class="inline">
+                                    <span class="lbl">手机状态：</span>
+                                </label>
+                                <select class="chosen-select" data-placeholder="请选择状态..." name="mobile_status" id="mobile_status">
+                                    <option value="" >全部</option>
+                                    {% if mobileStatusArr %}
+                                    {% for vue,name in mobileStatusArr %}
+                                    <option value="{{vue}}" title="{{name}}" >
+                                        {{name}}
+                                    </option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+
+                                <label class="inline">
+                                    <span class="lbl">&nbsp;&nbsp;</span>
+                                </label>
+                                <label class="inline">
+                                    <span class="lbl">邮箱状态：</span>
+                                </label>
+                                <select class="chosen-select" data-placeholder="请选择状态..." name="email_status" id="email_status">
+                                    <option value="" >全部</option>
+                                    {% if emailStatusArr %}
+                                    {% for vue,name in emailStatusArr %}
+                                    <option value="{{vue}}" title="{{name}}" >
+                                        {{name}}
+                                    </option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+
+                                <label class="inline">
+                                    <span class="lbl">&nbsp;&nbsp;</span>
+                                </label>
+                                <label class="inline">
+                                    <span class="lbl">用户类型：</span>
+                                </label>
+                                <select class="chosen-select" data-placeholder="请选择状态..." name="type" id="type">
+                                    <option value="" >全部</option>
+                                    {% if typesArr %}
+                                    {% for vue,name in typesArr %}
+                                    <option value="{{vue}}" title="{{name}}" >
+                                        {{name}}
+                                    </option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+
+                                <label class="inline">
+                                    <span class="lbl">&nbsp;&nbsp;</span>
                                 </label>
                                 <label class="inline">
                                     <span class="lbl">关键字：</span>
                                 </label>
-                                <input type="text" class="input-large input-search" placeholder="角色名" id="keyword" name="keyword" maxlength="50"/>
+                                <input type="text" class="input-large input-search" placeholder="用户名" id="keyword" name="keyword" maxlength="50"/>
                                 <button type="button" class="btn btn-primary btn-sm btn-search" title="搜索" id="searchBtn">
                                     查询
                                 </button>
@@ -71,8 +127,7 @@
 <script>
     var listUrl = "{{listUrl}}";
     var editUrl = "{{editUrl}}";
-    var delUrl = "{{delUrl}}";
-    var authorizeUrl = "{{authorizeUrl}}";
+    var pwdUrl = "{{pwdUrl}}";
 </script>
 <?php $otherJsCont = <<<EOT
 EOT;
@@ -84,7 +139,7 @@ EOT;
         $('.addAction').click(function(event){
             layer.open({
                 type: 2,
-                title: '新增角色',
+                title: '新增用户',
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
@@ -125,7 +180,7 @@ EOT;
                 records: "data.records", //总记录数
             },
             caption: "数据列表",
-            colNames:['操作','编号ID','角色名称','角色说明','状态','排序','创建时间','创建者','修改时间','修改者'],
+            colNames:['操作','编号ID','用户名','邮箱','手机','用户状态','邮箱状态','手机状态','用户类型','创建时间','修改时间'],
             colModel: [
                 { name: 'myact',index:'myact', width:60, fixed:true, sortable:false, resize:false,editable:false},
                 { name: 'id', index: 'id', sortable: false, width:60, fixed:true},

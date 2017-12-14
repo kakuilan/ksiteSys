@@ -43,10 +43,13 @@ class UserController extends LkkController {
     public function indexAction() {
         //视图变量
         $this->view->setVars([
+            'statusArr' => UserBase::getStatusArr(),
+            'mobileStatusArr' => UserBase::getMobileStatusArr(),
+            'emailStatusArr' => UserBase::getEmailStatusArr(),
+            'typesArr' => UserBase::getTypesArr(),
             'listUrl' => makeUrl('manage/user/list'),
             'editUrl' => makeUrl('manage/user/edit'),
-            'pwdUrl' => makeUrl('manage/user/passwd'),
-            'authorizeUrl' => makeUrl('manage/role/authorize'),
+            'pwdUrl' => makeUrl('manage/user/passwd'), //修改密码
         ]);
 
         //设置静态资源
@@ -76,6 +79,45 @@ class UserController extends LkkController {
 
         $keyword = trim($this->request->get('keyword'));
         $status = trim($this->request->get('status'));
+        $mobile_status = trim($this->request->get('mobile_status'));
+        $email_status = trim($this->request->get('email_status'));
+        $type = trim($this->request->get('type'));
+
+        //基本条件
+        $isAdmin = true;
+        $siteIds = [$this->siteId];
+        if($isAdmin) array_push($siteIds, 0);
+        $where = [
+            'and',
+            ['site_id' => $siteIds],
+        ];
+
+        //条件,用户状态
+        if(is_numeric($status)) {
+            array_push($where, ['status'=>$status]);
+        }
+        //条件,手机状态
+        if(is_numeric($mobile_status)) {
+            array_push($where, ['mobile_status'=>$mobile_status]);
+        }
+        //条件,邮箱状态
+        if(is_numeric($email_status)) {
+            array_push($where, ['email_status'=>$email_status]);
+        }
+        //条件,用户类型
+        if(is_numeric($type)) {
+            array_push($where, ['type'=>$type]);
+        }
+
+        //条件,关键词
+        if(!empty($keyword)) {
+            if(ValidateHelper::isMobile($keyword)) {
+                array_push($where, ['mobile'=>$keyword]);
+            }else{
+                $keyCond = ['OR', ['like','username',"%{$keyword}%"], ['like','email',"%{$keyword}%"]];
+                array_push($where, $keyCond);
+            }
+        }
 
         //排序
         $orderFields = ['uid','create_time'];
@@ -85,23 +127,6 @@ class UserController extends LkkController {
         if(!empty($sidx) && ArrayHelper::dstrpos($sidx, $orderFields) && ArrayHelper::dstrpos($sord, ['asc', 'desc'])) {
             $order = " {$sidx} {$sord} ";
         }
-
-        $where = [
-            'and',
-            ['site_id' => $this->siteId],
-        ];
-
-        if(is_numeric($status)) {
-            array_push($where, ['status'=>$status]);
-        }
-        if(!empty($keyword)) {
-            if(ValidateHelper::isMobile($keyword)) {
-                array_push($where, ['mobile'=>$keyword]);
-            }else{
-                array_push($where, ['like','username',"%{$keyword}%"], ['like','email',"%{$keyword}%"]);
-            }
-        }
-
 
         $paginator = UserBase::getPaginator('*', $where, $order, $rows, $page);
         $pageObj = $paginator->getPaginate();
@@ -113,6 +138,9 @@ class UserController extends LkkController {
                 $item['create_time'] = date('Y-m-d H:i:s', $item['create_time']);
                 $item['update_time'] = date('Y-m-d H:i:s', $item['update_time']);
                 $item['status_desc'] = $statusArr[$item['status']];
+                $item['mobile_status_desc'] = $statusArr[$item['mobile_status']];
+                $item['email_status_desc'] = $statusArr[$item['email_status']];
+                $item['type_desc'] = $statusArr[$item['type']];
             }
         }
 
