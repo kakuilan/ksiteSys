@@ -203,69 +203,7 @@ class Engine {
         return $router;
     }
 
-
-    /**
-     * 设置各模块的视图
-     * @return mixed
-     */
-    public static function setModuleViews() {
-        static $views;
-        if(is_null($views)) {
-            $viewConf = getConf('view')->toArray();
-            $compPath = RUNTDIR . 'volt/';
-            if(!file_exists($compPath)) {
-                DirectoryHelper::mkdirDeep($compPath);
-            }
-
-            $allmodules = getConf('modules');
-            foreach ($allmodules as $moduleName => $options) {
-                //$view = new View();
-                $view = new PwView();
-                if(in_array($moduleName, $viewConf['denyModules'])) {
-                    //设置渲染等级
-                    $view->setRenderLevel(View::LEVEL_NO_RENDER);
-                    $view->disable();
-                }else{
-                    //视图模板目录
-                    $viewpath = APPSDIR . 'Views/' . getConf('common','theme') . "/{$moduleName}/";
-
-                    $view->setViewsDir($viewpath);
-                    $view->registerEngines([
-                        '.php' => function($view) use($compPath) {
-                            $volt = new LkkVolt($view);
-                            $volt->setOptions([
-                                //模板缓存目录
-                                'compiledPath' => $compPath,
-                                //编译后的扩展名
-                                'compiledExtension' => '',
-                                //编译分隔符
-                                'compiledSeparator' => '%',
-                            ]);
-
-                            //添加自定义模板函数
-                            $volt->extendFuncs();
-                            return $volt;
-                        }
-                    ]);
-                }
-
-                $views[$moduleName] = $view;
-
-                //TODO 以下交给具体onRequest去处理
-                //$di->setShared('view', $view);
-            }
-        }
-
-        return $views;
-    }
-
-
-    public static function getModuleView(string $moduleName) {
-        $views = self::setModuleViews();
-        return $views[$moduleName] ?? null;
-    }
-
-
+    
     /**
      * 设置视图
      * @param string $moduleName 模块名
