@@ -233,7 +233,7 @@ class UserController extends LkkController {
         if($uid<=0) {
             //if(!$userServ->validateUsername($username) || !$userServ->validateEmail($email) || $userServ->validateUserpwd($password)) {
             if(!$userServ->validateUsername($username)) {
-                return $this->fail($userServ->error().'9999rrr');
+                return $this->fail($userServ->error().'9999qqq');
             }elseif(!$userServ->validateEmail($email)) {
                 return $this->fail($userServ->error().'8888ttt');
             }elseif(!$userServ->validateUserpwd($password)) {
@@ -241,7 +241,7 @@ class UserController extends LkkController {
             }elseif ($type==0 && !$userServ->checkIsHoldName($username)){ //普通用户检查是否保留的名称
                 return $this->fail($userServ->error().'3333uuu');
             }elseif (!$userServ->checkUsernameExist($username, $uid)) {
-                return $this->fail($userServ->error().'4444ppp');
+                return $this->fail($userServ->error().'4444000');
             }
 
             $data['username'] = $username;

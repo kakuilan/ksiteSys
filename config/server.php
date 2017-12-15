@@ -16,7 +16,15 @@ return [
     'pid_dir' => RUNTDIR .'pids' .DS,
 
     //是否热更新服务代码,需inotify扩展
-    'server_reload' => false,
+    'server_reload' => true,
+    'inotify' => [
+        'pid_file' => RUNTDIR .'pids' .DS .'inotify.pid',
+        'watch_dir' => [
+            APPSDIR,
+            CONFDIR,
+            KENGDIR,
+        ], //监控的目录
+    ],
 
     //http服务监听
     'http_server' => [

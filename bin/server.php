@@ -19,4 +19,6 @@ $loader->addPsr4('Kengine\\',   KENGDIR);
 $loader->addPsr4('Tests\\',     TESTDIR);
 
 //TODO
+$pid = getmypid();
+echo "this pid:[{$pid}]\r\n";
 Kengine\Engine::runWebApp();

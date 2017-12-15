@@ -10,17 +10,17 @@
 
 namespace Kengine;
 
-use Phalcon\Loader;
-use Phalcon\Mvc\View;
-use Phalcon\Mvc\Router;
-use Phalcon\Mvc\Router\Group;
-use Kengine\Server\LkkServer;
 use Kengine\LkkVolt;
+use Kengine\Server\LkkServer;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\DirectoryHelper;
 use Lkk\Phalwoo\Phalcon\Mvc\Router as PwRouter;
 use Lkk\Phalwoo\Phalcon\Mvc\View as PwView;
-
+use Lkk\Phalwoo\Server\AutoReload;
+use Phalcon\Loader;
+use Phalcon\Mvc\Router;
+use Phalcon\Mvc\Router\Group;
+use Phalcon\Mvc\View;
 
 class Engine {
 
@@ -51,7 +51,6 @@ class Engine {
         self::defineAppConstant();
         self::loadNamespaces();
         self::setRouter();
-        self::setModuleViews();
 
         //加载xhprof类库
         require WWWDIR. 'monitor/xhprof/xhprof_lib/utils/xhprof_lib.php';
@@ -203,7 +202,7 @@ class Engine {
         return $router;
     }
 
-    
+
     /**
      * 设置视图
      * @param string $moduleName 模块名
@@ -269,7 +268,25 @@ class Engine {
         self::init();
 
         LkkServer::parseCommands();
-        LkkServer::instance()->setConf(getConf('server')->toArray())->run();
+
+        $conf = getConf('server')->toArray();
+
+        //开启热更新
+        if($conf['server_reload'] && true) {
+            $pid = getmypid();
+            $res = self::openReloadCodesProcess(['pid'=>$pid]);
+            var_dump('openReloadCodesProcess', $res);
+            if($res!=-1) {
+                $watchPid = AutoReload::getSelfPid();
+                echo "open reloadCodesProcess sucess[{$watchPid}]\r\n";
+            }
+        }
+
+        while (true) {
+            sleep(1);
+            echo time()."\r\n";
+        }
+        //LkkServer::instance()->setConf($conf)->run();
     }
 
 
@@ -351,6 +368,30 @@ class Engine {
 
     }
 
+
+
+    /**
+     * 开启代码热更新进程
+     * @param array $params
+     * @return int
+     */
+    public static function openReloadCodesProcess($params=[]) {
+        $tmp = [];
+        foreach ($params as $k=>$v) {
+            if(is_numeric($k)) {
+                $tmp[] = trim($v);
+            }else{
+                $tmp[] = $k.'='. trim($v);
+            }
+        }
+        $params = implode(' ', $tmp);
+
+        $file = BINDIR .'reload.php';
+        $cmd = "php {$file} {$params} &";
+
+        $res = pclose(popen("{$cmd}", 'r'));
+        return $res;
+    }
 
 
 
