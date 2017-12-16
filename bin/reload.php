@@ -35,7 +35,7 @@ foreach ($argv as $k=>$item) {
 
 usleep(500);
 $conf = getConf('server');
-$serverPid = $paramPid ? $paramPid : LkkServer::getManagerPid($conf->toArray());
+$serverPid = $paramPid ? $paramPid : LkkServer::getMasterPid($conf->toArray());
 if(!$conf->server_reload) {
     die("please confirm conf['server_reload']=true \r\n");
 }elseif ($serverPid<=0) {

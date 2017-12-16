@@ -74,7 +74,7 @@ class UserService extends ServiceBase {
             return true;
         }else{
             foreach (self::$holdNames as $holdName) {
-                if(stripos($holdName, $str)===0) { //禁止以保留名为前缀
+                if(mb_stripos($str, $holdName)===0) { //禁止以保留名为前缀
                     return true;
                     break;
                 }
@@ -95,7 +95,7 @@ class UserService extends ServiceBase {
             return true;
         }else{
             foreach (self::$holdNicks as $holdNick) {
-                if(mb_stripos($holdNick, $str)===0) { //禁止以保留昵称为前缀
+                if(mb_stripos($str, $holdNick)===0) { //禁止以保留昵称为前缀
                     return true;
                     break;
                 }

@@ -276,8 +276,7 @@ class Engine {
             $pid = getmypid();
             $res = self::openReloadCodesProcess(['pid'=>$pid,'isChild'=>1]);
             if($res!=-1) {
-                $watchPid = AutoReload::getSelfPid();
-                echo "open reloadCodesProcess sucess[{$watchPid}]\r\n";
+                echo "open reloadCodesProcess sucess\r\n";
             }
         }
 
