@@ -198,7 +198,6 @@
             },
             //提交
             submitHandler : function(form){
-                //var sendData = $(form).serialize();
                 var formdata = $(form).serializeArray();
                 var sendData = {};
                 $(formdata).each(function(index, obj){
@@ -206,7 +205,6 @@
                 });
                 sendData.password = md5(sendData.password);
                 sendData.passwordCfr = md5(sendData.passwordCfr);
-                console.log('sendData', sendData);
                 $('#submit').attr("disabled","disabled");
                 $.post(saveUrl, sendData, function(res){
                     $('#submit').removeAttr("disabled");

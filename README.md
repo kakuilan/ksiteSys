@@ -86,4 +86,8 @@ php bin/server.php status | start | stop | restart | reload | kill [-d]
 启动热更新  
 php bin/reload.php  
 
+单元测试:  
+cd tests/
+phpunit ./  
+phpunit JustTest.php  
 

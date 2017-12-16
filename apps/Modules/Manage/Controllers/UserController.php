@@ -135,13 +135,16 @@ class UserController extends LkkController {
 
         if(!empty($list)) {
             $statusArr = UserBase::getStatusArr();
+            $mobileStatusArr = UserBase::getMobileStatusArr();
+            $emailStatusArr = UserBase::getEmailStatusArr();
+            $typesArr = UserBase::getTypesArr();
             foreach ($list as &$item) {
                 $item['create_time'] = date('Y-m-d H:i:s', $item['create_time']);
                 $item['update_time'] = date('Y-m-d H:i:s', $item['update_time']);
                 $item['status_desc'] = $statusArr[$item['status']];
-                $item['mobile_status_desc'] = $statusArr[$item['mobile_status']];
-                $item['email_status_desc'] = $statusArr[$item['email_status']];
-                $item['type_desc'] = $statusArr[$item['type']];
+                $item['mobile_status_desc'] = $mobileStatusArr[$item['mobile_status']];
+                $item['email_status_desc'] = $emailStatusArr[$item['email_status']];
+                $item['type_desc'] = $typesArr[$item['type']];
             }
         }
 
@@ -231,17 +234,12 @@ class UserController extends LkkController {
         ];
 
         if($uid<=0) {
-            //if(!$userServ->validateUsername($username) || !$userServ->validateEmail($email) || $userServ->validateUserpwd($password)) {
-            if(!$userServ->validateUsername($username)) {
-                return $this->fail($userServ->error().'9999qqq');
-            }elseif(!$userServ->validateEmail($email)) {
-                return $this->fail($userServ->error().'8888ttt');
-            }elseif(!$userServ->validateUserpwd($password)) {
-                return $this->fail($userServ->error().'7777yyy');
+            if(!$userServ->validateUsername($username) || !$userServ->validateEmail($email) || !$userServ->validateUserpwd($password)) {
+                return $this->fail($userServ->error());
             }elseif ($type==0 && !$userServ->checkIsHoldName($username)){ //普通用户检查是否保留的名称
-                return $this->fail($userServ->error().'3333uuu');
+                return $this->fail($userServ->error());
             }elseif (!$userServ->checkUsernameExist($username, $uid)) {
-                return $this->fail($userServ->error().'4444000');
+                return $this->fail($userServ->error());
             }
 
             $data['username'] = $username;
@@ -258,7 +256,7 @@ class UserController extends LkkController {
 
         //检查邮箱是否存在
         if(!$userServ->checkEmailExist($email, $uid)) {
-            return $this->fail($userServ->error().'5555');
+            return $this->fail($userServ->error());
         }
 
         $data['email'] = $email;

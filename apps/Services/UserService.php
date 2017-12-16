@@ -50,7 +50,7 @@ class UserService extends ServiceBase {
      * @return int
      */
     public static function validateUsernameChar(string $str) {
-        return preg_match('/^[_0-9a-z]+$/i',$str);
+        return preg_match('/^[_.0-9a-z]+$/i',$str);
     }
 
 
@@ -144,7 +144,7 @@ class UserService extends ServiceBase {
             $this->setError('用户名不能为空');
             return $res;
         }elseif (!self::validateUsernameChar($str)) {
-            $this->setError('用户名只能使用英文、数字和下划线');
+            $this->setError('用户名只能使用英文、数字、点和下划线');
             return $res;
         }elseif ($len < self::USER_NAME_MINLEN) {
             $this->setError('用户名至少'.self::USER_NAME_MINLEN.'个字符');
@@ -169,7 +169,10 @@ class UserService extends ServiceBase {
         if(empty($str)) {
             $this->setError('密码不能为空');
             return $res;
-        }elseif (!self::validateUsernameChar($str)) {
+        }elseif (is_numeric($str)){
+            $this->setError('密码不能全是数字');
+            return $res;
+        }elseif (!self::validateUserpwdChar($str)) {
             $this->setError('密码只能使用英文、数字和特殊字符');
             return $res;
         }elseif ($len < self::USER_PWD_MINLEN) {
