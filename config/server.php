@@ -19,11 +19,13 @@ return [
     'server_reload' => true,
     'inotify' => [
         'pid_file' => RUNTDIR .'pids' .DS .'inotify.pid',
+        'log_file' => RUNTDIR .'logs' .DS .'inotify.log',
+        //监控的目录
         'watch_dir' => [
             APPSDIR,
             CONFDIR,
             KENGDIR,
-        ], //监控的目录
+        ],
     ],
 
     //http服务监听

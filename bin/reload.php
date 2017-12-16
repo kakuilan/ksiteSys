@@ -18,6 +18,7 @@ $loader->addPsr4('Tests\\',     TESTDIR);
 
 use \Lkk\Phalwoo\Server\AutoReload;
 use \Kengine\Server\LkkServer;
+use \Kengine\Engine;
 
 global $argv;
 $paramPid = $isChild = 0;
@@ -32,26 +33,26 @@ foreach ($argv as $k=>$item) {
     }
 }
 
+usleep(500);
 $conf = getConf('server');
 $serverPid = $paramPid ? $paramPid : LkkServer::getManagerPid($conf->toArray());
-AutoReload::setSelfPidPath($conf->inotify->pid_file);
 if(!$conf->server_reload) {
     die("please confirm conf['server_reload']=true \r\n");
 }elseif ($serverPid<=0) {
     die("server is not running! \r\n");
 }
 
-$currPid = getmypid();
-$lastPid = AutoReload::getSelfPid();
-$log = LOGDIR . 'reload.log';
-$time = date('Ymd H:i:s');
-$msg = "[{$time}] Service ".AutoReload::$prcessTitle." lastPid:[{$lastPid}] currPid:[{$currPid}]\r\n";
-file_put_contents($log, $msg, FILE_APPEND);
-
+AutoReload::setSelfPidPath($conf->inotify->pid_file);
+AutoReload::setSelfLogPath($conf->inotify->log_file);
+AutoReload::setRestartFunc(function (){
+    Engine::openReloadCodesProcess(['pid'=>0,'isChild'=>1]);
+});
+AutoReload::log("begin serverPid[{$serverPid}]");
 //设置服务程序的PID
-$obj = new AutoReload($serverPid);
+//$service = new AutoReload($serverPid);
+$service = new AutoReload(['serverPid'=>$serverPid]);
 //设置要监听的源码目录
-$obj->watch($conf->inotify->watch_dir);
+$service->watch($conf->inotify->watch_dir);
 //监听后缀为.php的文件
-$obj->addFileType('.php');
-$obj->run();
+$service->addFileType('.php');
+$service->run();

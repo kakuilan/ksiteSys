@@ -392,6 +392,7 @@ class LkkServer extends SwooleServer {
     public static function onSwooleWorkerStop($serv, $workerId) {
         parent::onSwooleWorkerStop($serv, $workerId);
 
+        opcache_reset(); //zend_opcache的opcache清理函数
     }
 
 

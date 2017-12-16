@@ -81,5 +81,9 @@ server {
 ```
 
 useage:  
-php app/index.php status | start | stop | restart | reload | kill [-d]  
+启动服务  
+php bin/server.php status | start | stop | restart | reload | kill [-d]  
+启动热更新  
+php bin/reload.php  
+
 
