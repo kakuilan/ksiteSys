@@ -49,8 +49,7 @@ AutoReload::setRestartFunc(function (){
 });
 AutoReload::log("begin serverPid[{$serverPid}]");
 //设置服务程序的PID
-//$service = new AutoReload($serverPid);
-$service = new AutoReload(['serverPid'=>$serverPid]);
+$service = new AutoReload(['afterMillSeconds'=>100, 'serverPid'=>$serverPid]);
 //设置要监听的源码目录
 $service->watch($conf->inotify->watch_dir);
 //监听后缀为.php的文件
