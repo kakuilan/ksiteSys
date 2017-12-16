@@ -278,7 +278,33 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function basePwdAction() {
+        $uid = intval($this->request->get('uid'));
+        $info = $uid ? UserBase::findFirst($uid) : [];
+        if(empty($info)) {
+            return $this->alert('该信息不存在');
+        }
 
+        $isAdmin = true;
+        if($info && $info->site_id==0 && !$isAdmin) {
+            return $this->alert('无权限编辑该信息');
+        }
+
+        //视图变量
+        $this->view->setVars([
+            'saveUrl' => makeUrl('manage/user/basepwdsave'),
+            'listUrl' => makeUrl('manage/user/baselist'),
+            'uid' => $uid,
+            'info' => $info,
+        ]);
+
+        //设置静态资源
+        $this->assets->addJs('statics/js/lkkFunc.js');
+        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/md5.min.js');
+
+        return null;
     }
 
 
@@ -288,7 +314,33 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function basePwdsaveAction() {
+        $uid = intval($this->request->get('uid'));
+        $password = trim($this->request->get('password'));
+        $passwordCfr = trim($this->request->get('passwordCfr'));
+        $isAdmin = true; //TODO
 
+        $user = UserBase::findFirst($uid);
+        if(empty($user)) {
+            return $this->fail('信息不存在');
+        }elseif ($user->site_id==0 && !$isAdmin) {
+            return $this->fail('无权限编辑该信息');
+        }
+
+        $userServ = new UserService();
+        if(!$userServ->validateUserpwd($password)) {
+            return $this->fail($userServ->error());
+        }elseif ($password != $passwordCfr) {
+            return $this->fail('2次密码不相同');
+        }
+
+        $now = time();
+        $data = [
+            'update_time' => $now,
+            'password' => UserBase::makePasswdHash($password),
+        ];
+        $res = UserBase::upData($data, ['uid'=>$uid]);
+
+        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
     }
 
 

@@ -282,7 +282,7 @@ EOT;
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
-                area: ['605px', '350px'],
+                area: ['680px', '270px'],
                 offset: '10px',
                 content: pwdUrl+'?uid='+row.uid
             });

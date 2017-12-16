@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: doubo
+ * Copyright (c) 2017 LKK/lianq.net All rights reserved
+ * User: kakuilan@163.com
  * Date: 2017/12/14
  * Time: 14:44
  * Desc:
@@ -157,7 +157,7 @@
             rules : {
                 username : {
                     required : true,
-                    isWord : true,
+                    isUsrname : true,
                     rangelength : [5, 30]
                 },
                 email : {
@@ -178,7 +178,7 @@
             messages : {
                 username : {
                     required : e + "请输入用户名",
-                    isWord : e + "只能是英文、数字和下划线",
+                    isUsrname : e + "只能是英文、数字、点和下划线",
                     rangelength : e + "限制{0}~{1}字符以内"
                 },
                 email : {
