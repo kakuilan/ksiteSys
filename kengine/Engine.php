@@ -274,19 +274,14 @@ class Engine {
         //开启热更新
         if($conf['server_reload'] && true) {
             $pid = getmypid();
-            $res = self::openReloadCodesProcess(['pid'=>$pid]);
-            var_dump('openReloadCodesProcess', $res);
+            $res = self::openReloadCodesProcess(['pid'=>$pid,'isChild'=>1]);
             if($res!=-1) {
                 $watchPid = AutoReload::getSelfPid();
                 echo "open reloadCodesProcess sucess[{$watchPid}]\r\n";
             }
         }
 
-        while (true) {
-            sleep(1);
-            echo time()."\r\n";
-        }
-        //LkkServer::instance()->setConf($conf)->run();
+        LkkServer::instance()->setConf($conf)->run();
     }
 
 

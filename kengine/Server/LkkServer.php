@@ -26,7 +26,6 @@ use Lkk\Phalwoo\Phalcon\Mvc\Application as PwApplication;
 use Lkk\Phalwoo\Phalcon\Mvc\Dispatcher as PwDispatcher;
 use Lkk\Phalwoo\Phalcon\Session\Adapter\Redis as PwSession;
 use Lkk\Phalwoo\Phalcon\Tag as PwTag;
-use Lkk\Phalwoo\Server\AutoReload;
 use Lkk\Phalwoo\Server\Component\Client\Mysql;
 use Lkk\Phalwoo\Server\Component\Client\Redis;
 use Lkk\Phalwoo\Server\Component\Log\Handler\AsyncStreamHandler;
@@ -78,17 +77,6 @@ class LkkServer extends SwooleServer {
 
         //Tag注册url服务
         PwTag::setUrlService(LkkCmponent::url());
-
-        //开启热更新
-        $conf = self::getProperty('conf');
-        if($conf['server_reload'] && false) {
-            $res = self::openReloadCodesProcess();
-            var_dump('openReloadCodesProcess', $res);
-            if($res!=-1) {
-                $watchPid = AutoReload::getSelfPid();
-                echo "open reloadCodesProcess sucess[{$watchPid}]\r\n";
-            }
-        }
 
         parent::initServer();
 
@@ -435,18 +423,6 @@ class LkkServer extends SwooleServer {
 
     }
 
-
-    /**
-     * 开启代码热更新进程
-     * @return int
-     */
-    public static function openReloadCodesProcess() {
-        $file = BINDIR .'reload.php';
-        $cmd = "php {$file} &";
-
-        $res = pclose(popen("{$cmd}", 'r'));
-        return $res;
-    }
 
 
 }
