@@ -891,14 +891,14 @@ class LkkModel extends Model {
     }
 
 
-
-
     /**
      * 更新数据(同步)
-     * @param array $data
+     * @param array  $data
      * @param string $where
-     * @param null $table
-     * @return mixed
+     * @param null   $table
+     *
+     * @return bool
+     * @throws \Exception
      */
     public static function upData(array $data=[], $where='', $table=null) {
         if(!is_array($data) || empty($data) ) return false;
@@ -909,7 +909,16 @@ class LkkModel extends Model {
         $where = self::parseWhere2PDO($where);
 
         $_conn = LkkCmponent::SyncDbMaster('');
-        return $_conn->update($table, array_keys($data), array_values($data), $where);
+        $res = $_conn->update($table, array_keys($data), array_values($data), $where);
+        $err = $_conn->getErrorInfo();
+
+        getLogger()->info('upData', ['res'=>$res,'err'=>$err, 'data'=>$data]);
+
+        if(!$res && is_array($err) && $err[0]!='00000') {
+            throw new \Exception(json_encode($err));
+        }
+
+        return $res;
     }
 
 
@@ -920,6 +929,7 @@ class LkkModel extends Model {
      * @param null   $table
      *
      * @return bool
+     * @throws \Exception
      */
     public static function upDataAsync(array $data=[], $where='', $table=null) {
         if(!is_array($data) || empty($data) ) return false;
@@ -946,6 +956,11 @@ class LkkModel extends Model {
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, true);
+
+        if($res['code']!=0 && isset($res['errno'])) {
+            throw new \Exception($res['errno']);
+        }
+
         return ($res && $res['code']==0) ? $res['affected_rows'] : false;
     }
 

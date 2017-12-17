@@ -212,7 +212,10 @@ class UserController extends LkkController {
         $email = trim($this->request->get('email'));
         $password = trim($this->request->get('password'));
         $passwordCfr = trim($this->request->get('passwordCfr'));
-        $mobile = trim($this->request->get('mobile'));
+        $mobile = intval($this->request->get('mobile'));
+
+        //TODO catch db  Exception
+        //$mobile = trim($this->request->get('mobile'));
 
         $userServ = new UserService();
         $isAdmin = true;
@@ -263,6 +266,9 @@ class UserController extends LkkController {
         $data['update_time'] = $now;
         if($password) $data['password'] = UserBase::makePasswdHash($password);
 
+        $logger = getLogger('debug');
+        $logger->info('data'.$uid, $data);
+
         if($uid>0) {
             $res = UserBase::upData($data, ['uid'=>$uid]);
         }else{
@@ -271,6 +277,7 @@ class UserController extends LkkController {
 
         return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
     }
+
 
     /**
      * @title -基本用户密码页

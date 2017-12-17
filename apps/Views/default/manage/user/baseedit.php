@@ -203,8 +203,10 @@
                 $(formdata).each(function(index, obj){
                     sendData[obj.name] = obj.value;
                 });
-                sendData.password = md5(sendData.password);
-                sendData.passwordCfr = md5(sendData.passwordCfr);
+                if(sendData.password.length>0) {
+                    sendData.password = md5(sendData.password);
+                    sendData.passwordCfr = md5(sendData.passwordCfr);
+                }
                 $('#submit').attr("disabled","disabled");
                 $.post(saveUrl, sendData, function(res){
                     $('#submit').removeAttr("disabled");
