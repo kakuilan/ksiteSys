@@ -35,6 +35,8 @@ define('MODELDIR',  APPSDIR .'Models'       . DS ); //数据模型类目录
 define('VIEWDIR',   APPSDIR .'Views'        . DS ); //视图目录
 define('UPLODIR',   WWWDIR .'upload'        . DS ); //上传目录
 
+define('PHPERRLOG',    LOGDIR.'phperr.log');//本站php错误日志路径
+
 define('REDIS_CACHE_DB',    0); //用于存储CACHE的redis库
 define('REDIS_SESSION_DB',  1); //用于存储SESSION的redis库
 define('REDIS_QUEUE_DB',    9); //用于存储队列的redis库

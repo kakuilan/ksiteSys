@@ -15,6 +15,7 @@ use Apps\Models\Test;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Lkk\Phalwoo\Server\Concurrent\Promise;
 use GuzzleHttp\Promise\Promise as GuzPomise;
+use Apps\Models\UserBase;
 
 class TestController extends  LkkController {
 
@@ -63,6 +64,27 @@ class TestController extends  LkkController {
 
     }
 
+
+    public function testerrAction() {
+        //asdf = adsf;
+
+        $data = [
+            'uid' => 7,
+            'update_time' => time(),
+            'mobile' => '7890',
+        ];
+        $where = ['uid'=>7];
+        $res = yield UserBase::upDataAsync($data, $where);
+
+
+        /*$data = [
+            'uid' => 7,
+            'update_time' => time(),
+            'mobile' => 'qqqww',
+        ];
+        $res = UserBase::addData($data);
+        var_dump('sql-res', $data, $res);*/
+    }
 
 
 

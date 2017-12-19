@@ -912,8 +912,6 @@ class LkkModel extends Model {
         $res = $_conn->update($table, array_keys($data), array_values($data), $where);
         $err = $_conn->getErrorInfo();
 
-        getLogger()->info('upData', ['res'=>$res,'err'=>$err, 'data'=>$data]);
-
         if(!$res && is_array($err) && $err[0]!='00000') {
             throw new \Exception(json_encode($err));
         }

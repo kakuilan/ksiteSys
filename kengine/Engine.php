@@ -46,7 +46,7 @@ class Engine {
         date_default_timezone_set($comConf['timezone']);
         mb_substitute_character('none');
 
-        register_shutdown_function('\Lkk\Helpers\CommonHelper::errorHandler', LOGDIR.'phperr.log');
+        register_shutdown_function('\Lkk\Helpers\CommonHelper::errorHandler', PHPERRLOG);
 
         self::defineAppConstant();
         self::loadNamespaces();

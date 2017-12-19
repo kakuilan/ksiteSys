@@ -104,6 +104,7 @@ class LkkServer extends SwooleServer {
 
     public static function onSwooleWorkerStart($serv, $workerId) {
         self::getPoolManager()->initAll();
+        set_error_handler("\Kengine\Server\LkkServer::setErrorHandler", E_ALL);
 
         parent::onSwooleWorkerStart($serv, $workerId);
 
@@ -275,7 +276,6 @@ class LkkServer extends SwooleServer {
 
         //phalcon处理
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
-        //$resp = yield $app->handle($_uri);
         try {
             $resp = yield $app->handle($_uri);
         }catch (\Throwable $e) {
@@ -295,10 +295,10 @@ class LkkServer extends SwooleServer {
         if ($resp instanceof PwResponse) {
             if($resp->hasFile()) {
                 $resp->sendFile();
-                yield $response->end();
+                $response->end();
             }else{
-                yield $resp->send();
-                yield $response->end($resp->getContent());
+                $resp->send();
+                $response->end($resp->getContent());
             }
         } else if (is_string($resp)) {
             $response->end($resp);
@@ -324,9 +324,10 @@ class LkkServer extends SwooleServer {
         }
 
         self::afterSwooleResponse($request, $pwRequest);
+        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session, $dispatcher);
+
         yield self::logPv();
 
-        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session, $dispatcher);
         return true;
     }
 
@@ -426,6 +427,73 @@ class LkkServer extends SwooleServer {
         $eventManager = $di->get('eventsManager');
         $eventManager->fire('SwooleServer:onSwooleClose', self::instance());
 
+    }
+
+
+    public static function setErrorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
+        $displayErrors = ini_get("display_errors");
+        $displayErrors = strtolower($displayErrors);
+        if (error_reporting() === 0 || $displayErrors === "on") {
+            return false;
+        }
+        list($error, $log) = self::mapErrorCode($errno);
+        $data = array(
+            'level' => $log,
+            'code' => $errno,
+            'error' => $error,
+            'description' => $errstr,
+            'file' => $errfile,
+            'line' => $errline,
+            'path' => $errfile,
+            'message' => $error . ' (' . $errno . '): ' . $errstr . ' in [' . $errfile . ', line ' . $errline . ']',
+            'context' => $errcontext,
+        );
+
+        $logData = print_r($data, 1);
+        $logfile = PHPERRLOG;
+        //swoole_async_writefile($logfile, $logData, function($filename) use($logfile) {}, FILE_APPEND);
+        file_put_contents($logfile, FILE_APPEND);
+
+        return true;
+    }
+
+
+    public static function mapErrorCode($code) {
+        $error = $log = null;
+        switch ($code) {
+            case E_PARSE:
+            case E_ERROR:
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_USER_ERROR:
+                $error = 'Fatal Error';
+                $log = LOG_ERR;
+                break;
+            case E_WARNING:
+            case E_USER_WARNING:
+            case E_COMPILE_WARNING:
+            case E_RECOVERABLE_ERROR:
+                $error = 'Warning';
+                $log = LOG_WARNING;
+                break;
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                $error = 'Notice';
+                $log = LOG_NOTICE;
+                break;
+            case E_STRICT:
+                $error = 'Strict';
+                $log = LOG_NOTICE;
+                break;
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+                $error = 'Deprecated';
+                $log = LOG_NOTICE;
+                break;
+            default :
+                break;
+        }
+        return array($error, $log);
     }
 
 
