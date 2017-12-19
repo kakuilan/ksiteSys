@@ -33,8 +33,7 @@ use Lkk\Phalwoo\Server\Component\Log\SwooleLogger;
 use Lkk\Phalwoo\Server\Component\Pool\PoolManager;
 use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
-use Phalcon\Debug as PhDebug;
-use Phalcon\Mvc\Application;
+use Throwable;
 
 class LkkServer extends SwooleServer {
 
@@ -154,23 +153,12 @@ class LkkServer extends SwooleServer {
             xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
         }
 
-        $comConf = getConf('common');
-
-        if($comConf->debug) {
-            $debug = new PwDebug();
-            $debug->setSwooleResponse($response);
-            $debug->listen();
-        }
-
         $di = new PwDi();
-        //$app = new Application($di);
         $app = new PwApplication($di);
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
 
-        //$logger = self::getLogger();
-        $logger = getLogger('debug');
-        $logger->info('request:', [
+        getLogger()->info('request:', [
             'header' => $request->header ?? '',
             'server' => $request->server ?? '',
             'get' => $request->get ?? '',
@@ -278,19 +266,13 @@ class LkkServer extends SwooleServer {
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
         try {
             $resp = yield $app->handle($_uri);
-        }catch (\Throwable $e) {
+        }catch (Throwable $e) {
             $resp = "Error code: " . $e->getCode() . '<br>';
             $resp .= "Error message: " . $e->getMessage() . '<br>';
             $resp .= "Error file: " . $e->getFile() . '<br>';
             $resp .= "Error fileline: " . $e->getLine() . '<br>';
             $resp .= "Error trace: " . $e->getTraceAsString() . '<br>';
         }
-
-        /*if($comConf->debug && $debug->hasError()) {
-
-        }else{
-
-        }*/
 
         if ($resp instanceof PwResponse) {
             if($resp->hasFile()) {
@@ -305,7 +287,6 @@ class LkkServer extends SwooleServer {
         } else {
             $response->end('none');
         }
-        //return $response->end('ok');
 
         //设置请求用时
         $useTime = CommonHelper::getMillisecond() - ($request->server['request_time_float'] ?? $request->server['request_time']) * 1000;

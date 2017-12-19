@@ -36,8 +36,8 @@ return [
 
     //本系统日志,强制开启
     'sys_log' => [
-        'name' => 'kslog', //日志名
-        'file' => LOGDIR .'kslog.log', //日志文件路径
+        'name' => 'kss', //日志名
+        'file' => SYSRUNLOG, //日志文件路径
         'slow_request' => 10, //慢请求,毫秒
     ],
 
