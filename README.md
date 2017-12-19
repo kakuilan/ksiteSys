@@ -11,6 +11,12 @@ License
 No license.本系统不授权.  
 
 
+依赖:  
+phalcon 3.2.4  
+swoole 1.9.23  
+
+
+
 TODO:  
 swoole里SQL注入处理  
 修复StringHelper::getText  
