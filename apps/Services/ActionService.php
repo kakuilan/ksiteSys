@@ -82,7 +82,8 @@ class ActionService extends ServiceBase {
         $num = 0;
         $now  = time();
         foreach ($modules as $m) {
-            $m = strtolower($m);
+            $m = strtolower(trim($m));
+            if(empty($m)) continue;
             $check = Action::getInfo($m);
             if(empty($check)) {
                 $type = $m=='cli' ?  -1 : 1;
