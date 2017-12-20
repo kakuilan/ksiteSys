@@ -44,6 +44,7 @@ if(!$conf->server_reload) {
 
 AutoReload::setSelfPidPath($conf->inotify->pid_file);
 AutoReload::setSelfLogPath($conf->inotify->log_file);
+AutoReload::setPrcessTitle($conf->server_name.'-inotify_reload');
 AutoReload::setRestartFunc(function (){
     Engine::openReloadCodesProcess(['pid'=>0,'isChild'=>1]);
 });

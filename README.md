@@ -12,6 +12,7 @@ No license.本系统不授权.
 
 
 依赖:  
+php 7.0  
 phalcon 3.2.4  
 swoole 1.9.23  
 
