@@ -11,9 +11,11 @@
 use Lkk\Phalwoo\Server\ServerConst;
 
 return [
-    'server_name' => KSERVER_NAME,
-    'server_vers' => KSERVER_VERS,
-    'pid_dir' => RUNTDIR .'pids' .DS,
+    'server_name'   => KSERVER_NAME,
+    'server_vers'   => KSERVER_VERS,
+    'pid_dir'       => RUNTDIR .'pids' .DS,
+    'open_debug'    => false, //是否打开调试
+    'open_loger'    => false, //是否打开运行日志
 
     //是否热更新服务代码,需inotify扩展
     'server_reload' => true,
@@ -34,10 +36,12 @@ return [
         'port' => 6666, //6666
     ],
 
-    //本系统日志,强制开启
+    //本系统运行日志
     'sys_log' => [
         'name' => 'kss', //日志名
         'file' => SYSRUNLOG, //日志文件路径
+        'file_size' => 20971520, //日志文件大小限制20M
+        'max_files' => 20, //要保留的日志文件的最大数量,默认是零,即,无限个文件
         'slow_request' => 10, //慢请求,毫秒
     ],
 
@@ -77,7 +81,7 @@ return [
         //Listen队列长度
         'backlog' => 128,
         //指定swoole错误日志文件
-        'log_file' => LOGDIR .'swoole.log',
+        'log_file' => SWOOLELOG,
         //日志级别
         'log_level' => 0,
         //启用心跳检测,每隔N秒轮循一次

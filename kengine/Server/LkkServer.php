@@ -267,25 +267,29 @@ class LkkServer extends SwooleServer {
         try {
             $resp = yield $app->handle($_uri);
         }catch (Throwable $e) {
-            $resp = "Error code: " . $e->getCode() . '<br>';
-            $resp .= "Error message: " . $e->getMessage() . '<br>';
-            $resp .= "Error file: " . $e->getFile() . '<br>';
-            $resp .= "Error fileline: " . $e->getLine() . '<br>';
-            $resp .= "Error trace: " . $e->getTraceAsString() . '<br>';
+            if(SwooleServer::isOpenDebug()) {
+                $resp = "Error code: " . $e->getCode() . '<br>';
+                $resp .= "Error message: " . $e->getMessage() . '<br>';
+                $resp .= "Error file: " . $e->getFile() . '<br>';
+                $resp .= "Error fileline: " . $e->getLine() . '<br>';
+                $resp .= "Error trace: " . $e->getTraceAsString() . '<br>';
+            }else{
+                $resp = 'Sorry,server has error!';
+            }
         }
 
         if ($resp instanceof PwResponse) {
             if($resp->hasFile()) {
                 $resp->sendFile();
-                $response->end();
+                yield $response->end();
             }else{
                 $resp->send();
-                $response->end($resp->getContent());
+                yield $response->end($resp->getContent());
             }
         } else if (is_string($resp)) {
-            $response->end($resp);
+            yield $response->end($resp);
         } else {
-            $response->end('none');
+            yield $response->end('none');
         }
 
         //设置请求用时
@@ -320,12 +324,14 @@ class LkkServer extends SwooleServer {
      * @return bool
      */
     protected static function logRequest(\swoole_http_request $request, PwRequest $pwRequest) {
-        $useTime = $pwRequest->getUseMillisecond();
-        if($useTime > self::instance()->conf['sys_log']['slow_request']) {
-            self::getLogger()->info("http request execute time[http_slow_request]:{$useTime}", $request->server);
-        }
+        if(SwooleServer::isOpenLoger()) {
+            $useTime = $pwRequest->getUseMillisecond();
+            if($useTime > self::instance()->conf['sys_log']['slow_request']) {
+                self::getLogger()->info("http request execute time[http_slow_request]:{$useTime}", $request->server);
+            }
 
-        //TODO 拆成队列，整除10,批量入库
+            //TODO 拆成队列，整除10,批量入库
+        }
 
         return true;
     }

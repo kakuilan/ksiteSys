@@ -37,6 +37,7 @@ define('UPLODIR',   WWWDIR .'upload'        . DS ); //上传目录
 
 define('PHPERRLOG',    LOGDIR.'phperr.log');//本站php错误日志路径
 define('SYSRUNLOG',    LOGDIR.'ksslog.log');//本站系统运行日志路径
+define('SWOOLELOG',    LOGDIR.'swoole.log');//swoole运行日志路径
 
 define('REDIS_CACHE_DB',    0); //用于存储CACHE的redis库
 define('REDIS_SESSION_DB',  1); //用于存储SESSION的redis库
