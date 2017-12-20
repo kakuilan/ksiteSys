@@ -10,11 +10,11 @@
 
 namespace Kengine;
 
-use Phalcon\Mvc\Controller;
-use Phalcon\Mvc\View;
-//use Phalcon\Http\Response;
-use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
+use Lkk\Phalwoo\Phalcon\Mvc\Controller;
+use Lkk\Phalwoo\Server\SwooleServer;
+use Phalcon\Mvc\View;
 
 class LkkController extends Controller {
 
@@ -23,14 +23,6 @@ class LkkController extends Controller {
 
     //头部SEO
     public $headerSeo;
-
-    //要输出的json内容
-    public $jsonRes = [
-        'status' => false, //状态
-        'code' => 200, //状态码
-        'data' => [], //数据
-        'msg' => '', //提示信息
-    ];
 
 
     /**
@@ -130,34 +122,17 @@ class LkkController extends Controller {
         $response->setHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
         $response->setHeader("Access-Control-Allow-Credentials", "true");
 
-        //包含debug调试信息
-        $debug = '';
-        if(getConf('common')['debug']) {
-            $debug = ob_get_contents();
-            ob_end_clean();
-        }
-
-        if(!empty($res)) {
-            $output = array_merge($this->jsonRes, $res);
-        }else{
-            $output = $this->jsonRes;
-        }
-
+        $this->setJsonRes($res);
+        $this->setJsonStatus(true);
+        $output = $this->getJsonRes();
         $output = json_encode($output);
 
-        if(empty($callback)) $callback = isset($_GET['callback']) ? trim($_GET['callback']) : '';
+        $get = $this->request->getQuery();
+        if(empty($callback)) $callback = isset($get['callback']) ? trim($get['callback']) : '';
         if($callback) $output = "{$callback}($output)";
-
-        //取消视图模板
-        $this->view->setRenderLevel(View::LEVEL_NO_RENDER);
-        $this->view->disable();
-
-        $output = $debug . $output;
 
         //设置输出
         $response->setContent($output);
-        // 返回响应到客户端
-        //$response->send();
 
         return $output;
     }

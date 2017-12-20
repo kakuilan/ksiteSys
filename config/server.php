@@ -14,8 +14,8 @@ return [
     'server_name'   => KSERVER_NAME,
     'server_vers'   => KSERVER_VERS,
     'pid_dir'       => RUNTDIR .'pids' .DS,
-    'open_debug'    => false, //是否打开调试
-    'open_loger'    => false, //是否打开运行日志
+    'open_debug'    => true, //是否打开调试
+    'open_loger'    => true, //是否打开运行日志
 
     //是否热更新服务代码,需inotify扩展
     'server_reload' => true,
@@ -40,8 +40,8 @@ return [
     'sys_log' => [
         'name' => 'kss', //日志名
         'file' => SYSRUNLOG, //日志文件路径
-        'file_size' => 20971520, //日志文件大小限制20M
-        'max_files' => 20, //要保留的日志文件的最大数量,默认是零,即,无限个文件
+        'file_size' => 20971520, //日志文件大小限制,20M
+        'max_files' => 10, //要保留的日志文件的最大数量,默认是零,即,无限个文件
         'slow_request' => 10, //慢请求,毫秒
     ],
 
