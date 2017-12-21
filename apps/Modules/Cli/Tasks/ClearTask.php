@@ -21,14 +21,17 @@ class ClearTask extends LkkTask {
      */
     public function clearRuntimeAction() {
         $dirs = DirectoryHelper::getFileTree(RUNTDIR, 'dir', false);
-        $fileSize = DirectoryHelper::getDirSize(RUNTDIR);
-        $sizeStr = StringHelper::formatBytes($fileSize);
 
+        $fileSize = 0;
         if(!empty($dirs)) {
             foreach ($dirs as $dir) {
+                if(stripos($dir, 'pids') || stripos($dir, 'session')) continue;
+                $fileSize += DirectoryHelper::getDirSize(RUNTDIR);
                 DirectoryHelper::emptyDir($dir);
             }
         }
+
+        $sizeStr = StringHelper::formatBytes($fileSize);
 
         echo "clear totoal filesize:{$sizeStr}\r\n";
     }
