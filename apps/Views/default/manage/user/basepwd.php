@@ -24,6 +24,14 @@
                             <input type="hidden" name="uid" value="{{uid}}" />
 
                             <div class="form-group">
+                                <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="username">用户名</label>
+                                <div class="col-sm-8 col-xs-7">
+                                    <input type="text" class="input-large" name="username" id="username" value="{% if info %}{{info.username}}{% endif %}" maxlength="25" {% if info %}readonly disabled{% endif %}>
+                                    <span class="middle text-danger"></span>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="password">密码</label>
                                 <div class="col-sm-8 col-xs-7">
                                     <input type="password" class="input-large" name="password" id="password" value="" maxlength="25">
