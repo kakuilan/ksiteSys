@@ -309,11 +309,7 @@ class Engine {
         $dispatcher = $di->get('dispatcher');
         $dispatcher->setDefaultNamespace('Apps\Modules\Cli\Tasks');
         $di->setShared('dispatcher', $dispatcher);
-
-        //cli视图服务
-        $view = Engine::getModuleView('cli');
-        $di->setShared('view', $view);
-
+        
         // URL设置
         $di->setShared('url', LkkCmponent::url());
 
