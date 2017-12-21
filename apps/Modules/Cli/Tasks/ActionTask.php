@@ -18,7 +18,7 @@ use Apps\Services\ActionService;
  * Class 动作任务
  * @package Apps\Modules\Cli\Tasks
  */
-class ActionTask extends \Phalcon\Cli\Task {
+class ActionTask extends LkkTask {
 
     /**
      * @title -默认任务
