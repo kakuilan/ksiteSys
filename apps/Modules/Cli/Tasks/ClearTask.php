@@ -4,7 +4,7 @@
  * User: kakuilan@163.com
  * Date: 2017/12/21
  * Time: 20:39
- * Desc: 清空-任务
+ * Desc: 清空目录-任务
  */
 
 namespace Apps\Modules\Cli\Tasks;
@@ -35,6 +35,67 @@ class ClearTask extends LkkTask {
 
         echo "clear totoal filesize:{$sizeStr}\r\n";
     }
+
+
+    public function clearCacheDirAction() {
+        $dir = RUNTDIR . 'cache';
+        $fileSize = DirectoryHelper::getDirSize($dir);
+        $sizeStr = StringHelper::formatBytes($fileSize);
+        DirectoryHelper::emptyDir($dir);
+
+        echo "clear totoal filesize:{$sizeStr}\r\n";
+    }
+
+
+    public function clearLogsDirAction() {
+        $dir = RUNTDIR . 'logs';
+        $fileSize = DirectoryHelper::getDirSize($dir);
+        $sizeStr = StringHelper::formatBytes($fileSize);
+        DirectoryHelper::emptyDir($dir);
+
+        echo "clear totoal filesize:{$sizeStr}\r\n";
+    }
+
+
+    public function clearPidsDirAction() {
+        $dir = RUNTDIR . 'pids';
+        $fileSize = DirectoryHelper::getDirSize($dir);
+        $sizeStr = StringHelper::formatBytes($fileSize);
+        DirectoryHelper::emptyDir($dir);
+
+        echo "clear totoal filesize:{$sizeStr}\r\n";
+    }
+
+
+    public function clearSessionDirAction() {
+        $dir = RUNTDIR . 'session';
+        $fileSize = DirectoryHelper::getDirSize($dir);
+        $sizeStr = StringHelper::formatBytes($fileSize);
+        DirectoryHelper::emptyDir($dir);
+
+        echo "clear totoal filesize:{$sizeStr}\r\n";
+    }
+
+
+    public function clearTempDirAction() {
+        $dir = RUNTDIR . 'temp';
+        $fileSize = DirectoryHelper::getDirSize($dir);
+        $sizeStr = StringHelper::formatBytes($fileSize);
+        DirectoryHelper::emptyDir($dir);
+
+        echo "clear totoal filesize:{$sizeStr}\r\n";
+    }
+
+
+    public function clearVoltDirAction() {
+        $dir = RUNTDIR . 'volt';
+        $fileSize = DirectoryHelper::getDirSize($dir);
+        $sizeStr = StringHelper::formatBytes($fileSize);
+        DirectoryHelper::emptyDir($dir);
+
+        echo "clear totoal filesize:{$sizeStr}\r\n";
+    }
+
 
 
 

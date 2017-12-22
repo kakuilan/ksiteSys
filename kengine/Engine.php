@@ -348,6 +348,9 @@ class Engine {
         if(!isset($arguments['task'])) $arguments['task'] = 'main';
         if(!isset($arguments['action'])) $arguments['action'] = 'main';
 
+        global $cliArguments;
+        $cliArguments= $arguments;
+
         try {
             $app->handle($arguments);
         } catch (\Exception $e) {

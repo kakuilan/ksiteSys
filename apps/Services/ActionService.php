@@ -249,6 +249,23 @@ class ActionService extends ServiceBase {
     }
 
 
+    /**
+     * 获取CLI下的tasks信息
+     * @return array
+     */
+    public function getCliTasks() {
+        $taskFiles = DirectoryHelper::getFileTree(CTASKDIR, 'file');
+        $taskArr = [];
+        if(!empty($taskFiles)) {
+            foreach ($taskFiles as $taskFile) {
+                $item = $this->analyseContrlFile($taskFile);
+                if($item) array_push($taskArr, $item);
+            }
+        }
+
+        return $taskArr;
+    }
+
 
 
 }
