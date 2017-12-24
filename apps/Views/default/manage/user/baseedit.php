@@ -204,6 +204,11 @@
                     sendData[obj.name] = obj.value;
                 });
                 if(sendData.password.length>0) {
+                    if(/^\d+$/.test(sendData.password)) {
+                        layer.alert('密码不能全为数字');
+                        return false;
+                    }
+                
                     sendData.password = md5(sendData.password);
                     sendData.passwordCfr = md5(sendData.passwordCfr);
                 }
