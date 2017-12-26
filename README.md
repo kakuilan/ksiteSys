@@ -22,6 +22,7 @@ TODO:
 swoole里SQL注入处理  
 修复StringHelper::getText  
 使用php7 xhprof  
+socket  
 
 
 检查nginx配置: /usr/local/nginx/sbin/nginx -t  

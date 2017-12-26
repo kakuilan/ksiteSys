@@ -10,6 +10,7 @@
 return [
     'agentFpName'       => 'uafp', //浏览器指纹参数名称
     'tokenName'         => 'auth_token', //token参数名称,前台和API使用
+    'rootUids'          => [1], //超级管理员UID数组
 
 
 ];

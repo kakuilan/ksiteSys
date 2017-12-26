@@ -202,7 +202,7 @@ class LkkServer extends SwooleServer {
         $pwResponse->setDi($di);
         $pwResponse->setSwooleResponse($response);
         $di->setShared('response', $pwResponse);
-        
+
         $cookies = new LkkCookies();
         $cookies->setConf(getConf('cookie')->toArray());
         $cookies->useEncryption(false);
@@ -222,6 +222,11 @@ class LkkServer extends SwooleServer {
         $userQps = $session->getQps();
         if($userQps>9) {
             return $response->end('访问过于频繁');
+        }
+
+        //检查是否sessionID变更
+        if($agentService->isSessionIdChange()) {
+            //TODO
         }
 
         //注册各模块

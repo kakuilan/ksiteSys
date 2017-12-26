@@ -10,14 +10,14 @@
 
 namespace Kengine;
 
-
+use Kengine\LkkCmponent;
+use Lkk\Helpers\EncryptHelper;
+use Lkk\LkkMacAddress;
+use Lkk\Phalwoo\Phalcon\Paginator\Adapter\AsyncMysql as PaginatorAsyncMysql;
+use Lkk\Phalwoo\Server\SwooleServer;
 use Phalcon\Mvc\Model;
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
-use Lkk\Helpers\EncryptHelper;
-use Lkk\LkkMacAddress;
-use Lkk\Phalwoo\Server\SwooleServer;
-use Lkk\Phalwoo\Phalcon\Paginator\Adapter\AsyncMysql as PaginatorAsyncMysql;
 
 class LkkModel extends Model {
 
@@ -1275,9 +1275,6 @@ class LkkModel extends Model {
 
         return $guid;
     }
-
-
-
 
 
 

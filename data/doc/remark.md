@@ -4,3 +4,5 @@
 
 ##  
 
+$query = $this->modelsManager->createBuilder()  
+$res = $query->getQuery()->execute();  

@@ -15,6 +15,7 @@ use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\ValidateHelper;
 use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
+use Apps\Models\AdmUser;
 use Apps\Services\UserService;
 
 
@@ -351,6 +352,92 @@ class UserController extends LkkController {
     }
 
 
+    /**
+     * @title -管理员列表页
+     * @desc  -管理员列表页
+     * @return mixed
+     */
+    public function managersAction() {
+
+        return null;
+    }
+
+
+    /**
+     * @title -管理员列表页json
+     * @desc  -管理员列表页json
+     * @return mixed
+     */
+    public function managerListAction() {
+        return null;
+    }
+
+
+    /**
+     * @title -管理员编辑页
+     * @desc  -管理员编辑页
+     * @return mixed
+     */
+    public function managerEditAction() {
+        $uid = intval($this->request->get('uid'));
+        $info = $uid ? AdmUser::getInfoByUid($uid) : [];
+
+        $isAdmin = true;
+        if($info && $info->site_id==0 && !$isAdmin) {
+            return $this->alert('无权限编辑该信息');
+        }
+
+        //视图变量
+        $this->view->setVars([
+            'statusArr' => UserBase::getStatusArr(),
+            'mobileStatusArr' => UserBase::getMobileStatusArr(),
+            'emailStatusArr' => UserBase::getEmailStatusArr(),
+            'typesArr' => UserBase::getTypesArr(),
+            'saveUrl' => makeUrl('manage/user/basesave'),
+            'listUrl' => makeUrl('manage/user/baselist'),
+            'uid' => $uid,
+            'info' => $info,
+        ]);
+
+        //设置静态资源
+        $this->assets->addJs('statics/js/lkkFunc.js');
+        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/md5.min.js');
+
+        return null;
+    }
+
+
+    /**
+     * @title -保存管理员信息
+     * @desc  -保存管理员信息
+     * @return mixed
+     */
+    public function managerSaveAction() {
+        return null;
+    }
+
+
+    /**
+     * @title -管理员密码页
+     * @desc  -管理员密码页
+     * @return mixed
+     */
+    public function managerPwdAction() {
+        return null;
+    }
+
+
+    /**
+     * @title -保存管理员密码
+     * @desc  -保存管理员密码
+     * @return mixed
+     */
+    public function managerPwdsaveAction() {
+        return null;
+    }
 
 
 
