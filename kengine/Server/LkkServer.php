@@ -22,6 +22,7 @@ use Lkk\Phalwoo\Phalcon\Di as PwDi;
 use Lkk\Phalwoo\Phalcon\Http\Request as PwRequest;
 use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
 use Lkk\Phalwoo\Phalcon\Http\Response\Cookies as PwCookies;
+use Lkk\Phalwoo\Phalcon\Http\UserAgent;
 use Lkk\Phalwoo\Phalcon\Mvc\Application as PwApplication;
 use Lkk\Phalwoo\Phalcon\Mvc\Dispatcher as PwDispatcher;
 use Lkk\Phalwoo\Phalcon\Session\Adapter\Redis as PwSession;
@@ -31,7 +32,6 @@ use Lkk\Phalwoo\Server\Component\Client\Redis;
 use Lkk\Phalwoo\Server\Component\Log\Handler\AsyncStreamHandler;
 use Lkk\Phalwoo\Server\Component\Log\SwooleLogger;
 use Lkk\Phalwoo\Server\Component\Pool\PoolManager;
-use Lkk\Phalwoo\Server\DenyUserAgent;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Throwable;
 
@@ -158,31 +158,36 @@ class LkkServer extends SwooleServer {
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
 
-        /*getLogger()->info('request:', [
+        getLogger()->info('request:', [
             'header' => $request->header ?? '',
             'server' => $request->server ?? '',
             'get' => $request->get ?? '',
             'post' => $request->post ?? '',
             'cookie' => $request->cookie ?? '',
-        ]);*/
+        ]);
 
         //加密组件放在cookie和denAgent前面
         $crypt = LkkCmponent::crypt();
         $di->setShared('crypt', $crypt);
 
-        //TODO 检查客户端,防止爬虫和压力测试
-        $denAgent = new DenyUserAgent();
-        $denAgent->setRequest($request);
-        $denAgent->setDI($di);
+        //检查客户端,防止爬虫和压力测试
+        $loginCnf = getConf('login');
+        $agentService = new UserAgent();
+        $agentService->setAllowBench(true); //允许压测
+        $agentService->setAgentFpName($loginCnf->agentFpName);
+        $agentService->setTokenName($loginCnf->tokenName);
+        $agentService->setTokenFunc(function($token){
+            //TODO 校验token
+            return true;
+        });
+        $agentService->setSwRequest($request);
+        $agentService->setDI($di);
+        $di->setShared('userAgent', $agentService);
 
-        //允许压测
-        $denAgent->setAllowBench(true);
-        $agentUuid = $denAgent->getAgentUuid();
-        $di->setShared('denAgent', $denAgent);
-
-        $chkAgen = $denAgent->checkAll();
+        //执行验证
+        $chkAgen = $agentService->validate();
         if(!$chkAgen) {
-            return $response->end($denAgent->error());
+            return $response->end($agentService->error());
         }
 
         self::resetRequestGlobal($request);
@@ -197,9 +202,7 @@ class LkkServer extends SwooleServer {
         $pwResponse->setDi($di);
         $pwResponse->setSwooleResponse($response);
         $di->setShared('response', $pwResponse);
-
-        //TODO 设置dispatcher
-
+        
         $cookies = new LkkCookies();
         $cookies->setConf(getConf('cookie')->toArray());
         $cookies->useEncryption(false);
@@ -229,7 +232,7 @@ class LkkServer extends SwooleServer {
         $router = Engine::setRouter();
         $di->setShared('router', $router);
 
-        //设置分发器
+        //设置dispatcher分发器
         $dispatcher = new PwDispatcher();
         $di->setShared('dispatcher', $dispatcher);
 
@@ -309,7 +312,7 @@ class LkkServer extends SwooleServer {
         }
 
         self::afterSwooleResponse($request, $pwRequest);
-        unset($request, $response, $di, $app, $denAgent, $pwRequest, $pwResponse, $cookies, $session, $dispatcher);
+        unset($request, $response, $di, $app, $agentService, $pwRequest, $pwResponse, $cookies, $session, $dispatcher);
 
         yield self::logPv();
 
