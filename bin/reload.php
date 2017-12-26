@@ -1,7 +1,7 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: doubo
+ * Copyright (c) 2017 LKK/lianq.net All rights reserved
+ * User: kakuilan@163.com
  * Date: 2017/12/15
  * Time: 14:12
  * Desc: 代码热更新
