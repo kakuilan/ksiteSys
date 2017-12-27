@@ -120,16 +120,18 @@ class LkkModel extends Model {
      */
     public static function getTableColumns($table=null, $hasPri=false) {
         if(empty($table)) $table = self::getTableName();
-        if(is_null(self::$tableColumns)) {
+        if(is_null(self::$tableColumns) || empty(self::$tableColumns)) {
             $_conn = LkkCmponent::SyncDbMaster('');
             $res = $_conn->fetchAll(" SHOW FULL COLUMNS FROM {$table} ");
             if($res) {
                 $pri = null;
-                $fields = array_column($res, 'Field');
+                $fields = [];
                 foreach ($res as $v) {
-                    if($v['Key'] =='PRI') {
-                        $pri = $v['Field'];
-                        break;
+                    $field = trim($v['Field']);
+                    array_push($fields, $field);
+
+                    if(trim($v['Key']) =='PRI') {
+                        $pri = $field;
                     }
                 }
 
@@ -1276,6 +1278,30 @@ class LkkModel extends Model {
         return $guid;
     }
 
+
+    /**
+     * 单个row对象转为array
+     * left join连表查询的结果toArray()会[join result is grouped by model/table names],故用此方法
+     * @param $obj
+     * @return array
+     */
+    public static function rowToArray($obj) {
+        if(!is_object($obj) && !method_exists($obj, 'toArray')) return [];
+        $arr = $obj->toArray();
+        $new = [];
+
+        foreach ($arr as $k=>$item) {
+            if(is_object($item)) {
+                unset($arr[$k]);
+                $tmp = self::rowToArray($item);
+                if(count($tmp)==1 && isset($tmp[0])) $tmp = current($tmp);
+
+                $new = array_merge($new, $tmp);
+            }
+        }
+
+        return array_merge($new, $arr);
+    }
 
 
 

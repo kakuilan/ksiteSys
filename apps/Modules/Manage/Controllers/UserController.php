@@ -170,7 +170,9 @@ class UserController extends LkkController {
         $info = $uid ? UserBase::findFirst($uid) : [];
 
         $isAdmin = true;
-        if($info && $info->site_id==0 && !$isAdmin) {
+        if($uid && empty($info)) {
+            return $this->alert('该信息不存在');
+        }elseif($info && $info->site_id==0 && !$isAdmin) {
             return $this->alert('无权限编辑该信息');
         }
 
@@ -383,7 +385,9 @@ class UserController extends LkkController {
         $info = $uid ? AdmUser::getInfoByUid($uid) : [];
 
         $isAdmin = true;
-        if($info && $info->site_id==0 && !$isAdmin) {
+        if($uid && empty($info)) {
+            return $this->alert('该信息不存在');
+        }elseif($info && $info->site_id==0 && !$isAdmin) {
             return $this->alert('无权限编辑该信息');
         }
 
@@ -393,8 +397,8 @@ class UserController extends LkkController {
             'userTypesArr' => UserBase::getTypesArr(),
             'statusArr' => AdmUser::getStatusArr(),
             'levelArr' => AdmUser::getLevelArr(),
-            'saveUrl' => makeUrl('manage/user/managerSave'),
-            'listUrl' => makeUrl('manage/user/managerList'),
+            'saveUrl' => makeUrl('manage/user/managersave'),
+            'listUrl' => makeUrl('manage/user/managerlist'),
             'uid' => $uid,
             'info' => $info,
         ]);
@@ -416,6 +420,56 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function managerSaveAction() {
+        $uid = intval($this->request->get('uid'));
+        $user_status = intval($this->request->get('user_status'));
+        $level = intval($this->request->get('level'));
+        $status = intval($this->request->get('status'));
+        $user_type = intval($this->request->get('user_type'));
+
+        $username = trim($this->request->get('username'));
+        $email = trim($this->request->get('email'));
+        $frontPassword = trim($this->request->get('frontPassword'));
+        $frontPassword2 = trim($this->request->get('frontPassword2'));
+        $backPassword = trim($this->request->get('backPassword'));
+        $backPassword2 = trim($this->request->get('backPassword2'));
+
+        $userServ = new UserService();
+        $isAdmin = true;
+
+        if($frontPassword && $frontPassword!=$frontPassword2) {
+            return $this->fail('前台密码2次不相同');
+        }elseif ($backPassword && $backPassword!=$backPassword2) {
+            return $this->fail('后台密码2次不相同');
+        }
+
+        $now = time();
+        $baseData = [
+            'site_id' => $this->siteId,
+            'status' => $user_status,
+            'type' => $user_type,
+        ];
+        $admData = [
+            'site_id' => $this->siteId,
+            'level' => $level,
+            'status' => $status,
+        ];
+
+        if($uid<=0) { //新增
+            if(!$userServ->validateUsername($username) || !$userServ->validateEmail($email) || !$userServ->validateUserpwd($backPassword)) {
+                return $this->fail($userServ->error());
+            }elseif (!$userServ->checkAdminExist($username, $uid)) {
+                return $this->fail($userServ->error());
+            }
+
+            $user = UserBase::getInfoByUsername($username);
+        }else{ //修改
+
+        }
+
+
+
+
+
         return null;
     }
 

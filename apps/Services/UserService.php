@@ -13,6 +13,7 @@ namespace Apps\Services;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\ValidateHelper;
 use Apps\Models\UserBase;
+use Apps\Models\AdmUser;
 
 class UserService extends ServiceBase {
 
@@ -116,6 +117,19 @@ class UserService extends ServiceBase {
         $user = UserBase::getRow(['username'=>$str]);
 
         return $user ? ($uid ? ($uid==$user->uid ? false : true) : true ) : false;
+    }
+
+
+    /**
+     * 检查管理员是否已存在着
+     * @param string $str 用户名
+     * @param int $uid 对比UID
+     * @return bool
+     */
+    public static function isAdminExist(string $str, $uid=0) {
+        $adm = UserBase::getAdmByUsername($str);
+
+        return $adm ? ($uid ? ($uid==$adm->uid ? false : true) : true ) : false;
     }
 
 
@@ -252,7 +266,7 @@ class UserService extends ServiceBase {
 
 
     /**
-     * 检查用户是否存在
+     * 检查基本用户是否存在
      * @param string $str
      * @param int $uid
      * @return bool
@@ -319,8 +333,18 @@ class UserService extends ServiceBase {
     }
 
 
+    /**
+     * 检查管理员是否存在
+     * @param string $str 管理员用户名
+     * @param int $uid
+     * @return bool
+     */
+    public function checkAdminExist(string $str, $uid=0) {
+        $chk = self::isAdminExist($str, $uid);
+        if($chk) $this->setError('该管理员已存在');
 
-
+        return !$chk;
+    }
 
 
 

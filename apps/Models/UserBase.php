@@ -12,6 +12,18 @@ namespace Apps\Models;
 
 class UserBase extends BaseModel {
 
+    public static $joinAdmFields = [
+        self::class .".*",
+        "a.uid AS adm_uid",
+        "a.level AS adm_level",
+        "a.status AS adm_status",
+        "a.logins AS adm_logins",
+        "a.login_fails AS adm_login_fails",
+        "a.last_login_ip AS adm_last_login_ip",
+        "a.last_login_time AS adm_last_login_time",
+    ];
+
+
     public function initialize() {
         parent::initialize();
     }
@@ -71,6 +83,81 @@ class UserBase extends BaseModel {
         ];
     }
 
+
+    /**
+     * 根据Username获取用户基本信息
+     * @param string $str
+     * @return \Phalcon\Mvc\Model|bool
+     */
+    public static function getInfoByUsername(string $str='') {
+        $res = self::findFirst([
+            'columns'    => '*',
+            'conditions' => 'username = ?1 ',
+            'bind'       => [
+                1 => $str,
+            ]
+        ]);
+
+        return $res;
+    }
+
+
+    /**
+     * 根据Email获取用户基本信息
+     * @param string $str
+     * @return \Phalcon\Mvc\Model|bool
+     */
+    public static function getInfoByEmail(string $str='') {
+        $res = self::findFirst([
+            'columns'    => '*',
+            'conditions' => 'email = ?1 ',
+            'bind'       => [
+                1 => $str,
+            ]
+        ]);
+
+        return $res;
+    }
+
+
+    /**
+     * 根据username联合获取管理员信息
+     * @param string $str
+     * @param bool $check 严格检查adm是否存在
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public static function joinAdmInfoByUsername(string $str='', bool $check=false) {
+        if(empty($str)) return false;
+
+        $usr = self::class;
+        $adm = AdmUser::class;
+
+        $query = self::query()
+            ->columns(self::$joinAdmFields)
+            ->leftJoin($adm, "a.uid = {$usr}.uid", 'a');
+
+        if($check) {
+            $query->where("{$usr}.username = :username: AND a.uid>0 ", ['username'=>$str]);
+        }else{
+            $query->where("{$usr}.username = :username: ", ['username'=>$str]);
+        }
+
+        $result = $query->limit(1)->execute();
+
+        return ($result->count()>0) ? $result->getFirst() : false;
+    }
+
+
+    /**
+     * 根据username获取管理员信息
+     * @param string $str
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public static function getAdmByUsername(string $str='') {
+        if(empty($str)) return false;
+
+        return self::joinAdmInfoByUsername($str, true);
+    }
 
 
 

@@ -14,7 +14,7 @@ class AdmUser extends BaseModel {
 
 
     /**
-     * 连表的用户字段
+     * 连表user的用户字段
      * @var array
      */
     public static $joinUsrFields = [
