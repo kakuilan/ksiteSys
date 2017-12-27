@@ -265,7 +265,7 @@ class UserController extends LkkController {
 
         $data['email'] = $email;
         $data['update_time'] = $now;
-        if($password) $data['password'] = UserBase::makePasswdHash($password);
+        if($password) $data['password'] = UserService::makePasswdHash($password);
 
         $logger = getLogger('debug');
         $logger->info('data'.$uid, $data);
@@ -344,7 +344,7 @@ class UserController extends LkkController {
         $now = time();
         $data = [
             'update_time' => $now,
-            'password' => UserBase::makePasswdHash($password),
+            'password' => UserService::makePasswdHash($password),
         ];
         $res = UserBase::upData($data, ['uid'=>$uid]);
 

@@ -12,6 +12,22 @@ namespace Apps\Models;
 
 class AdmUser extends BaseModel {
 
+
+    /**
+     * 连表的用户字段
+     * @var array
+     */
+    public static $joinUsrFields = [
+        self::class . ".*",
+        "u.status AS user_status",
+        "u.mobile_status",
+        "u.email_status",
+        "u.type AS user_type",
+        "u.mobile",
+        "u.email",
+        "u.username",
+    ];
+
     public function initialize() {
         parent::initialize();
     }
@@ -42,16 +58,7 @@ class AdmUser extends BaseModel {
         $adm = self::class;
 
         $result = self::query()
-            ->columns([
-                "{$adm}.*",
-                "u.status AS user_status",
-                "u.mobile_status",
-                "u.email_status",
-                "u.type AS user_type",
-                "u.mobile",
-                "u.email",
-                "u.username",
-            ])
+            ->columns(self::$joinUsrFields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->where("{$adm}.uid = :uid: ", ['uid'=>$uid])
             ->limit(1)
@@ -59,6 +66,52 @@ class AdmUser extends BaseModel {
 
         return ($result->count()>0) ? $result->getFirst() : false;
     }
+
+
+    /**
+     * 根据Username获取管理员信息(连表)
+     * @param string $str
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public function getInfoByUsername(string $str='') {
+        if(empty($str)) return false;
+
+        $usr = UserBase::class;
+        $adm = self::class;
+
+        $result = self::query()
+            ->columns(self::$joinUsrFields)
+            ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->where("{$usr}.username = :username: ", ['username'=>$str])
+            ->limit(1)
+            ->execute();
+
+        return ($result->count()>0) ? $result->getFirst() : false;
+    }
+
+
+    /**
+     * 根据Email获取管理员信息(连表)
+     * @param string $str
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public function getInfoByEmail(string $str='') {
+        if(empty($str)) return false;
+
+        $usr = UserBase::class;
+        $adm = self::class;
+
+        $result = self::query()
+            ->columns(self::$joinUsrFields)
+            ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->where("{$usr}.email = :email: ", ['email'=>$str])
+            ->limit(1)
+            ->execute();
+
+        return ($result->count()>0) ? $result->getFirst() : false;
+    }
+
+
 
 
 

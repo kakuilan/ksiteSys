@@ -305,8 +305,18 @@ class UserService extends ServiceBase {
     }
 
 
-
-
+    /**
+     * 生成密码值
+     * @param string $str
+     *
+     * @return bool|string
+     */
+    public static function makePasswdHash($str='') {
+        $str = trim($str);
+        if(empty($str)) return $str;
+        $res = password_hash($str, PASSWORD_BCRYPT);
+        return $res;
+    }
 
 
 
