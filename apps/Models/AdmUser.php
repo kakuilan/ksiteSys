@@ -47,6 +47,20 @@ class AdmUser extends BaseModel {
 
 
     /**
+     * 获取级别数组
+     * @return array
+     */
+    public static function getLevelArr() {
+        return [
+            '0' => '普通管理员',
+            '3' => '授权管理员',
+            '6' => '站长',
+            '9' => '开发者',
+        ];
+    }
+
+
+    /**
      * 根据UID获取管理员信息(连表)
      * @param int $uid
      * @return bool|\Phalcon\Mvc\ModelInterface

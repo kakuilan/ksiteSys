@@ -389,12 +389,12 @@ class UserController extends LkkController {
 
         //视图变量
         $this->view->setVars([
-            'statusArr' => UserBase::getStatusArr(),
-            'mobileStatusArr' => UserBase::getMobileStatusArr(),
-            'emailStatusArr' => UserBase::getEmailStatusArr(),
-            'typesArr' => UserBase::getTypesArr(),
-            'saveUrl' => makeUrl('manage/user/basesave'),
-            'listUrl' => makeUrl('manage/user/baselist'),
+            'userStatusArr' => UserBase::getStatusArr(),
+            'userTypesArr' => UserBase::getTypesArr(),
+            'statusArr' => AdmUser::getStatusArr(),
+            'levelArr' => AdmUser::getLevelArr(),
+            'saveUrl' => makeUrl('manage/user/managerSave'),
+            'listUrl' => makeUrl('manage/user/managerList'),
             'uid' => $uid,
             'info' => $info,
         ]);
