@@ -39,9 +39,9 @@ class AdmUser extends BaseModel {
      */
     public static function getStatusArr() {
         return [
+            '1' => '正常',
             '-1' => '禁登录',
             '0' => '锁定',
-            '1' => '正常',
         ];
     }
 

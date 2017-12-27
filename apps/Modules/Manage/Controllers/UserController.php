@@ -171,7 +171,7 @@ class UserController extends LkkController {
 
         $isAdmin = true;
         if($uid && empty($info)) {
-            return $this->alert('该信息不存在');
+            return $this->alert('信息不存在');
         }elseif($info && $info->site_id==0 && !$isAdmin) {
             return $this->alert('无权限编辑该信息');
         }
@@ -291,7 +291,7 @@ class UserController extends LkkController {
         $uid = intval($this->request->get('uid'));
         $info = $uid ? UserBase::findFirst($uid) : [];
         if(empty($info)) {
-            return $this->alert('该信息不存在');
+            return $this->alert('信息不存在');
         }
 
         $isAdmin = true;
@@ -386,7 +386,7 @@ class UserController extends LkkController {
 
         $isAdmin = true;
         if($uid && empty($info)) {
-            return $this->alert('该信息不存在');
+            return $this->alert('信息不存在');
         }elseif($info && $info->site_id==0 && !$isAdmin) {
             return $this->alert('无权限编辑该信息');
         }
@@ -400,7 +400,7 @@ class UserController extends LkkController {
             'saveUrl' => makeUrl('manage/user/managersave'),
             'listUrl' => makeUrl('manage/user/managerlist'),
             'uid' => $uid,
-            'info' => $info,
+            'info' => $info ? AdmUser::rowToObject($info) : [],
         ]);
 
         //设置静态资源
@@ -440,11 +440,14 @@ class UserController extends LkkController {
             return $this->fail('前台密码2次不相同');
         }elseif ($backPassword && $backPassword!=$backPassword2) {
             return $this->fail('后台密码2次不相同');
+        }elseif (empty($email)) {
+            return $this->fail('邮箱不能为空');
+        }elseif (!$userServ->validateEmail($email)) {
+            return $this->fail($userServ->error());
         }
 
         $now = time();
         $baseData = [
-            'site_id' => $this->siteId,
             'status' => $user_status,
             'type' => $user_type,
         ];
@@ -454,23 +457,111 @@ class UserController extends LkkController {
             'status' => $status,
         ];
 
+        $res = false;
         if($uid<=0) { //新增
-            if(!$userServ->validateUsername($username) || !$userServ->validateEmail($email) || !$userServ->validateUserpwd($backPassword)) {
+            if(!$userServ->validateUsername($username) || !$userServ->validateUserpwd($backPassword)) {
                 return $this->fail($userServ->error());
-            }elseif (!$userServ->checkAdminExist($username, $uid)) {
+            }elseif (!$userServ->checkAdminExist($username, 0)) {
                 return $this->fail($userServ->error());
             }
 
             $user = UserBase::getInfoByUsername($username);
-        }else{ //修改
+            if(!$userServ->checkEmailExist($email, ($user ? $user->uid : 0))) {
+                return $this->fail($userServ->error());
+            }
 
+            $ip = ip2long($this->request->getClientAddress());
+            if(empty($user)) {
+                $baseData = array_merge($baseData, [
+                    'site_id' => $this->siteId,
+                    'create_ip' => $ip,
+                    'create_time' => $now,
+                    'update_time' => $now,
+                    'email' => $email,
+                    'username' => $username,
+                    'password' => UserService::makePasswdHash($frontPassword),
+                ]);
+
+                $admData = array_merge($admData, [
+                    'password' => $backPassword,
+                    'create_time' => $now,
+                    'update_time' => $now,
+                    'create_by' => 0,
+                    'update_by' => 0,
+                ]);
+
+                //开启事务
+                $this->dbMaster->begin();
+
+                $newId = UserBase::addData($baseData);
+                $admData['uid'] = intval($newId);
+
+                $admId = AdmUser::addData($admData);
+                getLogger()->info('new1:', [$newId, $admId]);
+                if($newId && $admId) {
+                    $res = true;
+                    $this->dbMaster->commit();
+                }else{
+                    $this->dbMaster->rollback();
+                }
+            }else{
+                $baseData['email'] = $email;
+                $baseData['update_time'] = $now;
+                if(!empty($frontPassword)) $baseData['password'] = $frontPassword;
+
+                $admData = array_merge($admData, [
+                    'uid' => $user->uid,
+                    'password' => $backPassword,
+                    'create_time' => $now,
+                    'update_time' => $now,
+                    'create_by' => 0,
+                    'update_by' => 0,
+                ]);
+
+                //开启事务
+                $this->dbMaster->begin();
+                $usrRes = UserBase::upData($baseData, ['uid'=>$user->uid]);
+                $admRes = AdmUser::addData($admData);
+                getLogger()->info('new2:', [$usrRes, $admRes]);
+                if($usrRes && $admRes) {
+                    $res = true;
+                    $this->dbMaster->commit();
+                }else{
+                    $this->dbMaster->rollback();
+                }
+            }
+        }else{ //修改
+            $user = UserBase::findFirst($uid);
+            if(empty($user)) {
+                return $this->fail('信息不存在');
+            }elseif ($user->site_id==0 && !$isAdmin) {
+                return $this->fail('无权限编辑该信息');
+            }elseif(!$userServ->checkEmailExist($email, $uid)) {
+                return $this->fail($userServ->error());
+            }
+
+            $baseData['email'] = $email;
+            $baseData['update_time'] = $now;
+            if(!empty($frontPassword)) $baseData['password'] = $frontPassword;
+
+            $admData['update_time'] = $now;
+            $admData['update_by'] = 0;
+            if(!empty($backPassword)) $admData['password'] = $backPassword;
+
+            //开启事务
+            $this->dbMaster->begin();
+            $usrRes = UserBase::upData($baseData, ['uid'=>$uid]);
+            $admRes = AdmUser::upData($admData, ['uid'=>$uid]);
+            getLogger()->info('update:', [$usrRes, $admRes]);
+            if($usrRes && $admRes) {
+                $res = true;
+                $this->dbMaster->commit();
+            }else{
+                $this->dbMaster->rollback();
+            }
         }
 
-
-
-
-
-        return null;
+        return $res ? $this->success(['msg'=>'操作成功', 'data'=>[]]) : $this->fail('操作失败');
     }
 
 

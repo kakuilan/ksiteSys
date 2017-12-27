@@ -11,6 +11,7 @@
 namespace Kengine;
 
 use Kengine\LkkCmponent;
+use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\EncryptHelper;
 use Lkk\LkkMacAddress;
 use Lkk\Phalwoo\Phalcon\Paginator\Adapter\AsyncMysql as PaginatorAsyncMysql;
@@ -727,7 +728,10 @@ class LkkModel extends Model {
 
         $_conn = LkkCmponent::SyncDbMaster('');
         $res = $_conn->insert($table, array_values($data), array_keys($data));
-        $res && $res = $_conn->lastInsertId();
+        $lastId = $_conn->lastInsertId();
+
+        if($res && $lastId>0) $res = $lastId;
+
         return $res;
     }
 
@@ -1302,6 +1306,19 @@ class LkkModel extends Model {
 
         return array_merge($new, $arr);
     }
+
+
+    /**
+     * 单个row对象转为stdClass obj
+     * @param $obj
+     * @return array|object
+     */
+    public static function rowToObject($obj) {
+        $arr = self::rowToArray($obj);
+        $obj = ArrayHelper::arrayToObject($arr);
+        return $obj;
+    }
+
 
 
 

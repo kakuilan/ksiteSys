@@ -35,11 +35,11 @@ class UserBase extends BaseModel {
      */
     public static function getStatusArr() {
         return [
+            '10' => '正常',
             '-1' => '禁登录',
             '0' => '待激活',
             '1' => '禁发布',
             '2' => '禁评论',
-            '10' => '正常',
         ];
     }
 

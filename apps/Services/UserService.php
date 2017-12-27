@@ -115,8 +115,9 @@ class UserService extends ServiceBase {
      */
     public static function isUsernameExist(string $str, $uid=0) {
         $user = UserBase::getRow(['username'=>$str]);
+        $res = $user ? ($uid ? ($uid==$user->uid ? false : true) : true ) : false;
 
-        return $user ? ($uid ? ($uid==$user->uid ? false : true) : true ) : false;
+        return $res;
     }
 
 
@@ -128,8 +129,9 @@ class UserService extends ServiceBase {
      */
     public static function isAdminExist(string $str, $uid=0) {
         $adm = UserBase::getAdmByUsername($str);
+        $res = $adm ? ($uid ? ($uid==$adm->adm_uid ? false : true) : true ) : false;
 
-        return $adm ? ($uid ? ($uid==$adm->uid ? false : true) : true ) : false;
+        return $res;
     }
 
 
@@ -141,8 +143,9 @@ class UserService extends ServiceBase {
      */
     public static function isEmailExist(string $str, $uid=0) {
         $user = UserBase::getRow(['email'=>$str]);
+        $res = $user ? ($uid ? ($uid==$user->uid ? false : true) : true ) : false;
 
-        return $user ? ($uid ? ($uid==$user->uid ? false : true) : true ) : false;
+        return $res;
     }
 
 
