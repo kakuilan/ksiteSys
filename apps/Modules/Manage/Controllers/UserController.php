@@ -12,6 +12,7 @@ namespace Apps\Modules\Manage\Controllers;
 
 use Kengine\LkkController;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\ValidateHelper;
 use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
@@ -253,7 +254,7 @@ class UserController extends LkkController {
 
             $data['username'] = $username;
             $data['create_time'] = $now;
-            $data['create_ip'] = ip2long($this->request->getClientAddress());
+            $data['create_ip'] = CommonHelper::ip2UnsignedInt($this->request->getClientAddress());
         }else{
             $user = UserBase::findFirst($uid);
             if(empty($user)) {
@@ -544,7 +545,7 @@ class UserController extends LkkController {
                 return $this->fail($userServ->error());
             }
 
-            $ip = ip2long($this->request->getClientAddress());
+            $ip = CommonHelper::ip2UnsignedInt($this->request->getClientAddress());
             if(empty($user)) {
                 $baseData = array_merge($baseData, [
                     'site_id' => $this->siteId,
