@@ -10,6 +10,9 @@
 
 namespace Apps\Models;
 
+use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
+use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+
 class AdmUser extends BaseModel {
 
 
@@ -87,7 +90,7 @@ class AdmUser extends BaseModel {
      * @param string $str
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
-    public function getInfoByUsername(string $str='') {
+    public static function getInfoByUsername(string $str='') {
         if(empty($str)) return false;
 
         $usr = UserBase::class;
@@ -109,7 +112,7 @@ class AdmUser extends BaseModel {
      * @param string $str
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
-    public function getInfoByEmail(string $str='') {
+    public static function getInfoByEmail(string $str='') {
         if(empty($str)) return false;
 
         $usr = UserBase::class;
@@ -123,6 +126,17 @@ class AdmUser extends BaseModel {
             ->execute();
 
         return ($result->count()>0) ? $result->getFirst() : false;
+    }
+
+
+    public static function getAdminPages($where='', $binds=[], $order='', $limit=10, $page=1) {
+        $usr = UserBase::class;
+        $adm = self::class;
+
+
+
+
+
     }
 
 
