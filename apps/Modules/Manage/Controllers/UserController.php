@@ -483,7 +483,7 @@ class UserController extends LkkController {
                 ]);
 
                 $admData = array_merge($admData, [
-                    'password' => $backPassword,
+                    'password' => UserService::makePasswdHash($backPassword),
                     'create_time' => $now,
                     'update_time' => $now,
                     'create_by' => 0,
@@ -507,11 +507,11 @@ class UserController extends LkkController {
             }else{
                 $baseData['email'] = $email;
                 $baseData['update_time'] = $now;
-                if(!empty($frontPassword)) $baseData['password'] = $frontPassword;
+                if(!empty($frontPassword)) $baseData['password'] = UserService::makePasswdHash($frontPassword);
 
                 $admData = array_merge($admData, [
                     'uid' => $user->uid,
-                    'password' => $backPassword,
+                    'password' => UserService::makePasswdHash($backPassword),
                     'create_time' => $now,
                     'update_time' => $now,
                     'create_by' => 0,
@@ -542,11 +542,11 @@ class UserController extends LkkController {
 
             $baseData['email'] = $email;
             $baseData['update_time'] = $now;
-            if(!empty($frontPassword)) $baseData['password'] = $frontPassword;
+            if(!empty($frontPassword)) $baseData['password'] = UserService::makePasswdHash($frontPassword);
 
             $admData['update_time'] = $now;
             $admData['update_by'] = 0;
-            if(!empty($backPassword)) $admData['password'] = $backPassword;
+            if(!empty($backPassword)) $admData['password'] = UserService::makePasswdHash($backPassword);
 
             //开启事务
             $this->dbMaster->begin();
