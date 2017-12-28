@@ -116,7 +116,8 @@ class UserController extends LkkController {
             if(ValidateHelper::isMobile($keyword)) {
                 array_push($where, ['mobile'=>$keyword]);
             }else{
-                $keyCond = ['OR', ['like','username',"%{$keyword}%"], ['like','email',"%{$keyword}%"]];
+                //$keyCond = ['OR', ['like','username',"%{$keyword}%"], ['like','email',"%{$keyword}%"]];
+                $keyCond = ['OR', ['like','username',"{$keyword}%"], ['like','email',"{$keyword}%"]];
                 array_push($where, $keyCond);
             }
         }
@@ -146,6 +147,8 @@ class UserController extends LkkController {
                 $item['mobile_status_desc'] = $mobileStatusArr[$item['mobile_status']];
                 $item['email_status_desc'] = $emailStatusArr[$item['email_status']];
                 $item['type_desc'] = $typesArr[$item['type']];
+
+                unset($item['password']);
             }
         }
 
@@ -371,7 +374,78 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function managerListAction() {
-        return null;
+        $page = (int)$this->request->get('page');
+        $rows = (int)$this->request->get('rows');
+        if($page<=0) $page = 1;
+        if($rows<=0) $rows = 10;
+
+        $keyword = trim($this->request->get('keyword'));
+        $level = trim($this->request->get('level'));
+        $status = trim($this->request->get('status'));
+
+        //基本条件
+        $isAdmin = true;
+        $siteIds = [$this->siteId];
+        if($isAdmin) array_push($siteIds, 0);
+
+        $where = ' a.site_id IN ('. implode(',', $siteIds) .') ';
+        $binds = [];
+
+        //条件,管理员级别
+        if(is_numeric($level)) {
+            $where .= " AND a.level= :level: ";
+            $binds['level'] = $level;
+        }
+        //条件,管理员状态
+        if(is_numeric($status)) {
+            $where .= " AND a.status= :status: ";
+            $binds['status'] = $status;
+        }
+
+        //条件,关键词
+        if(!empty($keyword)) {
+            $where .= " AND (u.username LIKE ':keyword:%' OR u.email LIKE ':keyword:%') ";
+            $binds['keyword'] = $keyword;
+        }
+
+        //排序
+        $orderFields = ['uid','create_time'];
+        $sidx = trim($this->request->get('sidx'));
+        $sord = trim($this->request->get('sord'));
+        $order = " a.uid desc ";
+        if(!empty($sidx) && ArrayHelper::dstrpos($sidx, $orderFields) && ArrayHelper::dstrpos($sord, ['asc', 'desc'])) {
+            $order = " a.{$sidx} {$sord} ";
+        }
+
+        $paginator = AdmUser::getAdminPages($this->modelsManager, $where, $binds, $order, $rows, $page);
+        $pageObj = $paginator->getPaginate();
+        $list = $pageObj->items->toArray();
+
+        if(!empty($list)) {
+            $statusArr = AdmUser::getStatusArr();
+            $levelArr = AdmUser::getLevelArr();
+            $userStatusArr = UserBase::getStatusArr();
+            foreach ($list as &$item) {
+                $item = AdmUser::rowToArray($item);
+                unset($item['password']);
+
+                $item['create_time'] = date('Y-m-d H:i:s', $item['create_time']);
+                $item['update_time'] = date('Y-m-d H:i:s', $item['update_time']);
+                $item['last_login_time'] = date('Y-m-d H:i:s', $item['last_login_time']);
+                $item['status_desc'] = $statusArr[$item['status']];
+                $item['level_desc'] = $levelArr[$item['level']];
+                $item['user_status_desc'] = $userStatusArr[$item['user_status']];
+            }
+        }
+
+        $data = [
+            'list' => $list, //数据列表
+            'page' => $page, //当前页码
+            'total' => $pageObj->total_pages, //总页数
+            'records' => $pageObj->total_items, //总记录数
+        ];
+
+        return $this->success(['data'=>$data]);
     }
 
 

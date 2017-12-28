@@ -25,9 +25,14 @@ class TestTask extends LkkTask {
 
 
     public function testAction() {
-        $res = UserBase::joinAdmInfoByUsername('root');
-        $obj = UserBase::rowToObject($res);
-        var_dump($obj);
+        $where = "";
+        $binds = [];
+        $order = '';
+        $paginator = AdmUser::getAdminPages($this->modelsManager, $where, $binds, $order, 2, 1);
+        $pageObj = $paginator->getPaginate();
+        $list = $pageObj->items->toArray();
+
+        var_dump($list, $paginator);
     }
 
 

@@ -12,12 +12,13 @@ namespace Apps\Models;
 
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
 use Phalcon\Paginator\Adapter\QueryBuilder as PaginatorQueryBuilder;
+use Phalcon\Mvc\Model\ManagerInterface;
 
 class AdmUser extends BaseModel {
 
 
     /**
-     * 连表user的用户字段
+     * 单个连表user的用户字段
      * @var array
      */
     public static $joinUsrFields = [
@@ -30,6 +31,23 @@ class AdmUser extends BaseModel {
         "u.email",
         "u.username",
     ];
+
+
+    /**
+     * 分页连表user的用户字段
+     * @var array
+     */
+    public static $pageUserFields = [
+        "a.*",
+        "u.status AS user_status",
+        "u.mobile_status",
+        "u.email_status",
+        "u.type AS user_type",
+        "u.mobile",
+        "u.email",
+        "u.username",
+    ];
+
 
     public function initialize() {
         parent::initialize();
@@ -129,14 +147,35 @@ class AdmUser extends BaseModel {
     }
 
 
-    public static function getAdminPages($where='', $binds=[], $order='', $limit=10, $page=1) {
-        $usr = UserBase::class;
-        $adm = self::class;
+    /**
+     * 获取管理员列表分页对象
+     * @param ManagerInterface $modelsManager
+     * @param string $where 条件
+     * @param array $binds 绑定参数
+     * @param string $order 排序
+     * @param int $limit 每页数量
+     * @param int $page 页码
+     * @return PaginatorQueryBuilder
+     */
+    public static function getAdminPages(ManagerInterface $modelsManager, $where='', $binds=[], $order='', $limit=10, $page=1) {
+        $builder = $modelsManager->createBuilder()
+            ->columns(self::$pageUserFields)
+            ->addFrom(self::class, 'a')
+            ->leftJoin(UserBase::class, 'u.uid = a.uid', 'u');
 
+        if(!empty($where)) {
+            $builder->where($where, $binds);
+        }
 
+        if(!empty($order)) $builder->orderBy($order);
 
-
-
+        return new PaginatorQueryBuilder(
+            [
+                "builder" => $builder,
+                "limit"   => $limit,
+                "page"    => $page
+            ]
+        );
     }
 
 
