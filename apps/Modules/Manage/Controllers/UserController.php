@@ -364,6 +364,22 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function managersAction() {
+        //视图变量
+        $this->view->setVars([
+            'userStatusArr' => UserBase::getStatusArr(),
+            'userTypesArr' => UserBase::getTypesArr(),
+            'statusArr' => AdmUser::getStatusArr(),
+            'levelArr' => AdmUser::getLevelArr(),
+            'saveUrl' => makeUrl('manage/user/managersave'),
+            'listUrl' => makeUrl('manage/user/managerlist'),
+        ]);
+
+        //设置静态资源
+        $this->assets->addJs('statics/js/lkkFunc.js');
+        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+
 
         return null;
     }
