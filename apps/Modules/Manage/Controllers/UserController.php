@@ -366,19 +366,22 @@ class UserController extends LkkController {
     public function managersAction() {
         //视图变量
         $this->view->setVars([
-            'userStatusArr' => UserBase::getStatusArr(),
-            'userTypesArr' => UserBase::getTypesArr(),
             'statusArr' => AdmUser::getStatusArr(),
             'levelArr' => AdmUser::getLevelArr(),
-            'saveUrl' => makeUrl('manage/user/managersave'),
             'listUrl' => makeUrl('manage/user/managerlist'),
+            'editUrl' => makeUrl('manage/user/manageredit'),
+            'pwdUrl' => makeUrl('manage/user/managerpwd'),
         ]);
 
         //设置静态资源
+        $this->assets->addCss('statics/css/jquery-ui.min.css');
+        $this->assets->addCss('statics/css/plugins/jqgrid/ui.jqgrid-bootstrap.css');
+        $this->assets->addCss('statics/css/plugins/chosen/chosen.min.css');
         $this->assets->addJs('statics/js/lkkFunc.js');
         $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
-        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
-        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/plugins/jqgrid/jquery.jqGrid.min.js');
+        $this->assets->addJs('statics/js/plugins/jqgrid/i18n/grid.locale-cn.js');
+        $this->assets->addJs('statics/js/plugins/chosen/chosen.jquery.min.js');
 
 
         return null;

@@ -32,63 +32,29 @@
                                     <span class="lbl">&nbsp;&nbsp;</span>
                                 </label>
                                 <label class="inline">
-                                    <span class="lbl">用户状态：</span>
+                                    <span class="lbl">管理级别：</span>
+                                </label>
+                                <select class="chosen-select" data-placeholder="请选择状态..." name="level" id="level">
+                                    <option value="" >全部</option>
+                                    {% if levelArr %}
+                                    {% for vue,name in levelArr %}
+                                    <option value="{{vue}}" title="{{name}}" >
+                                        {{name}}
+                                    </option>
+                                    {% endfor %}
+                                    {% endif %}
+                                </select>
+
+                                <label class="inline">
+                                    <span class="lbl">&nbsp;&nbsp;</span>
+                                </label>
+                                <label class="inline">
+                                    <span class="lbl">管理员状态：</span>
                                 </label>
                                 <select class="chosen-select" data-placeholder="请选择状态..." name="status" id="status">
                                     <option value="" >全部</option>
                                     {% if statusArr %}
                                     {% for vue,name in statusArr %}
-                                    <option value="{{vue}}" title="{{name}}" >
-                                        {{name}}
-                                    </option>
-                                    {% endfor %}
-                                    {% endif %}
-                                </select>
-
-                                <label class="inline">
-                                    <span class="lbl">&nbsp;&nbsp;</span>
-                                </label>
-                                <label class="inline">
-                                    <span class="lbl">手机状态：</span>
-                                </label>
-                                <select class="chosen-select" data-placeholder="请选择状态..." name="mobile_status" id="mobile_status">
-                                    <option value="" >全部</option>
-                                    {% if mobileStatusArr %}
-                                    {% for vue,name in mobileStatusArr %}
-                                    <option value="{{vue}}" title="{{name}}" >
-                                        {{name}}
-                                    </option>
-                                    {% endfor %}
-                                    {% endif %}
-                                </select>
-
-                                <label class="inline">
-                                    <span class="lbl">&nbsp;&nbsp;</span>
-                                </label>
-                                <label class="inline">
-                                    <span class="lbl">邮箱状态：</span>
-                                </label>
-                                <select class="chosen-select" data-placeholder="请选择状态..." name="email_status" id="email_status">
-                                    <option value="" >全部</option>
-                                    {% if emailStatusArr %}
-                                    {% for vue,name in emailStatusArr %}
-                                    <option value="{{vue}}" title="{{name}}" >
-                                        {{name}}
-                                    </option>
-                                    {% endfor %}
-                                    {% endif %}
-                                </select>
-
-                                <label class="inline">
-                                    <span class="lbl">&nbsp;&nbsp;</span>
-                                </label>
-                                <label class="inline">
-                                    <span class="lbl">用户类型：</span>
-                                </label>
-                                <select class="chosen-select" data-placeholder="请选择状态..." name="type" id="type">
-                                    <option value="" >全部</option>
-                                    {% if typesArr %}
-                                    {% for vue,name in typesArr %}
                                     <option value="{{vue}}" title="{{name}}" >
                                         {{name}}
                                     </option>
@@ -179,17 +145,15 @@ EOT;
                 records: "data.records", //总记录数
             },
             caption: "数据列表",
-            colNames:['操作','编号ID','用户名','邮箱','手机','用户状态','邮箱状态','手机状态','用户类型','创建时间','修改时间'],
+            colNames:['操作','编号ID','用户名','邮箱','管理层级','管理员状态','前台状态','创建时间','修改时间'],
             colModel: [
                 { name: 'myact',index:'myact', width:60, fixed:true, sortable:false, resize:false,editable:false},
                 { name: 'uid', index: 'uid', sortable: true, width:60, fixed:true, key:true}, //key:true设为主键ID
                 { name: 'username', index: 'username', sortable: false },
                 { name: 'email', index: 'email', sortable: false },
-                { name: 'mobile', index: 'mobile', sortable: false },
+                { name: 'level_desc', index: 'level_desc', sortable: false },
                 { name: 'status_desc', index: 'status_desc', sortable: false },
-                { name: 'mobile_status_desc', index: 'mobile_status_desc', sortable: false },
-                { name: 'email_status_desc', index: 'email_status_desc', sortable: false },
-                { name: 'type_desc', index: 'type_desc', sortable: false },
+                { name: 'user_status_desc', index: 'email_status_desc', sortable: false },
                 { name: 'create_time', index: 'create_time', sortable: true},
                 { name: 'update_time', index: 'update_time', sortable: false}
             ],
