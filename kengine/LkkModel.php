@@ -909,8 +909,9 @@ class LkkModel extends Model {
     public static function upData(array $data=[], $where='', $table=null) {
         if(!is_array($data) || empty($data) ) return false;
         if(empty($table)) $table = self::getTableName();
-
+        getLogger()->info('filterColumnsData-start', ['$table'=>$table, '$data'=>$data]);
         $data = self::filterColumnsData($data, $table);
+        getLogger()->info('filterColumnsData-end', ['$table'=>$table, '$data'=>$data]);
         if(empty($data)) return false;
         $where = self::parseWhere2PDO($where);
 

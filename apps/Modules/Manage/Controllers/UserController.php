@@ -273,9 +273,6 @@ class UserController extends LkkController {
         $data['update_time'] = $now;
         if($password) $data['password'] = UserService::makePasswdHash($password);
 
-        $logger = getLogger('debug');
-        $logger->info('data'.$uid, $data);
-
         if($uid>0) {
             $res = UserBase::upData($data, ['uid'=>$uid]);
         }else{
@@ -422,10 +419,11 @@ class UserController extends LkkController {
             $binds['status'] = $status;
         }
 
+
         //条件,关键词
         if(!empty($keyword)) {
-            $where .= " AND (u.username LIKE ':keyword:%' OR u.email LIKE ':keyword:%') ";
-            $binds['keyword'] = $keyword;
+            $where .= " AND (u.username LIKE :keyword: OR u.email LIKE :keyword:) ";
+            $binds['keyword'] = "{$keyword}%";
         }
 
         //排序
@@ -591,9 +589,9 @@ class UserController extends LkkController {
                 $admData['uid'] = intval($newId);
 
                 $admId = AdmUser::addData($admData);
-                getLogger()->info('new1:', [$newId, $admId]);
                 if($newId && $admId) {
                     $res = true;
+                    $uid = $newId;
                     $this->dbMaster->commit();
                 }else{
                     $this->dbMaster->rollback();
@@ -616,9 +614,9 @@ class UserController extends LkkController {
                 $this->dbMaster->begin();
                 $usrRes = UserBase::upData($baseData, ['uid'=>$user->uid]);
                 $admRes = AdmUser::addData($admData);
-                getLogger()->info('new2:', [$usrRes, $admRes]);
                 if($usrRes && $admRes) {
                     $res = true;
+                    $uid = $user->uid;
                     $this->dbMaster->commit();
                 }else{
                     $this->dbMaster->rollback();
@@ -646,16 +644,29 @@ class UserController extends LkkController {
             $this->dbMaster->begin();
             $usrRes = UserBase::upData($baseData, ['uid'=>$uid]);
             $admRes = AdmUser::upData($admData, ['uid'=>$uid]);
-            getLogger()->info('update:', [$usrRes, $admRes]);
             if($usrRes && $admRes) {
                 $res = true;
+                $username = $user->username;
+                if(empty($email)) $email = $user->email;
                 $this->dbMaster->commit();
             }else{
                 $this->dbMaster->rollback();
             }
         }
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>[]]) : $this->fail('操作失败');
+        $levelArr = AdmUser::getLevelArr();
+        $statusArr = AdmUser::getStatusArr();
+        $userStatusArr = UserBase::getStatusArr();
+        $newData = [
+            'uid' => $uid,
+            'username' => $username,
+            'email' => $email,
+            'level_desc' => $levelArr[$level],
+            'status_desc' => $statusArr[$status],
+            'user_status_desc' => $userStatusArr[$user_status],
+        ];
+
+        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$newData]) : $this->fail('操作失败');
     }
 
 
@@ -665,6 +676,32 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function managerPwdAction() {
+        $uid = intval($this->request->get('uid'));
+        $info = $uid ? AdmUser::getInfoByUid($uid) : [];
+        if(empty($info)) {
+            return $this->alert('信息不存在');
+        }
+
+        $isAdmin = true;
+        if($info && $info->site_id==0 && !$isAdmin) {
+            return $this->alert('无权限编辑该信息');
+        }
+
+        //视图变量
+        $this->view->setVars([
+            'saveUrl' => makeUrl('manage/user/managerpwdsave'),
+            'listUrl' => makeUrl('manage/user/managerlist'),
+            'uid' => $uid,
+            'info' => AdmUser::rowToObject($info),
+        ]);
+
+        //设置静态资源
+        $this->assets->addJs('statics/js/lkkFunc.js');
+        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/md5.min.js');
+
         return null;
     }
 
@@ -675,7 +712,33 @@ class UserController extends LkkController {
      * @return mixed
      */
     public function managerPwdsaveAction() {
-        return null;
+        $uid = intval($this->request->get('uid'));
+        $password = trim($this->request->get('password'));
+        $passwordCfr = trim($this->request->get('passwordCfr'));
+        $isAdmin = true; //TODO
+
+        $user = AdmUser::getInfoByUid($uid);
+        if(empty($user)) {
+            return $this->fail('信息不存在');
+        }elseif ($user->a->site_id==0 && !$isAdmin) {
+            return $this->fail('无权限编辑该信息');
+        }
+
+        $userServ = new UserService();
+        if(!$userServ->validateUserpwd($password)) {
+            return $this->fail($userServ->error());
+        }elseif ($password != $passwordCfr) {
+            return $this->fail('2次密码不相同');
+        }
+
+        $now = time();
+        $data = [
+            'update_time' => $now,
+            'password' => UserService::makePasswdHash($password),
+        ];
+        $res = AdmUser::upData($data, ['uid'=>$uid]);
+
+        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
     }
 
 

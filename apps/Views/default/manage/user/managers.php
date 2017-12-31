@@ -108,7 +108,7 @@ EOT;
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
-                area: ['705px', '550px'],
+                area: ['705px', '600px'],
                 offset: '10px',
                 content: editUrl
             });
@@ -171,7 +171,7 @@ EOT;
                     id = ids[i];
                     rowDatas = _this.jqGrid('getRowData', id);
                     btns = '<a class="edit_info" href="javascript:;" title="编辑信息" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-edit"></i></a>';
-                    btns += '<a class="pwd_info" href="javascript:;" title="修改密码" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-lock"></i></a>';
+                    btns += '<a class="pwd_info" href="javascript:;" title="修改后台密码" data-id="'+id+'" style="margin-left:3px;"><i class="glyphicon glyphicon-lock"></i></a>';
                     _this.jqGrid('setRowData',ids[i],{myact:btns});
                 }
             },
@@ -228,7 +228,7 @@ EOT;
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
-                area: ['705px', '550px'],
+                area: ['705px', '600px'],
                 offset: '10px',
                 content: editUrl +'?uid='+row.uid
             });
@@ -241,7 +241,7 @@ EOT;
             var row = $(grid_selector).jqGrid('getRowData', idx);
             var indexL = layer.open({
                 type: 2,
-                title: '修改密码',
+                title: '修改后台密码',
                 shadeClose: true,
                 shade: false,
                 maxmin: true, //开启最大化最小化按钮
@@ -260,6 +260,7 @@ EOT;
             $(".norecords").hide();
             var data = {
                 status : $('#status').val() ,
+                level : $('#level').val() ,
                 keyword : $.trim($('#keyword').val())
             };
 
