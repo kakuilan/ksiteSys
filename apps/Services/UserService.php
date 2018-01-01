@@ -351,5 +351,61 @@ class UserService extends ServiceBase {
 
 
 
+    public function memberLogin($username='', $password='') {
+
+    }
+
+
+    public function memberLogout() {
+
+    }
+
+
+    public function isMemberLogin() {
+
+    }
+
+
+    public function managerLogin($username='', $password='') {
+
+    }
+
+
+    public function managerLogout() {
+
+    }
+
+
+    public function isManagerLogin() {
+
+    }
+
+
+    public function apiLogin($token='') {
+
+    }
+
+
+    public function thirdLogin() {
+
+    }
+
+
+    public function sinaLogin() {
+
+    }
+
+
+    public function qqLogin() {
+
+    }
+
+
+    public function weixinLogin() {
+
+    }
+
+
+
 
 }

@@ -65,8 +65,17 @@ class IndexController extends LkkController {
 
 
     /**
+     * @title -管理后台退出
+     * @desc  -管理后台退出
+     */
+    public function logoutAction() {
+
+    }
+
+
+    /**
      * @title -后台主页
-     * @desc  -
+     * @desc  -后台主页
      */
     public function mainAction() {
 
