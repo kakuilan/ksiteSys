@@ -12,9 +12,19 @@ namespace Apps\Services;
 
 use Lkk\LkkService;
 use Phalcon\Events\Manager as EventsManager;
+use Phalcon\DiInterface;
+use Phalcon\Di\InjectionAwareInterface;
 
 
-class ServiceBase extends LkkService {
+class ServiceBase extends LkkService implements InjectionAwareInterface {
+
+
+    /**
+     * DI容器
+     * @var
+     */
+    protected $_dependencyInjector;
+
 
     public static $eventsManager;
 
@@ -53,6 +63,26 @@ class ServiceBase extends LkkService {
      */
     public function __destruct() {
 
+    }
+
+
+    /**
+     * Sets the dependency injector
+     *
+     * @param \Phalcon\DiInterface $dependencyInjector
+     */
+    public function setDI(\Phalcon\DiInterface $dependencyInjector) {
+        $this->_dependencyInjector = $dependencyInjector;
+    }
+
+
+    /**
+     * Returns the internal dependency injector
+     *
+     * @return \Phalcon\DiInterface
+     */
+    public function getDI() {
+        return $this->_dependencyInjector;
     }
 
 
