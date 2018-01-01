@@ -11,8 +11,7 @@
 namespace Apps\Modules\Common\Controllers;
 
 use Kengine\LkkController;
-use Gregwar\Captcha\CaptchaBuilder;
-use Lkk\Helpers\StringHelper;
+use Apps\Services\CaptchaService;
 
 class CaptchaController extends LkkController {
 
@@ -24,21 +23,9 @@ class CaptchaController extends LkkController {
      */
     public function createAction() {
         $len = intval($this->request->get('len', 4));
-        if($len<4) $len = 4;
-        if($len>10) $len = 10;
 
-        $code = StringHelper::randString($len, 0);
-        $encode = $this->crypt->encryptBase64($code);
+        $this->jsonRes['data'] = CaptchaService::createCode($len);
 
-        $builder = new CaptchaBuilder($code);
-        $builder->build();
-        $img = $builder->inline();
-
-        $data = [
-            'encode' => $encode,
-            'img' => $img,
-        ];
-        $this->jsonRes['data'] = $data;
         return $this->success();
     }
 

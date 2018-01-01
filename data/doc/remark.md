@@ -19,3 +19,6 @@ http://simditor.tower.im/
 https://github.com/mindmup/bootstrap-wysiwyg  
 http://bootstrap-wysiwyg.github.io/bootstrap3-wysiwyg/  
 
+##库  
+https://github.com/Intervention/image  
+
