@@ -21,7 +21,8 @@
     "fzaninotto/faker": "^1.6.0",
     "voku/portable-utf8": "^3.1",
     "voku/anti-xss": "^2.1",
-    "bluem/tree": "^1.5"
+    "bluem/tree": "^1.5",
+    "gregwar/captcha": "1.*"
   },
   "require-dev": {
     "kakuilan/kphplib": "dev-master",

@@ -12,4 +12,10 @@ https://github.com/pandao/editor.md
 https://summernote.org/  
 https://gitee.com/benhail/thinker-md  
 http://www.oschina.net/p/thinker-md-for-chanzhi  
+http://www.wangeditor.com/  
+https://www.tinymce.com/  
+http://kindeditor.net/demo.php  
+http://simditor.tower.im/  
+https://github.com/mindmup/bootstrap-wysiwyg  
+http://bootstrap-wysiwyg.github.io/bootstrap3-wysiwyg/  
 

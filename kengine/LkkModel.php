@@ -156,12 +156,14 @@ class LkkModel extends Model {
      * @return array|bool
      */
     public static function filterColumnsData(array $data, $table=null) {
+        getLogger()->info('filterColumnsData-start', ['$table'=>$table, '$data'=>$data]);
         if(!is_array($data) || empty($data)) return false;
         $columns = self::getTableColumns($table);
+        getLogger()->info('filterColumnsData-inner', ['$columns'=>$columns]);
         foreach ($data as $k=>$v) {
             if(!in_array($k, $columns)) unset($data[$k]);
         }
-
+        getLogger()->info('filterColumnsData-end', ['$table'=>$table, '$data'=>$data]);
         return $data;
     }
 
@@ -909,9 +911,7 @@ class LkkModel extends Model {
     public static function upData(array $data=[], $where='', $table=null) {
         if(!is_array($data) || empty($data) ) return false;
         if(empty($table)) $table = self::getTableName();
-        getLogger()->info('filterColumnsData-start', ['$table'=>$table, '$data'=>$data]);
         $data = self::filterColumnsData($data, $table);
-        getLogger()->info('filterColumnsData-end', ['$table'=>$table, '$data'=>$data]);
         if(empty($data)) return false;
         $where = self::parseWhere2PDO($where);
 
