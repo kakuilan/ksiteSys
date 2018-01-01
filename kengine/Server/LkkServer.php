@@ -33,6 +33,7 @@ use Lkk\Phalwoo\Server\Component\Log\Handler\AsyncStreamHandler;
 use Lkk\Phalwoo\Server\Component\Log\SwooleLogger;
 use Lkk\Phalwoo\Server\Component\Pool\PoolManager;
 use Lkk\Phalwoo\Server\SwooleServer;
+use Apps\Services\UserService;
 use Throwable;
 
 class LkkServer extends SwooleServer {
@@ -265,6 +266,11 @@ class LkkServer extends SwooleServer {
         $dbSlave = LkkCmponent::SyncDbSlave();
         $di->setShared('dbMaster', $dbMaster);
         $di->setShared('dbSlave', $dbSlave);
+
+        //注册自定义服务userService
+        $userService = new UserService();
+        $userService->setDI($di);
+        $di->setShared('userService', $userService);
 
         //注入app,以便actioin里面访问
         $di->setShared('app', $app);

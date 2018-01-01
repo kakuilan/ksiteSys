@@ -35,12 +35,17 @@ class UserService extends ServiceBase {
     //保留昵称,禁止使用
     public static $holdNicks = ['管理','测试','系统','游客','后台'];
 
+    //配置
+    protected $conf;
+
 
     /**
      * 构造函数
      */
     public function __construct($vars=[]) {
         parent::__construct($vars);
+
+        $this->conf = getConf('login');
 
     }
 
