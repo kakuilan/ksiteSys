@@ -144,6 +144,8 @@ class LkkModel extends Model {
         }
 
         $res = $hasPri ? self::$tableColumns : self::$tableColumns['all'];
+        getLogger()->info('getTableColumns', ['$table'=>$table, '$res'=>$res, 'self::$tableColumns'=>self::$tableColumns]);
+
         return $res;
     }
 
@@ -159,7 +161,7 @@ class LkkModel extends Model {
         getLogger()->info('filterColumnsData-start', ['$table'=>$table, '$data'=>$data]);
         if(!is_array($data) || empty($data)) return false;
         $columns = self::getTableColumns($table);
-        getLogger()->info('filterColumnsData-inner', ['$columns'=>$columns]);
+        getLogger()->info('filterColumnsData-inner', ['$table'=>$table, '$columns'=>$columns]);
         foreach ($data as $k=>$v) {
             if(!in_array($k, $columns)) unset($data[$k]);
         }
