@@ -357,6 +357,17 @@ class UserService extends ServiceBase {
 
 
     public function memberLogin($username='', $password='') {
+        if(empty($username)) {
+            $this->error = '用户名不能为空';
+            return false;
+        }elseif(empty($password)) {
+            $this->error = '密码不能为空';
+            return false;
+        }
+
+
+
+
 
     }
 

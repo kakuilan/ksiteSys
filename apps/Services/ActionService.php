@@ -151,6 +151,7 @@ class ActionService extends ServiceBase {
                 $checkAction = Action::getInfo($moduleName, $contrlName, $actionName);
                 if($checkAction) {
                     $data = array(
+                        'status'        => 1,
                         'title'         => $actionTitle,
                         'batch_time'    => $now,
                         'update_time'   => $now,
