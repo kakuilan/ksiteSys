@@ -12,6 +12,12 @@ namespace Apps\Models;
 
 class UserBase extends BaseModel {
 
+    const USER_TYPE_MEMBER = 0; //用户类P型-普通用户
+    const USER_TYPE_TESTER = 1; //用户类P型-测试用户
+    const USER_TYPE_ADMNER = 2; //用户类P型-后台用户
+    const USER_TYPE_APIER  = 3; //用户类P型-接口用户
+
+
     public static $joinAdmFields = [
         self::class .".*",
         "a.uid AS adm_uid",
@@ -90,6 +96,7 @@ class UserBase extends BaseModel {
      * @return \Phalcon\Mvc\Model|bool
      */
     public static function getInfoByUsername(string $str='') {
+        if(empty($str)) return false;
         $res = self::findFirst([
             'columns'    => '*',
             'conditions' => 'username = ?1 ',
@@ -108,6 +115,7 @@ class UserBase extends BaseModel {
      * @return \Phalcon\Mvc\Model|bool
      */
     public static function getInfoByEmail(string $str='') {
+        if(empty($str)) return false;
         $res = self::findFirst([
             'columns'    => '*',
             'conditions' => 'email = ?1 ',
@@ -118,6 +126,30 @@ class UserBase extends BaseModel {
 
         return $res;
     }
+
+
+    /**
+     * 根据关键词[用户名或邮箱]获取用户信息
+     * @param string $str
+     *
+     * @return bool|\Phalcon\Mvc\Model
+     */
+    public static function getInfoByKeyword(string $str='') {
+        if(empty($str)) return false;
+
+        $res = self::findFirst([
+            'columns'    => '*',
+            'conditions' => 'username = ?1 OR email = ?2 ',
+            'bind'       => [
+                1 => $str,
+                2 => $str,
+            ],
+            'order' => 'uid asc'
+        ]);
+
+        return $res;
+    }
+
 
 
     /**
