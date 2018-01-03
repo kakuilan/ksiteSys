@@ -307,7 +307,7 @@ EOT;
             }).trigger("reloadGrid"); //重新载入
         });
 
-        //下拉
+        //下拉搜索
         $('.chosen-select').chosen({allow_single_deselect:true, width:'120px'});
 
     });

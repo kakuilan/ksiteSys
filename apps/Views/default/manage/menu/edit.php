@@ -33,13 +33,11 @@
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="action_id">动作</label>
                                 <div class="col-sm-8 col-xs-7">
-                                    <select class="form-control m-b" id="action_id" name="action_id">
+                                    <select class="form-control m-b chosen-select" id="action_id" name="action_id">
                                         <option value="0" title="父菜单-无动作">无动作</option>
                                         {% if allActions %}
                                         {% for action in allActions %}
-                                        <option value="{{action.ac_id}}" {% if action.ac_id === action_id %} selected {% endif %} title="{{action.url}}" >
-                                            {{action.title}}
-                                        </option>
+                                        <option value="{{action.ac_id}}" {% if action.ac_id === action_id %} selected {% endif %} title="{{action.url}}" >{{action.title}}</option>
                                         {% endfor %}
                                         {% endif %}
                                     </select>
@@ -188,6 +186,9 @@
                 return false;
             }
         });
+        
+        //下拉搜索
+        $('.chosen-select').chosen({allow_single_deselect:true,search_contains:true});
     });
 </script>
 EOT;

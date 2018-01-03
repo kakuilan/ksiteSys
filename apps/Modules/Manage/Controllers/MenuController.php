@@ -96,9 +96,11 @@ class MenuController extends LkkController {
         ]);
 
         //设置静态资源
+        $this->assets->addCss('statics/css/plugins/chosen/chosen.min.css');
         $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
         $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
         $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/plugins/chosen/chosen.jquery.min.js');
 
         return null;
     }
