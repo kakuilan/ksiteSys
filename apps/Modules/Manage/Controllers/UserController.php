@@ -443,6 +443,8 @@ class UserController extends LkkController {
             $statusArr = AdmUser::getStatusArr();
             $levelArr = AdmUser::getLevelArr();
             $userStatusArr = UserBase::getStatusArr();
+            $userTypeArr = UserBase::getTypesArr();
+
             foreach ($list as &$item) {
                 $item = AdmUser::rowToArray($item);
                 unset($item['password']);
@@ -453,6 +455,7 @@ class UserController extends LkkController {
                 $item['status_desc'] = $statusArr[$item['status']];
                 $item['level_desc'] = $levelArr[$item['level']];
                 $item['user_status_desc'] = $userStatusArr[$item['user_status']];
+                $item['user_type_desc'] = $userTypeArr[$item['user_type']];
             }
         }
 
@@ -491,6 +494,7 @@ class UserController extends LkkController {
             'levelArr' => AdmUser::getLevelArr(),
             'saveUrl' => makeUrl('manage/user/managersave'),
             'listUrl' => makeUrl('manage/user/managerlist'),
+            'userTypeAdm' => UserBase::USER_TYPE_ADMNER,
             'uid' => $uid,
             'info' => $info ? AdmUser::rowToObject($info) : [],
         ]);

@@ -148,6 +148,29 @@ class AdmUser extends BaseModel {
 
 
     /**
+     * 根据关键词[用户名或邮箱]获取管理员信息(连表)
+     * @param string $str
+     *
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public static function getInfoByKeyword(string $str='') {
+        if(empty($str)) return false;
+
+        $usr = UserBase::class;
+        $adm = self::class;
+
+        $result = self::query()
+            ->columns(self::$joinUsrFields)
+            ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->where("{$usr}.username = :username:  OR {$usr}.email = :email: ", ['username'=>$str, 'email'=>$str])
+            ->orderBy('u.uid asc')
+            ->limit(1)
+            ->execute();
+
+        return ($result->count()>0) ? $result->getFirst() : false;
+    }
+
+    /**
      * 获取管理员列表分页对象
      * @param ManagerInterface $modelsManager
      * @param string $where 条件

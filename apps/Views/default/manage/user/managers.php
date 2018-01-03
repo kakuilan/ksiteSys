@@ -145,7 +145,7 @@ EOT;
                 records: "data.records", //总记录数
             },
             caption: "数据列表",
-            colNames:['操作','编号ID','用户名','邮箱','管理层级','管理员状态','前台状态','创建时间','修改时间'],
+            colNames:['操作','编号ID','用户名','邮箱','管理层级','管理员状态','前台状态','用户类型','创建时间','修改时间'],
             colModel: [
                 { name: 'myact',index:'myact', width:60, fixed:true, sortable:false, resize:false,editable:false},
                 { name: 'uid', index: 'uid', sortable: true, width:60, fixed:true, key:true}, //key:true设为主键ID
@@ -153,7 +153,8 @@ EOT;
                 { name: 'email', index: 'email', sortable: false },
                 { name: 'level_desc', index: 'level_desc', sortable: false },
                 { name: 'status_desc', index: 'status_desc', sortable: false },
-                { name: 'user_status_desc', index: 'email_status_desc', sortable: false },
+                { name: 'user_status_desc', index: 'user_status_desc', sortable: false },
+                { name: 'user_type_desc', index: 'user_type_desc', sortable: false },
                 { name: 'create_time', index: 'create_time', sortable: true},
                 { name: 'update_time', index: 'update_time', sortable: false}
             ],

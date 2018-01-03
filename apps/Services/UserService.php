@@ -341,6 +341,7 @@ class UserService extends ServiceBase {
     }
 
 
+
     /**
      * 检查管理员是否存在
      * @param string $str 管理员用户名
@@ -383,6 +384,27 @@ class UserService extends ServiceBase {
 
 
     public function managerLogin($username='', $password='') {
+        if(empty($username)) {
+            $this->error = '登录名不能为空';
+            return false;
+        }elseif(empty($password)) {
+            $this->error = '密码不能为空';
+            return false;
+        }
+
+        $admn = AdmUser::getInfoByKeyword($username);
+        if(empty($admn)) {
+            //$this->error = '登录名或密码错误';
+            $this->error = '该用户不存在';
+            return false;
+        }
+
+        $admn = AdmUser::rowToObject($admn);
+        if($admn->type != UserBase::USER_TYPE_ADMNER) {
+
+        }
+
+
 
     }
 

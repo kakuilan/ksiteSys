@@ -125,7 +125,7 @@
                                     <select class="form-control m-b" id="user_type" name="user_type" readonly="readonly" onfocus="this.defOpt=this.selectedIndex" onchange="this.selectedIndex=this.defOpt;">
                                         {% if userTypesArr %}
                                         {% for vue,name in userTypesArr %}
-                                        <option value="{{vue}}" {% if 2==vue %} selected {% endif %} title="{{name}}" >
+                                        <option value="{{vue}}" {% if userTypeAdm==vue %} selected {% endif %} title="{{name}}" >
                                             {{name}}
                                         </option>
                                         {% endfor %}
