@@ -55,6 +55,10 @@ class LkkModel extends Model {
     public static $_like_escape_chr = '!';
 
 
+    /**
+     * 缓存数据表的字段数组
+     * @var
+     */
     public static $tableColumns;
 
 
@@ -121,7 +125,7 @@ class LkkModel extends Model {
      */
     public static function getTableColumns($table=null, $hasPri=false) {
         if(empty($table)) $table = self::getTableName();
-        if(is_null(self::$tableColumns) || empty(self::$tableColumns)) {
+        if(is_null(static::$tableColumns) || empty(static::$tableColumns)) {
             $_conn = LkkCmponent::SyncDbMaster('');
             $res = $_conn->fetchAll(" SHOW FULL COLUMNS FROM {$table} ");
             if($res) {
@@ -136,15 +140,15 @@ class LkkModel extends Model {
                     }
                 }
 
-                self::$tableColumns = [
+                static::$tableColumns = [
                     'all' => $fields,
                     'pri'    => $pri,
                 ];
             }
         }
 
-        $res = $hasPri ? self::$tableColumns : self::$tableColumns['all'];
-        getLogger()->info('getTableColumns', ['$table'=>$table, '$res'=>$res, 'self::$tableColumns'=>self::$tableColumns]);
+        $res = $hasPri ? static::$tableColumns : static::$tableColumns['all'];
+        getLogger()->info('getTableColumns', ['$table'=>$table, '$res'=>$res, 'self::$tableColumns'=>static::$tableColumns]);
 
         return $res;
     }
