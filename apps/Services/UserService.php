@@ -383,6 +383,13 @@ class UserService extends ServiceBase {
     }
 
 
+    /**
+     * 管理员登录
+     * @param string $username 用户名或邮箱
+     * @param string $password 密码
+     *
+     * @return array|bool|object|\Phalcon\Mvc\ModelInterface
+     */
     public function managerLogin($username='', $password='') {
         if(empty($username)) {
             $this->setError('登录名不能为空');
@@ -394,7 +401,6 @@ class UserService extends ServiceBase {
 
         $admn = AdmUser::getInfoByKeyword($username);
         if(empty($admn)) {
-            //$this->error = '登录名或密码错误';
             $this->setError('该用户不存在');
             return false;
         }
@@ -405,8 +411,17 @@ class UserService extends ServiceBase {
             return false;
         }
 
+        //检查密码
+        if(!password_verify($password, $admn->password)) {
+            //TODO 登录失败事件
+            //AdmUser::upData(['login_fails'=>$admn->login_fails+1, 'update_time'=>time()], ['uid'=>$admn->uid]);
+            $this->setError('登录名或密码错误');
+            return false;
+        }
 
+        //TODO 登录成功事件
 
+        return $admn;
     }
 
 
