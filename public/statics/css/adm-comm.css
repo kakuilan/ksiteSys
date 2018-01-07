@@ -23,3 +23,8 @@
 .ui-jqgrid .ui-jqgrid-hdiv {
     line-height:10px;
 }
+
+/*错误提示颜色*/
+.help-block {
+    color: #a94442;
+}

@@ -123,7 +123,7 @@ class ServiceBase extends LkkService implements InjectionAwareInterface {
      * @param string $eventName 事件名称
      * @param null $data 要传递给监听类的数据
      * @param bool $cancelable 事件是否可取消
-     * @param null $sourceClass 事件的来源类
+     * @param null $sourceClass 事件的来源类/对象
      */
     public final function fireEvent($eventName, $data=null, $cancelable=true, $sourceClass=null) {
         if(strpos($eventName,':')===false) {

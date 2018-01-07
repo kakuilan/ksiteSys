@@ -60,8 +60,32 @@ class IndexController extends LkkController {
      * @desc  -管理后台登录页
      */
     public function loginAction() {
+        //视图变量
+        $this->view->setVars([
+            'saveUrl' => makeUrl('manage/index/loginsave'),
+        ]);
+
+
+        //设置静态资源
+        $this->assets->addJs('statics/js/lkkFunc.js');
+        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
+        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
+        $this->assets->addJs('statics/js/md5.min.js');
+        $this->assets->addJs('statics/js/fingerprint.min.js');
+
+        return null;
+    }
+
+
+    /**
+     * @title -后台登录保存
+     * @desc  -后台登录保存
+     */
+    public function loginSaveAction() {
 
     }
+
 
 
     /**
@@ -79,6 +103,15 @@ class IndexController extends LkkController {
      */
     public function mainAction() {
 
+
+    }
+
+
+    /**
+     * @title -忘记密码页
+     * @desc  -忘记密码
+     */
+    public function forgetpwdAction() {
 
     }
 

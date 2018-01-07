@@ -13,7 +13,7 @@
 <style>
     canvas{
         position: fixed;
-        top: 0px;
+        top: 0;
     }
 </style>
 <div class="main-container">
@@ -43,31 +43,31 @@
 
                                     <div class="space-6"></div>
 
-                                    <form>
+                                    <form method="post" class="form-horizontal" id="myForm" role="form">
                                         <fieldset>
                                             <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
-															<input type="text" class="form-control" placeholder="用户名" />
-															<i class="ace-icon fa fa-user"></i>
-														</span>
+                                                <span class="block input-icon input-icon-right">
+                                                    <input type="text" class="form-control" placeholder="用户名" id="loginName" name="loginName" />
+                                                    <i class="ace-icon fa fa-user"></i>
+                                                </span>
                                             </label>
 
                                             <label class="block clearfix">
-														<span class="block input-icon input-icon-right">
-															<input type="password" class="form-control" placeholder="密码" />
-															<i class="ace-icon fa fa-lock"></i>
-														</span>
+                                                <span class="block input-icon input-icon-right">
+                                                    <input type="password" class="form-control" placeholder="密码" id="password" name="password" />
+                                                    <i class="ace-icon fa fa-lock"></i>
+                                                </span>
                                             </label>
 
                                             <div class="space"></div>
 
                                             <div class="clearfix">
                                                 <label class="inline">
-                                                    <input type="checkbox" class="ace" />
+                                                    <input type="checkbox" class="ace" id="remember" name="remember" value="1" />
                                                     <span class="lbl"> 记住我</span>
                                                 </label>
 
-                                                <button type="button" class="width-35 pull-right btn btn-sm btn-primary">
+                                                <button type="submit" class="width-35 pull-right btn btn-sm btn-primary" id="submit">
                                                     <i class="ace-icon fa fa-key"></i>
                                                     <span class="bigger-110">登录</span>
                                                 </button>
@@ -103,21 +103,100 @@
 </div><!-- /.main-container -->
 
 <?php $otherJsCont = <<<EOT
-<script src="/statics/js/fingerprint.min.js"></script>
-<script type="text/javascript">
-    jQuery(function($) {
-        /(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && $("#main-container").css("overflow-y", "auto");
-
-        //浏览器指纹
-        var fpObj = new Fingerprint();
-        var num = fpObj.get();
-        console.log(num);
-    })
-</script>
 EOT;
 ?>
 {{ partial("common/footer", ['FOOT_OTH_CONT': otherJsCont]) }}
 <script>
+    var saveUrl = "{{saveUrl}}";
+    //浏览器指纹
+    var fpObj = new Fingerprint();
+    var uafp = fpObj.get();
+
+    $(function($) {
+        /(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && $("#main-container").css("overflow-y", "auto");
+
+        //验证
+        $("#myForm").validate({
+            rules : {
+                loginName : {
+                    required : true,
+                    rangelength : [4, 30]
+                },
+                password : {
+                    required : true,
+                    isPwd : true,
+                    rangelength : [5, 32]
+                }
+            },
+            messages : {
+                loginName : {
+                    required : '请输入用户名',
+                    rangelength : "限制{0}~{1}字符以内"
+                },
+                password : {
+                    required : '请输入密码',
+                    isPwd : '只能是英文、数字和特殊字符',
+                    rangelength : "限制{0}~{1}字符以内"
+                }
+            },
+            errorElement: "em",
+            errorPlacement: function ( error, element ) {
+                // Add the `help-block` class to the error element
+                error.addClass( "help-block" );
+
+                if ( element.prop( "type" ) === "checkbox" ) {
+                    error.insertAfter( element.parent( "label" ) );
+                } else {
+                    error.insertAfter( element );
+                }
+            },
+            highlight: function ( element, errorClass, validClass ) {
+                $( element ).parents( ".col-sm-5" ).addClass( "has-error" ).removeClass( "has-success" );
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $( element ).parents( ".col-sm-5" ).addClass( "has-success" ).removeClass( "has-error" );
+            },
+
+            //提交
+            submitHandler : function(form){
+                var formdata = $(form).serializeArray();
+                var sendData = {};
+                $(formdata).each(function(index, obj){
+                    sendData[obj.name] = obj.value;
+                });
+
+                if(sendData.password.length>0) {
+                    sendData.password = md5(sendData.password);
+                }
+                sendData.uafp = uafp;
+                $('#submit').attr("disabled","disabled");
+                $.post(saveUrl, sendData, function(res){
+                    $('#submit').removeAttr("disabled");
+                    if(res.msg==null) res.msg = 'null';
+                    if(res.status){
+                        layer.alert(res.msg, function(){
+                            if(window.top==window.self){
+                                location.href = listUrl;
+                            }else{//从父级页面打开
+                                var index = parent.layer.getFrameIndex(window.name);
+                                parent.layer.close(index);
+                                parent.location.href = listUrl;
+                            }
+                        });
+                    }else{
+                        layer.alert(res.msg);
+                        return false;
+                    }
+                }, 'json');
+
+                return false;
+            }
+        });
+
+
+    });
+
+
     /**
      * Created by Administrator on 2016/6/29.
      */
@@ -256,5 +335,4 @@ EOT;
 
     createDots();
     requestAnimationFrame(animateDots);
-
 </script>
