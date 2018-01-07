@@ -1298,7 +1298,7 @@ class LkkModel extends Model {
      */
     public static function rowToArray($obj) {
         if(!is_object($obj) && !method_exists($obj, 'toArray')) return [];
-        $arr = $obj->toArray();
+        $arr = method_exists($obj, 'toArray') ? $obj->toArray() : (array)$obj;
         $new = [];
 
         foreach ($arr as $k=>$item) {

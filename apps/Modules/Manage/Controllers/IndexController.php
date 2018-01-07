@@ -12,6 +12,7 @@ namespace Apps\Modules\Manage\Controllers;
 
 use Kengine\LkkController;
 use Lkk\Helpers\CommonHelper;
+use Apps\Models\AdmUser;
 
 
 /**
@@ -83,7 +84,22 @@ class IndexController extends LkkController {
      * @desc  -后台登录保存
      */
     public function loginSaveAction() {
+        $loginName = trim($this->request->get('loginName'));
+        $password = trim($this->request->get('password'));
+        $remember = intval($this->request->get('remember'));
 
+        $res = $this->userService->managerLogin($loginName, $password);
+        if(!$res) {
+            return $this->fail($this->userService->error());
+        }else{
+            $rbacCnf = getConf('rbac');
+            $data = [
+                'defaultUrl' => makeUrl($rbacCnf->managerDefautlAction),
+                'info' => AdmUser::rowToArray($res),
+            ];
+
+            return $this->success($data);
+        }
     }
 
 

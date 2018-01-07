@@ -150,6 +150,7 @@ function parseAt($str) {
  */
 function makeUrl($uri = null, $args = null, $local = null) {
     $urlObj = \Kengine\LkkCmponent::url();
+    $uri = ltrim($uri, '/');
     $url = $urlObj->get($uri, $args, $local);
     return $url;
 }

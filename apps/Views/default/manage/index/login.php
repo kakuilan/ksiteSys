@@ -171,18 +171,17 @@ EOT;
                 sendData.uafp = uafp;
                 $('#submit').attr("disabled","disabled");
                 $.post(saveUrl, sendData, function(res){
+                    console.log('login', res);
                     $('#submit').removeAttr("disabled");
                     if(res.msg==null) res.msg = 'null';
                     if(res.status){
-                        layer.alert(res.msg, function(){
-                            if(window.top==window.self){
-                                location.href = listUrl;
-                            }else{//从父级页面打开
-                                var index = parent.layer.getFrameIndex(window.name);
-                                parent.layer.close(index);
-                                parent.location.href = listUrl;
-                            }
-                        });
+                        if(window.top==window.self){
+                            location.href = res.data.defaultUrl;
+                        }else{//从父级页面打开
+                            var index = parent.layer.getFrameIndex(window.name);
+                            parent.layer.close(index);
+                            parent.location.href = res.data.defaultUrl;
+                        }
                     }else{
                         layer.alert(res.msg);
                         return false;

@@ -147,11 +147,12 @@ class LkkController extends Controller {
         $data = $this->jsonRes;
 
         if(is_array($msg)) {
-            $data = array_merge($data, $msg);
+            $data['data'] = array_merge($data['data'], $msg);
         }else{
             $data['msg'] = $msg;
         }
         $data['status'] = true;
+        if(empty($data['msg'])) $data['msg'] = 'success';
 
         return $this->json($data, $callback);
     }
@@ -166,11 +167,12 @@ class LkkController extends Controller {
         $data = $this->jsonRes;
 
         if(is_array($msg)) {
-            $data = array_merge($data, $msg);
+            $data['data'] = array_merge($data['data'], $msg);
         }else{
             $data['msg'] = $msg;
         }
         $data['status'] = false;
+        if(empty($data['msg'])) $data['msg'] = 'fail';
 
         return $this->json($data, $callback);
     }

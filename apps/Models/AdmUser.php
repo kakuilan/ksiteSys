@@ -117,7 +117,7 @@ class AdmUser extends BaseModel {
         $result = self::query()
             ->columns(self::$joinUsrFields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
-            ->where("{$usr}.username = :username: ", ['username'=>$str])
+            ->where("u.username = :username: ", ['username'=>$str])
             ->limit(1)
             ->execute();
 
@@ -139,7 +139,7 @@ class AdmUser extends BaseModel {
         $result = self::query()
             ->columns(self::$joinUsrFields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
-            ->where("{$usr}.email = :email: ", ['email'=>$str])
+            ->where("u.email = :email: ", ['email'=>$str])
             ->limit(1)
             ->execute();
 
@@ -162,7 +162,7 @@ class AdmUser extends BaseModel {
         $result = self::query()
             ->columns(self::$joinUsrFields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
-            ->where("{$usr}.username = :username:  OR {$usr}.email = :email: ", ['username'=>$str, 'email'=>$str])
+            ->where("u.username = :username:  OR u.email = :email: ", ['username'=>$str, 'email'=>$str])
             ->orderBy('u.uid asc')
             ->limit(1)
             ->execute();

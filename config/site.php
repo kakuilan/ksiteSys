@@ -9,6 +9,6 @@
 
 
 return [
-    'url'               => 'http://ksys.loc/', //网站完整URL,带http,小写,结尾/
+    'url'               => 'http://ksys.loc/', //网站完整URL,带http,小写,结尾包含/
     'srcFullUrl'        => false, //HTML源码中本站资源链接是否完整的URL:否-以/开头,是-则以完整站点URL开头
 ];

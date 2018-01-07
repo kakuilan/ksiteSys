@@ -406,7 +406,7 @@ class UserService extends ServiceBase {
         }
 
         $admn = AdmUser::rowToObject($admn);
-        if($admn->type != UserBase::USER_TYPE_ADMNER) {
+        if($admn->user_type != UserBase::USER_TYPE_ADMNER) {
             $this->setError('用户类型错误');
             return false;
         }
