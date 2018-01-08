@@ -9,6 +9,6 @@
 
 
 return [
-    'lang'        => 'cn-ls',     //使用语言cn-ls灵山,cn-hk客家,cn-ct粤语,cn-md普通话
+    'lang'        => 'cn-md',     //使用语言cn-ls灵山,cn-hk客家,cn-ct粤语,cn-md普通话
     'systemdir'   => DATADIR . 'langs' . DS, //系统语言文件目录
 ];
