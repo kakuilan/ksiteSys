@@ -125,7 +125,7 @@ class LkkModel extends Model {
      */
     public static function getTableColumns($table=null, $hasPri=false) {
         if(empty($table)) $table = self::getTableName();
-        if(is_null(static::$tableColumns) || empty(static::$tableColumns)) {
+        if(is_null(static::$tableColumns) || !isset(static::$tableColumns[$table])) {
             $_conn = LkkCmponent::SyncDbMaster('');
             $res = $_conn->fetchAll(" SHOW FULL COLUMNS FROM {$table} ");
             if($res) {
@@ -140,14 +140,14 @@ class LkkModel extends Model {
                     }
                 }
 
-                static::$tableColumns = [
+                static::$tableColumns[$table] = [
                     'all' => $fields,
                     'pri'    => $pri,
                 ];
             }
         }
 
-        $res = $hasPri ? static::$tableColumns : static::$tableColumns['all'];
+        $res = $hasPri ? static::$tableColumns[$table] : static::$tableColumns[$table]['all'];
         getLogger()->info('getTableColumns', ['$table'=>$table, '$res'=>$res, 'self::$tableColumns'=>static::$tableColumns]);
 
         return $res;
