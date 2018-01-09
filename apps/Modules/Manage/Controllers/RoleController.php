@@ -117,7 +117,7 @@ class RoleController extends LkkController {
             'records' => $pageObj->total_items, //总记录数
         ];
 
-        return $this->success(['data'=>$data]);
+        return $this->success($data);
     }
 
 
@@ -188,7 +188,7 @@ class RoleController extends LkkController {
             }
         }
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data, '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -206,7 +206,7 @@ class RoleController extends LkkController {
         ];
         $res = AdmRole::upData($data, ['id'=>$id, 'site_id'=>$this->siteId]);
 
-        return $res ? $this->success('操作成功') : $this->fail('操作失败');
+        return $res ? $this->success([], '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -278,7 +278,7 @@ class RoleController extends LkkController {
             $this->dbMaster->rollback();
         }
 
-        return $res ? $this->success('操作成功') : $this->fail('操作失败');
+        return $res ? $this->success([], '操作成功') : $this->fail('操作失败');
     }
 
 

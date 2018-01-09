@@ -42,7 +42,7 @@ class ModuleController extends LkkController {
     public function indexAction(){
         if($this->request->isAjax()) {
             $treeData = AdmModule::getModuleTree(0, null, $this->siteId, false);
-            return $this->success(['data'=>$treeData]);
+            return $this->success($treeData);
         }
 
         //视图变量
@@ -77,7 +77,7 @@ class ModuleController extends LkkController {
         if($roleFuns) $roleChkOpids = array_column($roleFuns->toArray(), 'operation_id');
 
         $treeData = RbacService::getModuleOperationTree(0, null, $this->siteId, $roleChkOpids);
-        return $this->success(['data'=>$treeData]);
+        return $this->success($treeData);
     }
 
 
@@ -175,7 +175,7 @@ class ModuleController extends LkkController {
         $data['id'] = $id;
         $data['name'] = "[{$id}]". $data['name'] .($status ? '' : '[停用]');
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data, '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -193,7 +193,7 @@ class ModuleController extends LkkController {
         ];
         $res = AdmModule::upData($data, ['id'=>$id, 'site_id'=>$this->siteId]);
 
-        return $res ? $this->success('操作成功') : $this->fail('操作失败');
+        return $res ? $this->success([], '操作成功') : $this->fail('操作失败');
     }
 
 

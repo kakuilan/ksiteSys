@@ -49,7 +49,7 @@ class OperationController extends LkkController {
             $item['name'] .= ($item['status'] ? '' : '[停用]');
         }
 
-        return $this->success(['data'=>$list]);
+        return $this->success($list);
     }
 
 
@@ -205,7 +205,7 @@ class OperationController extends LkkController {
         $data['id'] = $id;
         $data['name'] = $data['name'] .($status ? '' : '[停用]');
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data, '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -233,7 +233,7 @@ class OperationController extends LkkController {
             $this->dbMaster->rollback();
         }
 
-        return $res ? $this->success('操作成功') : $this->fail('操作失败');
+        return $res ? $this->success([], '操作成功') : $this->fail('操作失败');
     }
 
 

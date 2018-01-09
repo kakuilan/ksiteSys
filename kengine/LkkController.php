@@ -140,26 +140,6 @@ class LkkController extends Controller {
 
     /**
      * ajax成功输出json
-     * @param mixed  $msg
-     * @param string $callback
-     */
-    public function success00($msg='success', $callback='') {
-        $data = $this->jsonRes;
-
-        if(is_array($msg)) {
-            $data['data'] = array_merge($data['data'], $msg);
-        }else{
-            $data['msg'] = $msg;
-        }
-        $data['status'] = true;
-        if(empty($data['msg'])) $data['msg'] = 'success';
-
-        return $this->json($data, $callback);
-    }
-
-
-    /**
-     * ajax成功输出json
      * @param array $data 数据
      * @param string $msg 消息
      * @param string $callback js回调
@@ -179,26 +159,6 @@ class LkkController extends Controller {
         $this->jsonRes['msg'] = $msg ? $msg : 'success';
 
         return $this->json($this->jsonRes, $callback);
-    }
-
-
-    /**
-     * ajax失败输出json
-     * @param mixed  $msg
-     * @param string $callback
-     */
-    public function fail00($msg='fail', $callback='') {
-        $data = $this->jsonRes;
-
-        if(is_array($msg)) {
-            $data['data'] = array_merge($data['data'], $msg);
-        }else{
-            $data['msg'] = $msg;
-        }
-        $data['status'] = false;
-        if(empty($data['msg'])) $data['msg'] = 'fail';
-
-        return $this->json($data, $callback);
     }
 
 

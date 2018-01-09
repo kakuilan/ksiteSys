@@ -160,7 +160,7 @@ class UserController extends LkkController {
             'records' => $pageObj->total_items, //总记录数
         ];
 
-        return $this->success(['data'=>$data]);
+        return $this->success($data);
     }
 
 
@@ -279,7 +279,7 @@ class UserController extends LkkController {
             $res = UserBase::addData($data);
         }
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data,'操作成功') : $this->fail('操作失败');
     }
 
 
@@ -351,7 +351,7 @@ class UserController extends LkkController {
         ];
         $res = UserBase::upData($data, ['uid'=>$uid]);
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data, '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -466,7 +466,7 @@ class UserController extends LkkController {
             'records' => $pageObj->total_items, //总记录数
         ];
 
-        return $this->success(['data'=>$data]);
+        return $this->success($data);
     }
 
 
@@ -670,7 +670,7 @@ class UserController extends LkkController {
             'user_status_desc' => $userStatusArr[$user_status],
         ];
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$newData]) : $this->fail('操作失败');
+        return $res ? $this->success($newData, '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -742,7 +742,7 @@ class UserController extends LkkController {
         ];
         $res = AdmUser::upData($data, ['uid'=>$uid]);
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data, '操作成功') : $this->fail('操作失败');
     }
 
 

@@ -41,7 +41,7 @@ class MenuController extends LkkController {
     public function indexAction(){
         if($this->request->isAjax()) {
             $menus = AdmMenu::getMenuTree(0, null, $this->siteId, false);
-            return $this->success(['data'=>$menus]);
+            return $this->success($menus);
         }
 
         //视图变量
@@ -68,7 +68,7 @@ class MenuController extends LkkController {
     public function authListAction() {
         $menus = AdmMenu::getMenuTree(0, null, $this->siteId, true);
         //TODO 权限过滤菜单
-        return $this->success(['data'=>$menus]);
+        return $this->success($menus);
     }
 
 
@@ -171,7 +171,7 @@ class MenuController extends LkkController {
         $data['id'] = $id;
         $data['title'] = "[{$id}]". $data['title'] .($status ? '' : '[停用]');
 
-        return $res ? $this->success(['msg'=>'操作成功', 'data'=>$data]) : $this->fail('操作失败');
+        return $res ? $this->success($data, '操作成功') : $this->fail('操作失败');
     }
 
 
@@ -189,7 +189,7 @@ class MenuController extends LkkController {
         ];
         $res = AdmMenu::upData($data, ['id'=>$id, 'site_id'=>$this->siteId]);
 
-        return $res ? $this->success('操作成功') : $this->fail('操作失败');
+        return $res ? $this->success([],'操作成功') : $this->fail('操作失败');
     }
 
 
@@ -203,7 +203,7 @@ class MenuController extends LkkController {
         $num = Action::countEnable();
         $msg = "更新成功，当前系统共{$num}个动作";
 
-        return $this->success($msg);
+        return $this->success([],$msg);
     }
 
 
