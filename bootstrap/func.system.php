@@ -103,6 +103,7 @@ function xssClean(string $str) {
  * @return string
  */
 function lang($string, array $values = []) {
+    if(!is_array($values) || empty($values)) return $string;
     return \Kengine\LkkLang::getInstance()->translate($string, $values);
 }
 

@@ -143,7 +143,7 @@ class LkkController extends Controller {
      * @param mixed  $msg
      * @param string $callback
      */
-    public function success($msg='success', $callback='') {
+    public function success00($msg='success', $callback='') {
         $data = $this->jsonRes;
 
         if(is_array($msg)) {
@@ -159,11 +159,35 @@ class LkkController extends Controller {
 
 
     /**
+     * ajax成功输出json
+     * @param array $data 数据
+     * @param string $msg 消息
+     * @param string $callback js回调
+     * @return array|string
+     */
+    public function success($data=[], $msg='', $callback='') {
+        if(!empty($data)) {
+            if(is_array($data) || is_object($data)) {
+                $this->jsonRes['data'] = array_merge($this->jsonRes['data'], (array)$data);
+            }else{
+                $this->jsonRes['data'] = strval($data);
+            }
+        }
+
+        $this->jsonRes['status'] = true;
+        $this->jsonRes['code'] = 200;
+        $this->jsonRes['msg'] = $msg ? $msg : 'success';
+
+        return $this->json($this->jsonRes, $callback);
+    }
+
+
+    /**
      * ajax失败输出json
      * @param mixed  $msg
      * @param string $callback
      */
-    public function fail($msg='fail', $callback='') {
+    public function fail00($msg='fail', $callback='') {
         $data = $this->jsonRes;
 
         if(is_array($msg)) {
@@ -177,6 +201,39 @@ class LkkController extends Controller {
         return $this->json($data, $callback);
     }
 
+
+    /**
+     * ajax失败输出json
+     * @param string|array $code 错误码/错误消息
+     * @param array $langParams 错误码中的变量,键值对,参考data\doc\error_code.php
+     * @param array $data 数据
+     * @param string $callback js回调
+     * @return array|string
+     */
+    public function fail($code='', $langParams=[], $data=[], $callback='') {
+        if(!empty($data)) {
+            if(is_array($data) || is_object($data)) {
+                $this->jsonRes['data'] = array_merge($this->jsonRes['data'], (array)$data);
+            }else{
+                $this->jsonRes['data'] = strval($data);
+            }
+        }
+
+        if(is_array($code)) {
+            $msg = end($code);
+            $code = reset($code);
+        }else{
+            $msg = lang($code, $langParams);
+        }
+
+        $codeNo = ($code!=$msg && is_numeric($code)) ? $code : 400;
+
+        $this->jsonRes['status'] = false;
+        $this->jsonRes['msg'] = $msg ? $msg : 'error';
+        $this->jsonRes['code'] = $codeNo;
+
+        return $this->json($this->jsonRes, $callback);
+    }
 
 
 
