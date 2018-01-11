@@ -15,6 +15,14 @@
         position: fixed;
         top: 0;
     }
+    i.ace-icon a{
+        display: block;
+        position: relative;
+        top: -1px;
+        right: -5px;
+        overflow: hidden;
+    }
+    #verifyImg{ min-width: 100%; min-height: 100%; vertical-align: middle; max-height: 32px;}
 </style>
 <div class="main-container">
     <canvas width="100%" height="100%"></canvas>
@@ -56,6 +64,18 @@
                                                 <span class="block input-icon input-icon-right">
                                                     <input type="password" class="form-control" placeholder="密码" id="password" name="password" />
                                                     <i class="ace-icon fa fa-lock"></i>
+                                                </span>
+                                            </label>
+
+                                            <label class="block clearfix">
+                                                <span class="block input-icon input-icon-right">
+                                                    <input type="password" class="form-control" placeholder="请输入验证码" id="verifyCode" name="verifyCode" />
+                                                    <input type="hidden" id="veriEncode" name="veriEncode">
+                                                    <i class="ace-icon">
+                                                        <a href="javascript:refreshCaptcha();">
+                                                            <img src="" id="verifyImg">
+                                                        </a>
+                                                    </i>
                                                 </span>
                                             </label>
 
@@ -108,12 +128,26 @@ EOT;
 {{ partial("common/footer", ['FOOT_OTH_CONT': otherJsCont]) }}
 <script>
     var saveUrl = "{{saveUrl}}";
+    var captchaUrl = "{{captchaUrl}}";
     //浏览器指纹
     var fpObj = new Fingerprint();
     var uafp = fpObj.get();
 
+    //刷新验证码
+    function refreshCaptcha() {
+        $.getJSON(captchaUrl, function (res) {
+            console.log(res);
+            if(res.status) {
+                $('#verifyImg').attr('src', res.data.img);
+                $('#veriEncode').val(res.data.encode);
+            }
+        });
+    }
+
     $(function($) {
         /(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && $("#main-container").css("overflow-y", "auto");
+
+        refreshCaptcha();
 
         //验证
         $("#myForm").validate({

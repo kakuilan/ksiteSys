@@ -64,6 +64,7 @@ class IndexController extends LkkController {
         //视图变量
         $this->view->setVars([
             'saveUrl' => makeUrl('manage/index/loginsave'),
+            'captchaUrl' => makeUrl('common/captcha/create'),
         ]);
 
 
@@ -87,6 +88,9 @@ class IndexController extends LkkController {
         $loginName = trim($this->request->get('loginName'));
         $password = trim($this->request->get('password'));
         $remember = intval($this->request->get('remember'));
+        $password = trim($this->request->get('password'));
+        $verifyCode = trim($this->request->get('verifyCode'));
+        $veriEncode = trim($this->request->get('veriEncode'));
 
         $res = $this->userService->managerLogin($loginName, $password);
         if(!$res) {
