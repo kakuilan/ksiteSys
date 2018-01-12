@@ -19,15 +19,18 @@ class CaptchaService extends ServiceBase {
 
     /**
      * 生成验证码数组
-     * @param int $len
+     * @param int $len 验证码长度
+     * @param string $type 字符类型,参考StringHelper::randString
      *
      * @return array
      */
-    public static function createCode($len = 4) {
+    public static function createCode($len = 4, $type=0) {
         if($len<4) $len = 4;
         if($len>10) $len = 10;
 
-        $code = StringHelper::randString($len, 0);
+        $rang = range(0, 5);
+        if(!in_array($type, $rang)) $type = 0;
+        $code = StringHelper::randString($len, $type);
 
         $crypt = LkkCmponent::crypt();
         $encode = $crypt->encryptBase64($code);

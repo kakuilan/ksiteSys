@@ -13,7 +13,7 @@ namespace Apps\Modules\Manage\Controllers;
 use Kengine\LkkController;
 use Lkk\Helpers\CommonHelper;
 use Apps\Models\AdmUser;
-
+use Apps\Services\CaptchaService;
 
 /**
  * Class 后台首页控制器
@@ -91,6 +91,16 @@ class IndexController extends LkkController {
         $password = trim($this->request->get('password'));
         $verifyCode = trim($this->request->get('verifyCode'));
         $veriEncode = trim($this->request->get('veriEncode'));
+
+        if(empty($verifyCode) || empty($veriEncode)) {
+            return $this->fail(20103);
+        }
+
+        $captchaServ = new CaptchaService();
+        $chkCapt = $captchaServ->validateCode($verifyCode, $veriEncode);
+        if(!$chkCapt) {
+            return $this->fail($captchaServ->error());
+        }
 
         $res = $this->userService->managerLogin($loginName, $password);
         if(!$res) {

@@ -23,8 +23,9 @@ class CaptchaController extends LkkController {
      */
     public function createAction() {
         $len = intval($this->request->get('len', null, 6));
+        $type = intval($this->request->get('type', null, 0));
 
-        $this->jsonRes['data'] = CaptchaService::createCode($len);
+        $this->jsonRes['data'] = CaptchaService::createCode($len, $type);
 
         return $this->success();
     }

@@ -69,7 +69,7 @@
 
                                             <label class="block clearfix">
                                                 <span class="block input-icon input-icon-right">
-                                                    <input type="password" class="form-control" placeholder="请输入验证码" id="verifyCode" name="verifyCode" />
+                                                    <input type="text" class="form-control" placeholder="请输入验证码" id="verifyCode" name="verifyCode" />
                                                     <input type="hidden" id="veriEncode" name="veriEncode">
                                                     <i class="ace-icon">
                                                         <a href="javascript:refreshCaptcha();">
@@ -160,6 +160,9 @@ EOT;
                     required : true,
                     isPwd : true,
                     rangelength : [5, 32]
+                },
+                verifyCode : {
+                    required : true
                 }
             },
             messages : {
@@ -171,6 +174,9 @@ EOT;
                     required : '请输入密码',
                     isPwd : '只能是英文、数字和特殊字符',
                     rangelength : "限制{0}~{1}字符以内"
+                },
+                verifyCode : {
+                    required : '请输入验证码'
                 }
             },
             errorElement: "em",
