@@ -36,7 +36,8 @@ class ServiceBase extends LkkService implements InjectionAwareInterface {
 
         //读取本服务类的事件配置,并绑定
         $eventPrefix = $this->getClassShortName();
-        $eventConf = getConf('services/servicevent', $eventPrefix);
+        $eventConf = getConf('Services/servicevent', $eventPrefix);
+
         if(!empty($eventConf) && is_array($eventConf)) {
             foreach ($eventConf as $eventType=>$listeners) {
                 if(empty($eventType) || is_numeric($eventType)) continue;

@@ -8,14 +8,18 @@ eaglewu/swoole-ide-helper
 
 License
 -------
-No license.本系统不授权.  
+####No license.本系统不授权.  
 
 
-依赖:  
-php 7.0  
-phalcon 3.2.4  
-swoole 1.9.23  
+依赖: 
+- php 7.0  
+- phalcon 3.2.4  
+- swoole 1.9.23  
 
+需打开函数:  
+- popen  
+- pclose  
+- exec  
 
 
 TODO:  

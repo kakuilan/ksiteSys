@@ -413,13 +413,14 @@ class UserService extends ServiceBase {
 
         //检查密码
         if(!password_verify($password, $admn->password)) {
-            //TODO 登录失败事件
-            //AdmUser::upData(['login_fails'=>$admn->login_fails+1, 'update_time'=>time()], ['uid'=>$admn->uid]);
+            //登录失败事件
+            $this->fireEvent('afterManagerLoginFail', $admn, true, $this->getDI());
             $this->setError('登录名或密码错误');
             return false;
         }
 
         //TODO 登录成功事件
+        $this->fireEvent('afterManagerLoginSuccess', $admn);
 
         return $admn;
     }
