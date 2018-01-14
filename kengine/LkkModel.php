@@ -553,7 +553,7 @@ class LkkModel extends Model {
             }
         }
 
-        if(is_string($firstItem) && (in_array($firstItem, $allOperators) || preg_grep("/$firstItem/i", $allOperators))) {
+        if(is_string($firstItem) && (in_array($firstItem, $allOperators) || preg_grep("@$firstItem@i", $allOperators))) {
             $where = [$where];
         }
 
@@ -1100,6 +1100,7 @@ class LkkModel extends Model {
     public static function getRow($where='', $field='*', $order='') {
         if(empty($where)) $where ='1=1';
         $where = self::parseWhere($where, true);
+
         if(trim($field)=='*' || trim($field)=='') {
             if(!empty($order)) $where['order'] = $order;
             $res = self::findFirst($where);
