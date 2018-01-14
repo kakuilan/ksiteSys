@@ -120,7 +120,7 @@ return [
                 'callback' => ['\Apps\Timers\Server','checkStopping'],
                 'params' => [],
             ],
-            'run_interval_time' => 1,
+            'run_interval_time' => 1, //生产环境可调大为10
         ],
 
         //session入库redis
@@ -144,6 +144,31 @@ return [
             ],
             'run_interval_time' => 30,
         ],
+
+
+        //将失败的消息重新加入队列
+        [
+            'type' => ServerConst::SERVER_TASK_TIMER,
+            'message' => [
+                'title' => 'failMsgReaddQueue',
+                'callback' => ['\Apps\Timers\MessageQueue','failMsgReaddQueue'],
+                'params' => [],
+            ],
+            'run_interval_time' => 5,
+        ],
+
+        //循环拉取系统通知处理
+        [
+            'type' => ServerConst::SERVER_TASK_TIMER,
+            'message' => [
+                'title' => 'pullNotifyMsgHandling',
+                'callback' => ['\Apps\Timers\MessageQueue','pullNotifyMsgHandling'],
+                'params' => [],
+            ],
+            'run_interval_time' => 2,
+        ],
+
+
 
     ],
 

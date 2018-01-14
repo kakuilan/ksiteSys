@@ -11,6 +11,8 @@
 namespace Apps\Services\Event;
 
 use Apps\Models\UserLoginLog;
+use Apps\Services\RedisQueueService;
+use Apps\Services\ConstService;
 use Apps\Models\AdmUser;
 use Lkk\Helpers\CommonHelper;
 
@@ -20,9 +22,9 @@ class UserListener extends ListenerBase {
      * 管理员登录成功后事件处理
      * @param object $event 事件管理器
      * @param object $source 来源对象
-     * @param mixed $admInfo 传递来的数据
+     * @param mixed $admn 传递来的数据
      */
-    public function afterManagerLoginSuccess($event, $source, $admInfo) {
+    public function afterManagerLoginSuccess($event, $source, $admn) {
         $di = $source->getDI();
 
 
@@ -33,7 +35,7 @@ class UserListener extends ListenerBase {
         $browser  = CommonHelper::getBrowser(false, $request->server);
 
         $data = [
-            'uid' => $admInfo ? $admInfo->uid : 0,
+            'uid' => $admn ? $admn->uid : 0,
             'type' => '1',
             'status' => '1',
             'login_time' => time(),
@@ -52,9 +54,9 @@ class UserListener extends ListenerBase {
      * 管理员登录失败后事件处理
      * @param object $event 事件管理器
      * @param object $source 来源对象
-     * @param mixed $admInfo 传递来的数据
+     * @param mixed $admn 传递来的数据
      */
-    public function afterManagerLoginFail($event, $di, $admInfo) {
+    public function afterManagerLoginFail($event, $di, $admn) {
         $request = $di->getShared('request');
         $ip = $request->getClientAddress();
         $fingerprint = $di->getShared('userAgent')->getAgentFpValue();
@@ -62,19 +64,23 @@ class UserListener extends ListenerBase {
         $browser  = CommonHelper::getBrowser(false, $request->server);
         $now = time();
 
-        $data = [
-            'uid' => $admInfo ? $admInfo->uid : 0,
-            'type' => '1',
-            'status' => '0',
-            'login_time' => $now,
-            'login_ip' => $ip ? CommonHelper::ip2UnsignedInt($ip) : 0,
-            'fingerprint' => $fingerprint ? $fingerprint : 0,
-            'platform' => $platform,
-            'browser' => $browser,
+        $item = [
+            'type' => ConstService::WFLOW_MANAGE_LOGINLOG,
+            'data' => [
+                'uid' => $admn ? $admn->uid : 0,
+                'type' => '1',
+                'status' => '0',
+                'login_time' => $now,
+                'login_ip' => $ip ? CommonHelper::ip2UnsignedInt($ip) : 0,
+                'fingerprint' => $fingerprint ? $fingerprint : 0,
+                'platform' => $platform,
+                'browser' => $browser,
+            ]
         ];
 
-        UserLoginLog::addData($data);
-        AdmUser::upData(['login_fails'=>$admInfo->login_fails+1, 'update_time'=>$now], ['uid'=>$admInfo->uid]);
+        //UserLoginLog::addData($data);
+        RedisQueueService::quickAddItem2WorkflowMq($item);
+        AdmUser::upData(['login_fails'=>$admn->login_fails+1, 'update_time'=>$now], ['uid'=>$admn->uid]);
     }
 
 

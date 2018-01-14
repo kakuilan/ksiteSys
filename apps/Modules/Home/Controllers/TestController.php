@@ -13,9 +13,9 @@ use Kengine\LkkController;
 use Lkk\Helpers\CommonHelper;
 use Apps\Models\Test;
 use Lkk\Phalwoo\Server\SwooleServer;
-use Lkk\Phalwoo\Server\Concurrent\Promise;
-use GuzzleHttp\Promise\Promise as GuzPomise;
 use Apps\Models\UserBase;
+use Apps\Services\RedisQueueService;
+
 
 class TestController extends  LkkController {
 
@@ -84,6 +84,25 @@ class TestController extends  LkkController {
         ];
         $res = UserBase::addData($data);
         var_dump('sql-res', $data, $res);*/
+    }
+
+
+
+    public function querediscnfAction() {
+        $poolCnf = getConf('pool')->toArray();
+        $redisCnf = $poolCnf['redis_queue']['args'];
+
+        $item = [
+            'type' => 'msg',
+            'data' => [
+                'uid' => '1',
+                'touid' => mt_rand(10, 100),
+                'content' => 'hello work',
+            ],
+        ];
+        RedisQueueService::quickAddItem2AppNotifyMq($item);
+
+        $this->success($redisCnf);
     }
 
 

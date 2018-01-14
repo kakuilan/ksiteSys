@@ -16,7 +16,7 @@ return [
     'mysql_master' => [
         'type'  => 'mysql',                 // 连接池类型
         'size'  => 20,                       // 连接池大小
-        'table_prefix'  => 'lkk_',          //表前缀
+        'table_prefix'  => 'k_',          //表前缀
         'charset'   => 'utf8',              //字符集
 
         'args'  => [                        // 连接参数
@@ -37,7 +37,7 @@ return [
     'mysql_slave' => [
         'type'  => 'mysql',                 // 连接池类型
         'size'  => 40,                       // 连接池大小
-        'table_prefix'  => 'lkk_',          //表前缀
+        'table_prefix'  => 'k_',          //表前缀
         'charset'   => 'utf8',              //字符集
 
         'args'  => [                        // 连接参数

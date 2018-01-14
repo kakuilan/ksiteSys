@@ -426,6 +426,7 @@ class UserService extends ServiceBase {
     }
 
 
+
     public function managerLogout() {
 
     }
@@ -460,6 +461,16 @@ class UserService extends ServiceBase {
 
     }
 
+
+    //生成管理员session
+    public function makeManageSession($admn=[]) {
+
+    }
+
+
+    public function destroyManageSession() {
+
+    }
 
 
 

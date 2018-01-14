@@ -16,4 +16,9 @@ class ConstService extends ServiceBase {
     //缓存key
 
 
+    //工作流类型
+    const WFLOW_MANAGE_LOGINLOG             = 'manage_login_log'; //后台登录日志
+
+
+
 }

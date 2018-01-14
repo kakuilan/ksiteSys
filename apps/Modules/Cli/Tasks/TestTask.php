@@ -12,6 +12,7 @@ namespace Apps\Modules\Cli\Tasks;
 use Kengine\LkkTask;
 use Apps\Models\UserBase;
 use Apps\Models\AdmUser;
+use Apps\Models\Site;
 
 class TestTask extends LkkTask {
 
@@ -33,6 +34,11 @@ class TestTask extends LkkTask {
         $list = $pageObj->items->toArray();
 
         var_dump($list, $paginator);
+    }
+
+
+    public function abcAction() {
+
     }
 
 

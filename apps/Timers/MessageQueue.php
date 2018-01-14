@@ -34,10 +34,10 @@ class MessageQueue extends BaseTimer {
         $addr = LkkMacAddress::getMacAddress();
         $readdRes = $queue->loopTransQueue($addr);
         if($readdRes) {
-            print_r("[READD MSG] server:[{$addr}] time:{$date} readd transfer msg Total:{$readdRes}\n");
+            //print_r("[READD MSG] server:[{$addr}] time:{$date} readd transfer msg Total:{$readdRes}\n");
         }else{
             $err = $queue->error();
-            print_r("[READD MSG] server:[{$addr}] time:{$date} readd transfer msg Fail:{$err}\n");
+            //print_r("[READD MSG] server:[{$addr}] time:{$date} readd transfer msg Fail:{$err}\n");
         }
 
         return $readdRes;
@@ -64,7 +64,7 @@ class MessageQueue extends BaseTimer {
         $date = date('Ymd H:i:s');
         $addr = LkkMacAddress::getMacAddress();
         $queId = $notifyService->getQueIdByname(RedisQueueService::APP_NOTIFY_QUEUE_NAME);
-        print_r("[PULL MSG] server:[{$addr}] time:{$date} queId:{$queId} queue size:{$len}.\n");
+        //print_r("[PULL MSG] server:[{$addr}] time:{$date} queId:{$queId} queue size:{$len}.\n");
 
         while ($item = $queue->pop()) {
             $allNum++;
@@ -88,7 +88,7 @@ class MessageQueue extends BaseTimer {
             }
         }
 
-        print_r("[PULL MSG] server:[{$addr}] time:{$date} queId:{$queId} received Total:{$allNum} Success:{$sucNum} Fail:{$faiNum}\n");
+        //print_r("[PULL MSG] server:[{$addr}] time:{$date} queId:{$queId} received Total:{$allNum} Success:{$sucNum} Fail:{$faiNum}\n");
         return true;
     }
 
