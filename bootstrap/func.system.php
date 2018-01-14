@@ -6,21 +6,18 @@
  * Time: 22:13
  * Desc: -系统函数
  */
- 
 
+
+use \Apps\Models\Site;
+use \Kengine\LkkCmponent;
 use \Kengine\LkkConfig;
+use \Kengine\LkkLang;
 use \Lkk\Helpers\CommonHelper;
 use \Lkk\Phalwoo\Server\SwooleServer;
 use \Monolog\Formatter\LineFormatter;
-use \Monolog\Logger as Monologger;
 use \Monolog\Handler\StreamHandler as MonoStreamHandler;
+use \Monolog\Logger as Monologger;
 use \voku\helper\AntiXSS;
-
-
-function mytest() {
-    //TODO
-}
-
 
 /**
  * 获取配置
@@ -36,15 +33,17 @@ function getConf($file, $key = null, $default=null) {
 
 /**
  * 获取当前站点URL [后面加/]
+ * @param array $server
  * @return string
  */
-function getSiteUrl() {
+function getSiteUrl($server=null) {
     static $url;
     if(is_null($url)) {
         $siteConf = getConf('site');
+        if(empty($server)) $server = $_SERVER;
         if(isset($siteConf['url']) && !empty($siteConf['url'])) {
             $url = $siteConf['url'];
-        }elseif(isset($_SERVER['HTTP_HOST'])){
+        }elseif(isset($server['HTTP_HOST'])){
             $url = parse_url(CommonHelper::getUrl());
             $url = $url['scheme'] .'://' . $url['host'];
         }else{
@@ -64,11 +63,12 @@ function getSiteUrl() {
  * @return mixed
  */
 function getSiteId($url='') {
-    if(empty($url)) $url = getSiteUrl();
     static $siteIds;
+
+    if(empty($url)) $url = getSiteUrl();
     if(is_null($siteIds) || !isset($siteIds[$url])) {
         $siteIds[$url] = 0;
-        $res = \Apps\Models\Site::findFirst(['url'=>$url]);
+        $res = Site::getRow(['site_url'=>$url]);
         if(!empty($res)) {
             $siteIds[$url] = $res->site_id;
         }
@@ -104,7 +104,7 @@ function xssClean(string $str) {
  */
 function lang($string, array $values = []) {
     if(!is_array($values) || empty($values)) return $string;
-    return \Kengine\LkkLang::getInstance()->translate($string, $values);
+    return LkkLang::getInstance()->translate($string, $values);
 }
 
 
@@ -150,7 +150,7 @@ function parseAt($str) {
  * @return mixed
  */
 function makeUrl($uri = null, $args = null, $local = null) {
-    $urlObj = \Kengine\LkkCmponent::url();
+    $urlObj = LkkCmponent::url();
     $uri = ltrim($uri, '/');
     $url = $urlObj->get($uri, $args, $local);
     return $url;
