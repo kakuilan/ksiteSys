@@ -553,7 +553,7 @@ class LkkModel extends Model {
             }
         }
 
-        if(is_string($firstItem) && (in_array($firstItem, $allOperators) || preg_grep("@$firstItem@i", $allOperators))) {
+        if(is_string($firstItem) && (in_array($firstItem, $allOperators) || preg_grep("#LKK@$firstItem#LKK@i", $allOperators))) {
             $where = [$where];
         }
 
