@@ -28,7 +28,12 @@ class NotifyService extends ServiceBase {
         if(empty($queueName)) return 0;
         if(!isset(self::$queueIds[$queueName])) {
             $queInfo = MsgqueNames::getRow(['queue_name'=>$queueName]);
-            self::$queueIds[$queueName] = $queInfo ? $queInfo->id : 0;
+            if(empty($queInfo)) {
+                $queId = MsgqueNames::addData(['queue_name'=>$queueName,'create_time'=>time()]);
+                self::$queueIds[$queueName] = (int)$queId;
+            }else{
+                self::$queueIds[$queueName] = intval($queInfo->id);
+            }
         }
 
         return (int)self::$queueIds[$queueName];
@@ -165,6 +170,32 @@ class NotifyService extends ServiceBase {
         return $res;
     }
 
+
+    /**
+     * 检查msgQue数据结构
+     * @param array $data
+     * @return bool
+     */
+    public function checkMsgDataStructure($data=[]) {
+        if(empty($data)) {
+            $this->setError(lang(10008, ['name'=>'msgQue数据']), 10008);
+            return false;
+        }
+
+        $origin = $data = [
+            'type' => '消息类型,default默认,msg站内信,mail邮件,sms短信,wechat微信',
+            'data' => ['消息具体内容,数组'],
+        ];
+
+        //数据结构不对
+        $diff = array_diff(array_keys($origin), array_keys($data));
+        if(!empty($diff)) {
+            $this->setError(lang(10009, ['name'=>'msgQue数据']), 10009);
+            return false;
+        }
+
+        return true;
+    }
 
 
     /**

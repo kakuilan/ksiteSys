@@ -71,7 +71,9 @@ class MessageQueue extends BaseTimer {
             $item = (array)$item;
             $msg_key = NotifyService::getMqDetailKey($item);
             $logger->info('receive a msg: [msg_key:'.$msg_key.']', $item);
-            if(!isset($item['data']) || empty($item['data'])) {
+
+            //检查消息数据格式
+            if(!$notifyService->checkMsgDataStructure($item)) {
                 $logger->info('消息数据格式错误', $item);
                 //丢弃
                 $queue->confirm($item, true);
@@ -92,6 +94,57 @@ class MessageQueue extends BaseTimer {
         return true;
     }
 
+
+    /**
+     * 拉取工作流消息并处理
+     * @return bool
+     */
+    public function pullWorkflowHandling() {
+        $params = [
+            'redisConf' => RedisQueueService::getDefultRedisCnf(),
+            'transTime' => 10,
+        ];
+        $queue = new RedisQueueService($params);
+        $queue->newQueue(RedisQueueService::APP_WORKFLOW_QUEUE_NAME);
+        $len = $queue->len();
+        if($len<=0) return false;
+        $logger = getLogger('pullmsg');
+
+        //拉取消息
+        $allNum = $sucNum = $faiNum = 0;
+        $notifyService = new NotifyService();
+        $date = date('Ymd H:i:s');
+        $addr = LkkMacAddress::getMacAddress();
+        $queId = $notifyService->getQueIdByname(RedisQueueService::APP_WORKFLOW_QUEUE_NAME);
+        //print_r("[PULL MSG] server:[{$addr}] time:{$date} queId:{$queId} queue size:{$len}.\n");
+
+        while ($item = $queue->pop()) {
+            $allNum++;
+            $item = (array)$item;
+            $msg_key = NotifyService::getMqDetailKey($item);
+            $logger->info('receive a msg: [msg_key:'.$msg_key.']', $item);
+
+            //检查消息数据格式
+            if(!$notifyService->checkMsgDataStructure($item)) {
+                $logger->info('消息数据格式错误', $item);
+                //丢弃
+                $queue->confirm($item, true);
+                continue;
+            }
+
+            $handlRes = $this->sendItem($item, $notifyService, $queue, $queId);
+            if($handlRes) {
+                $sucNum++;
+                $logger->info('msg process success. [msg_key:'.$msg_key.']');
+            }else{
+                $faiNum++;
+                $logger->info('msg process fail. [msg_key:'.$msg_key.']');
+            }
+        }
+
+        //print_r("[PULL MSG] server:[{$addr}] time:{$date} queId:{$queId} received Total:{$allNum} Success:{$sucNum} Fail:{$faiNum}\n");
+        return true;
+    }
 
 
     /**
