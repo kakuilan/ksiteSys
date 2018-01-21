@@ -25,9 +25,11 @@ License
 TODO:  
 swoole里SQL注入处理  
 修复StringHelper::getText  
-使用php7 xhprof  
 socket  
-action 更新空白问题    
+登录事件重复执行问题  
+redis库问题  
+
+
 
 
 
