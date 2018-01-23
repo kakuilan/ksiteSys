@@ -106,5 +106,13 @@ class TestController extends  LkkController {
     }
 
 
+    public function redisAction() {
+        $redis = SwooleServer::getPoolManager()->get('redis_site')->pop(true);
+        $key = 'test';
+        $res = $redis->set($key, date('Y-m-d H:i:s'));
+        return $this->success($res);
+    }
+
+
 
 }
