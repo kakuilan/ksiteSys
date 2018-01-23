@@ -196,7 +196,6 @@ class LkkServer extends SwooleServer {
         $pwRequest = new PwRequest();
         $pwRequest->setDI($di);
         $pwRequest->setSwooleRequest($request);
-        $pwRequest->getRequestUuid();
         $di->setShared('request', $pwRequest);
 
         $pwResponse = new PwResponse();
@@ -268,7 +267,8 @@ class LkkServer extends SwooleServer {
         $di->setShared('dbSlave', $dbSlave);
 
         //注册自定义服务userService
-        $userService = new UserService();
+        $requestUuid = $pwRequest->getRequestUuid();
+        $userService = new UserService(['requiestUuid'=>$requestUuid]);
         $userService->setDI($di);
         $di->setShared('userService', $userService);
 
