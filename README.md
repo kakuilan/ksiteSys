@@ -26,8 +26,7 @@ TODO:
 swoole里SQL注入处理  
 修复StringHelper::getText  
 socket  
-登录事件重复执行问题  
-redis库问题  
+  
 
 
 
