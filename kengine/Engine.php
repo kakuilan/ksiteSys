@@ -314,8 +314,8 @@ class Engine {
         $di->setShared('url', LkkCmponent::url());
 
         //数据库-主从
-        $dbMaster = LkkCmponent::SyncDbMaster('cli');
-        $dbSlave = LkkCmponent::SyncDbSlave('cli');
+        $dbMaster = LkkCmponent::syncDbMaster('cli');
+        $dbSlave = LkkCmponent::syncDbSlave('cli');
         $di->setShared('dbMaster', $dbMaster);
         $di->setShared('dbSlave', $dbSlave);
 

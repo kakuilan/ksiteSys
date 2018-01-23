@@ -10,12 +10,13 @@
 
 namespace Kengine;
 
-use Phalcon\Crypt as PhCrypt;
-use Phalcon\Di\FactoryDefault\Cli as CliDi;
-use Phalcon\Mvc\Url;
-use Phalcon\Db\Adapter\Pdo\Mysql;
-use Phalcon\Cache\Frontend\Data as FrontendData;
 use Lkk\Phalwoo\Phalcon\Cache\Backend\Redis as BackendRedis;
+use Phalcon\Cache\Frontend\Data as FrontendData;
+use Phalcon\Crypt as PhCrypt;
+use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Di\FactoryDefault\Cli as CliDi;
+use Phalcon\Events\Manager as EventsManager;
+use Phalcon\Mvc\Url;
 
 class LkkCmponent {
 
@@ -120,7 +121,7 @@ class LkkCmponent {
      *
      * @return mixed
      */
-    public static function SyncDbMaster(string $requestUuid ='') {
+    public static function syncDbMaster(string $requestUuid ='') {
         $key = $requestUuid . __FUNCTION__;
         if(!isset(self::$objects[$key]) ) {
             $conf = getConf('pool');
@@ -147,7 +148,7 @@ class LkkCmponent {
      *
      * @return mixed
      */
-    public static function SyncDbSlave(string $requestUuid ='') {
+    public static function syncDbSlave(string $requestUuid ='') {
         $key = $requestUuid . __FUNCTION__;
         if(!isset(self::$objects[$key]) ) {
             $conf = getConf('pool');
@@ -161,6 +162,23 @@ class LkkCmponent {
             ]);
 
             self::$objects[$key] = $db;
+        }
+
+        return self::$objects[$key];
+    }
+
+
+    /**
+     * 单例-事件管理对象
+     * @param string $requestUuid
+     *
+     * @return mixed
+     */
+    public static function eventsManager(string $requestUuid ='') {
+        $key = $requestUuid . __FUNCTION__;
+        if(!isset(self::$objects[$key]) ) {
+            $eventsManager = new EventsManager();
+            self::$objects[$key] = $eventsManager;
         }
 
         return self::$objects[$key];

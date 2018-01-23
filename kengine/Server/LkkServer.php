@@ -192,11 +192,11 @@ class LkkServer extends SwooleServer {
         }
 
         self::resetRequestGlobal($request);
-        $requestUuid = self::makeRequestUuid($request);
 
         $pwRequest = new PwRequest();
         $pwRequest->setDI($di);
         $pwRequest->setSwooleRequest($request);
+        $pwRequest->getRequestUuid();
         $di->setShared('request', $pwRequest);
 
         $pwResponse = new PwResponse();
@@ -262,8 +262,8 @@ class LkkServer extends SwooleServer {
 
         //数据库-主从
         //压测时会出现SQLSTATE[08004] [1040] Too many connections
-        $dbMaster = LkkCmponent::SyncDbMaster();
-        $dbSlave = LkkCmponent::SyncDbSlave();
+        $dbMaster = LkkCmponent::syncDbMaster();
+        $dbSlave = LkkCmponent::syncDbSlave();
         $di->setShared('dbMaster', $dbMaster);
         $di->setShared('dbSlave', $dbSlave);
 

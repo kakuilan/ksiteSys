@@ -81,7 +81,7 @@ class LkkModel extends Model {
      * @return \Phalcon\Db\AdapterInterface
      */
     public function getReadConnection() {
-        return LkkCmponent::SyncDbSlave();
+        return LkkCmponent::syncDbSlave();
     }
 
 
@@ -91,7 +91,7 @@ class LkkModel extends Model {
      * @return \Phalcon\Db\AdapterInterface
      */
     public function getWriteConnection() {
-        return LkkCmponent::SyncDbMaster();
+        return LkkCmponent::syncDbMaster();
     }
 
 
@@ -126,7 +126,7 @@ class LkkModel extends Model {
     public static function getTableColumns($table=null, $hasPri=false) {
         if(empty($table)) $table = self::getTableName();
         if(is_null(static::$tableColumns) || !isset(static::$tableColumns[$table])) {
-            $_conn = LkkCmponent::SyncDbMaster('');
+            $_conn = LkkCmponent::syncDbMaster('');
             $res = $_conn->fetchAll(" SHOW FULL COLUMNS FROM {$table} ");
             if($res) {
                 $pri = null;
@@ -735,7 +735,7 @@ class LkkModel extends Model {
         $data = self::filterColumnsData($data, $table);
         if(empty($data)) return false;
 
-        $_conn = LkkCmponent::SyncDbMaster('');
+        $_conn = LkkCmponent::syncDbMaster('');
         $res = $_conn->insert($table, array_values($data), array_keys($data));
         $lastId = $_conn->lastInsertId();
 
@@ -804,7 +804,7 @@ class LkkModel extends Model {
         $checkDiff = array_diff($insertFields, $tabFields);
         if(!empty($checkDiff)) return false;
 
-        $_conn = LkkCmponent::SyncDbMaster('');
+        $_conn = LkkCmponent::syncDbMaster('');
         $rowsString = sprintf('`%s`', implode('`,`', $insertFields));
         $fieldCount = count($data[0]);
         $affectedRows = 0;
@@ -922,7 +922,7 @@ class LkkModel extends Model {
         if(empty($data)) return false;
         $where = self::parseWhere2PDO($where);
 
-        $_conn = LkkCmponent::SyncDbMaster('');
+        $_conn = LkkCmponent::syncDbMaster('');
         $res = $_conn->update($table, array_keys($data), array_values($data), $where);
         $err = $_conn->getErrorInfo();
 
@@ -986,7 +986,7 @@ class LkkModel extends Model {
      */
     public static function delData($where, $table=null) {
         if(empty($table)) $table = self::getTableName();
-        $_conn = LkkCmponent::SyncDbMaster('');
+        $_conn = LkkCmponent::syncDbMaster('');
         $where = self::parseWhere2PDO($where);
         return $_conn->delete($table, $where['conditions'], $where['bind']);
     }
