@@ -8,7 +8,7 @@ eaglewu/swoole-ide-helper
 
 License
 -------
-####No license.本系统不授权.  
+#### No license.本系统不授权.  
 
 
 依赖: 
@@ -24,7 +24,6 @@ License
 
 TODO:  
 swoole里SQL注入处理  
-修复StringHelper::getText  
 socket  
   
 

@@ -87,7 +87,7 @@ class IndexController extends LkkController {
     public function loginSaveAction() {
         $loginName = trim($this->request->get('loginName'));
         $password = trim($this->request->get('password'));
-        $remember = intval($this->request->get('remember'));
+        $remember = intval($this->request->get('remember')); //24小时
         $password = trim($this->request->get('password'));
         $verifyCode = trim($this->request->get('verifyCode'));
         $veriEncode = trim($this->request->get('veriEncode'));

@@ -411,6 +411,15 @@ class UserService extends ServiceBase {
             return false;
         }
 
+        //是否锁定
+        if($admn->status ==0) {
+            $this->setError('该用户已被锁定');
+            return false;
+        }elseif ($admn->status ==-1) {
+            $this->setError('该用户已被禁止登录');
+            return false;
+        }
+
         //检查密码
         if(!password_verify($password, $admn->password)) {
             //登录失败事件
@@ -419,7 +428,7 @@ class UserService extends ServiceBase {
             return false;
         }
 
-        //TODO 登录成功事件
+        //登录成功事件
         $this->fireEvent('afterManagerLoginSuccess', $admn);
 
         return $admn;
@@ -464,6 +473,8 @@ class UserService extends ServiceBase {
 
     //生成管理员session
     public function makeManageSession($admn=[]) {
+        if(empty($admn)) return false;
+
 
     }
 

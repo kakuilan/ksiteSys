@@ -25,27 +25,39 @@ class UserListener extends ListenerBase {
      * @param mixed $admn 传递来的数据
      */
     public function afterManagerLoginSuccess($event, $source, $admn) {
+        $uid = $admn ? $admn->uid : 0;
+        if(empty($uid)) return false;
+
         $di = $source->getDI();
-
-
         $request = $di->getShared('request');
         $ip = $request->getClientAddress();
         $fingerprint = $di->getShared('userAgent')->getAgentFpValue();
         $platform = CommonHelper::getClientOS($request->server);
         $browser  = CommonHelper::getBrowser(false, $request->server);
+        $ip2long = $ip ? CommonHelper::ip2UnsignedInt($ip) : 0;
+        $now = time();
 
-        $data = [
-            'uid' => $admn ? $admn->uid : 0,
+        $newData = [
+            'uid' => $uid,
             'type' => '1',
             'status' => '1',
-            'login_time' => time(),
-            'login_ip' => $ip ? CommonHelper::ip2UnsignedInt($ip) : 0,
+            'login_time' => $now,
+            'login_ip' => $ip2long,
             'fingerprint' => $fingerprint ? $fingerprint : 0,
             'platform' => $platform,
             'browser' => $browser,
         ];
+        $upData = [
+            'logins' => min($admn->login_fails+1, 9999999),
+            'login_fails' => '0',
+            'last_login_ip' => $ip2long,
+            'last_login_time' => $now,
+            'update_time' => $now,
+        ];
+        AdmUser::upData($upData, ['uid'=>$uid]);
 
-        $res = UserLoginLog::addData($data);
+        $res = UserLoginLog::addData($newData);
+        return $res;
     }
 
 
@@ -57,6 +69,9 @@ class UserListener extends ListenerBase {
      * @param mixed $admn 传递来的数据
      */
     public function afterManagerLoginFail($event, $di, $admn) {
+        $uid = $admn ? $admn->uid : 0;
+        if(empty($uid)) return false;
+
         $request = $di->getShared('request');
         $ip = $request->getClientAddress();
         $fingerprint = $di->getShared('userAgent')->getAgentFpValue();
@@ -67,7 +82,7 @@ class UserListener extends ListenerBase {
         $item = [
             'type' => ConstService::WFLOW_MANAGE_LOGINLOG,
             'data' => [
-                'uid' => $admn ? $admn->uid : 0,
+                'uid' => $uid,
                 'type' => '1',
                 'status' => '0',
                 'login_time' => $now,
@@ -78,9 +93,22 @@ class UserListener extends ListenerBase {
             ]
         ];
 
-        //UserLoginLog::addData($data);
+        //UserLoginLog::addData($item['data']);
         RedisQueueService::quickAddItem2WorkflowMq($item);
-        AdmUser::upData(['login_fails'=>$admn->login_fails+1, 'update_time'=>$now], ['uid'=>$admn->uid]);
+
+        $loginFails = min($admn->login_fails+1, 99);
+        $failMax = getConf('login', 'managerFailsLock');
+
+        $upData = [
+            'login_fails' => $loginFails,
+            'update_time' => $now,
+        ];
+
+        if($loginFails >= $failMax) { //锁定
+            $upData['status'] = 0;
+        }
+
+        AdmUser::upData($upData, ['uid'=>$uid]);
     }
 
 

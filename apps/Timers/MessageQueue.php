@@ -14,6 +14,8 @@ use Apps\Models\MsgqueDetail;
 use Apps\Models\MsgqueSendLog;
 use Apps\Services\NotifyService;
 use Apps\Services\RedisQueueService;
+use Apps\Services\ConstService;
+use Apps\Models\UserLoginLog;
 use Lkk\LkkMacAddress;
 
 class MessageQueue extends BaseTimer {
@@ -181,6 +183,9 @@ class MessageQueue extends BaseTimer {
         $type = strtolower($item['type']);
         $receiver = NotifyService::parseReceiver($item);
         switch ($type) {
+            default :
+                $handlRes = false;
+                break;
             case 'msg' : //站内信息
                 $handlRes = $notifyService->sendMsg($item['data']);
                 break;
@@ -193,8 +198,8 @@ class MessageQueue extends BaseTimer {
             case 'wechat'://微信消息
                 $handlRes = $notifyService->sendWechat($item['data']);
                 break;
-            default :
-                $handlRes = false;
+            case ConstService::WFLOW_MANAGE_LOGINLOG : //后台登录日志
+                $handlRes = UserLoginLog::addData($item['data']);
                 break;
         }
 
