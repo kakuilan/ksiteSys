@@ -109,7 +109,10 @@ class IndexController extends LkkController {
             $rbacCnf = getConf('rbac');
             $data = [
                 'defaultUrl' => makeUrl($rbacCnf->managerDefautlAction),
-                'info' => AdmUser::rowToArray($res),
+                'info' => [
+                    'uid' => $res->uid,
+                    'username' => $res->username,
+                ],
             ];
 
             return $this->success($data);
