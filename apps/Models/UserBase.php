@@ -17,21 +17,28 @@ class UserBase extends BaseModel {
     const USER_TYPE_ADMNER = 2; //用户类P型-后台用户
     const USER_TYPE_APIER  = 3; //用户类P型-接口用户
 
+    //默认字段
+    public static $defaultFields = 'uid,site_id,status,mobile_status,email_status,type,mobile,email,username,password,create_time,update_time';
+    //连表管理员字段
+    public static $joinAdmnFields = 'uid AS adm_uid,level AS adm_level,status AS adm_status,logins AS adm_logins,login_fails AS adm_login_fails,last_login_ip AS adm_last_login_ip,last_login_time AS adm_last_login_time';
 
-    public static $joinAdmFields = [
-        self::class .".*",
-        "a.uid AS adm_uid",
-        "a.level AS adm_level",
-        "a.status AS adm_status",
-        "a.logins AS adm_logins",
-        "a.login_fails AS adm_login_fails",
-        "a.last_login_ip AS adm_last_login_ip",
-        "a.last_login_time AS adm_last_login_time",
-    ];
 
 
     public function initialize() {
         parent::initialize();
+    }
+
+
+    /**
+     * 获取单个连表管理员字段
+     * @return array
+     */
+    public static function getJoinAdmnFields() {
+        $fieldsU = self::makeAliaFields(self::$defaultFields, self::class);
+        $fieldsA = self::makeAliaFields(self::$joinAdmnFields, 'a');
+        $fields = array_merge($fieldsU, $fieldsA);
+
+        return $fields;
     }
 
 
@@ -163,9 +170,10 @@ class UserBase extends BaseModel {
 
         $usr = self::class;
         $adm = AdmUser::class;
+        $fields = self::getJoinAdmnFields();
 
         $query = self::query()
-            ->columns(self::$joinAdmFields)
+            ->columns($fields)
             ->leftJoin($adm, "a.uid = {$usr}.uid", 'a');
 
         if($check) {
