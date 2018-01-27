@@ -63,6 +63,13 @@ class LkkModel extends Model {
 
 
     /**
+     * 全部字段
+     * @var string
+     */
+    public static $fullFields = '*';
+
+
+    /**
      * 初始化
      */
     public function initialize (){
@@ -114,6 +121,29 @@ class LkkModel extends Model {
         return $table;
     }
 
+
+
+    /**
+     * 生成字段别名
+     * @param string $originFields 逗号分隔的字符串
+     * @param string $aliaTabname 数据表别名
+     * @param int $retType 返回类型:1数组,0字符串
+     * @return array|string
+     */
+    public static function makeAliaFields($originFields='', $aliaTabname='', $retType=1) {
+        if(empty($aliaTabname)) return $originFields;
+
+        $fields = explode(',', $originFields);
+        array_walk($fields, function(&$item) use($aliaTabname) {
+            $item = "{$aliaTabname}." . trim($item);
+        });
+
+        if(!$retType) {
+            $fields = implode(',', $fields);
+        }
+
+        return $fields;
+    }
 
 
     /**
@@ -1299,9 +1329,14 @@ class LkkModel extends Model {
      * @return array
      */
     public static function rowToArray($obj) {
-        if(!is_object($obj) && !method_exists($obj, 'toArray')) return [];
-        $arr = method_exists($obj, 'toArray') ? $obj->toArray() : (array)$obj;
-        $new = [];
+        $arr = $new = [];
+        if(is_scalar($obj)) {
+            return (array)$obj;
+        }elseif(is_object($obj)) {
+            $arr = method_exists($obj, 'toArray') ? $obj->toArray() : (array)$obj;
+        }elseif (!is_array($obj)) {
+            return [];
+        }
 
         foreach ($arr as $k=>$item) {
             if(is_object($item)) {
@@ -1323,10 +1358,18 @@ class LkkModel extends Model {
      * @return array|object
      */
     public static function rowToObject($obj) {
+        if(is_object($obj)) {
+            return $obj;
+        }
+
         $arr = self::rowToArray($obj);
         $obj = ArrayHelper::arrayToObject($arr);
         return $obj;
     }
+
+
+
+
 
 
 
