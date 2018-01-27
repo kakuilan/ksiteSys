@@ -68,10 +68,11 @@ class UserListener extends ListenerBase {
      * @param object $source 来源对象
      * @param mixed $admn 传递来的数据
      */
-    public function afterManagerLoginFail($event, $di, $admn) {
+    public function afterManagerLoginFail($event, $source, $admn) {
         $uid = $admn ? $admn->uid : 0;
         if(empty($uid)) return false;
 
+        $di = $source->getDI();
         $request = $di->getShared('request');
         $ip = $request->getClientAddress();
         $fingerprint = $di->getShared('userAgent')->getAgentFpValue();

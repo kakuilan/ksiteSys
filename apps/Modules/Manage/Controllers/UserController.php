@@ -446,9 +446,6 @@ class UserController extends LkkController {
             $userTypeArr = UserBase::getTypesArr();
 
             foreach ($list as &$item) {
-                $item = AdmUser::rowToArray($item);
-                unset($item['password']);
-
                 $item['create_time'] = date('Y-m-d H:i:s', $item['create_time']);
                 $item['update_time'] = date('Y-m-d H:i:s', $item['update_time']);
                 $item['last_login_time'] = date('Y-m-d H:i:s', $item['last_login_time']);
@@ -456,6 +453,7 @@ class UserController extends LkkController {
                 $item['level_desc'] = $levelArr[$item['level']];
                 $item['user_status_desc'] = $userStatusArr[$item['user_status']];
                 $item['user_type_desc'] = $userTypeArr[$item['user_type']];
+                unset($item['password']);
             }
         }
 

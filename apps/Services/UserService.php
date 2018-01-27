@@ -423,7 +423,7 @@ class UserService extends ServiceBase {
         //检查密码
         if(!password_verify($password, $admn->password)) {
             //登录失败事件
-            $this->fireEvent('afterManagerLoginFail', $admn, true, $this->getDI());
+            $this->fireEvent('afterManagerLoginFail', $admn);
             $this->setError('登录名或密码错误');
             return false;
         }
