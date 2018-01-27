@@ -16,37 +16,12 @@ use Phalcon\Mvc\Model\ManagerInterface;
 
 class AdmUser extends BaseModel {
 
-
-    /**
-     * 单个连表user的用户字段
-     * @var array
-     */
-    public static $joinUsrFields = [
-        self::class . ".*",
-        "u.status AS user_status",
-        "u.mobile_status",
-        "u.email_status",
-        "u.type AS user_type",
-        "u.mobile",
-        "u.email",
-        "u.username",
-    ];
-
-
-    /**
-     * 分页连表user的用户字段
-     * @var array
-     */
-    public static $pageUserFields = [
-        "a.*",
-        "u.status AS user_status",
-        "u.mobile_status",
-        "u.email_status",
-        "u.type AS user_type",
-        "u.mobile",
-        "u.email",
-        "u.username",
-    ];
+    //默认字段
+    public static $defaultFields = 'uid,site_id,level,status,password,logins,login_fails,last_login_ip,last_login_time';
+    //分页字段
+    public static $pageFields = 'uid,site_id,level,status,logins,login_fails,last_login_ip,last_login_time,create_time,update_time';
+    //连表用户字段
+    public static $joinUserFields = 'status AS user_status,mobile_status,email_status,type AS user_type,mobile,email,username';
 
 
     public function initialize() {
@@ -82,6 +57,32 @@ class AdmUser extends BaseModel {
 
 
     /**
+     * 获取单个连表user的用户字段
+     * @return array
+     */
+    public static function getJoinUserFields() {
+        $fieldsA = self::makeAliaFields(self::$defaultFields, self::class);
+        $fieldsU = self::makeAliaFields(self::$joinUserFields, 'u');
+        $fields = array_merge($fieldsA, $fieldsU);
+
+        return $fields;
+    }
+
+
+    /**
+     * 获取分页连表user的用户字段
+     * @return array
+     */
+    public static function getPageFields() {
+        $fieldsA = self::makeAliaFields(self::$pageFields, 'a');
+        $fieldsU = self::makeAliaFields(self::$joinUserFields, 'u');
+        $fields = array_merge($fieldsA, $fieldsU);
+
+        return $fields;
+    }
+
+
+    /**
      * 根据UID获取管理员信息(连表)
      * @param int $uid
      * @return bool|\Phalcon\Mvc\ModelInterface
@@ -91,9 +92,10 @@ class AdmUser extends BaseModel {
 
         $usr = UserBase::class;
         $adm = self::class;
+        $fields = self::getJoinUserFields();
 
         $result = self::query()
-            ->columns(self::$joinUsrFields)
+            ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->where("{$adm}.uid = :uid: ", ['uid'=>$uid])
             ->limit(1)
@@ -113,9 +115,10 @@ class AdmUser extends BaseModel {
 
         $usr = UserBase::class;
         $adm = self::class;
+        $fields = self::getJoinUserFields();
 
         $result = self::query()
-            ->columns(self::$joinUsrFields)
+            ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->where("u.username = :username: ", ['username'=>$str])
             ->limit(1)
@@ -135,9 +138,10 @@ class AdmUser extends BaseModel {
 
         $usr = UserBase::class;
         $adm = self::class;
+        $fields = self::getJoinUserFields();
 
         $result = self::query()
-            ->columns(self::$joinUsrFields)
+            ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->where("u.email = :email: ", ['email'=>$str])
             ->limit(1)
@@ -158,9 +162,10 @@ class AdmUser extends BaseModel {
 
         $usr = UserBase::class;
         $adm = self::class;
+        $fields = self::getJoinUserFields();
 
         $result = self::query()
-            ->columns(self::$joinUsrFields)
+            ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->where("u.username = :username:  OR u.email = :email: ", ['username'=>$str, 'email'=>$str])
             ->orderBy('u.uid asc')
@@ -181,8 +186,9 @@ class AdmUser extends BaseModel {
      * @return PaginatorQueryBuilder
      */
     public static function getAdminPages(ManagerInterface $modelsManager, $where='', $binds=[], $order='', $limit=10, $page=1) {
+        $fields = self::getPageFields();
         $builder = $modelsManager->createBuilder()
-            ->columns(self::$pageUserFields)
+            ->columns($fields)
             ->addFrom(self::class, 'a')
             ->leftJoin(UserBase::class, 'u.uid = a.uid', 'u');
 
