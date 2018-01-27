@@ -9,10 +9,11 @@
 
 namespace Apps\Modules\Cli\Tasks;
 
-use Kengine\LkkTask;
-use Apps\Models\UserBase;
 use Apps\Models\AdmUser;
 use Apps\Models\Site;
+use Apps\Models\UserBase;
+use Apps\Services\Ip2RegionService;
+use Kengine\LkkTask;
 use Lkk\Helpers\StringHelper;
 
 class TestTask extends LkkTask {
@@ -35,6 +36,25 @@ class TestTask extends LkkTask {
         $list = $pageObj->items->toArray();
 
         var_dump($list, $paginator);
+    }
+
+
+    /**
+     * @title -测试IP转为地址
+     * @desc  -测试IP转为地址
+     */
+    public function ip2addrAction() {
+        $ip1 = '116.24.96.197';
+        $ip2 = '127.0.0.1';
+        $ip3 = '192.168.128.1';
+
+        $ipServ = new Ip2RegionService();
+        $info1 = $ipServ->btreeSearch($ip1);
+        $info2 = $ipServ->btreeSearch($ip2);
+        $info3 = $ipServ->btreeSearch($ip3);
+        $info4 = $ipServ->getCityName($ip1);
+        var_dump($info1, $info2, $info3, $info4);
+
     }
 
 

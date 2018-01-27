@@ -22,3 +22,6 @@ http://bootstrap-wysiwyg.github.io/bootstrap3-wysiwyg/
 ##库  
 https://github.com/Intervention/image  
 
+##IP地址转换
+https://gitee.com/lionsoul/ip2region  
+
