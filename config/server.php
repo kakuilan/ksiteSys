@@ -40,10 +40,11 @@ return [
     'sys_log' => [
         'name' => 'kss', //日志名
         'file' => SYSRUNLOG, //日志文件路径
-        'ratio' => 1, //日志写入概率,1/N
+        'ratio' => 1, //日志写入概率,1/N,1为立即写入
         'file_size' => 20971520, //日志文件大小限制,20M
         'max_files' => 10, //要保留的日志文件的最大数量,默认是零,即,无限个文件
-        'slow_request' => 10, //慢请求,毫秒
+        'max_records' => 128, //日志缓冲最大保存记录数
+        'slow_request' => 100, //慢请求,毫秒
     ],
 
     //xhprof性能日志

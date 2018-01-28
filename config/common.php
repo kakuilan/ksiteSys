@@ -9,7 +9,7 @@
 
 
 return [
-    'debug'     => true,        //是否开启调试
+    'debug'     => true,        //是否开启调试,server.php里面的也要配置
     'timezone'  => 'PRC',       //时区
     'charset'   => 'UTF-8',     //字符集
     'theme'     => 'default',   //模板主题

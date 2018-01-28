@@ -280,16 +280,9 @@ class LkkServer extends SwooleServer {
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
         try {
             $resp = yield $app->handle($_uri);
+            $resp = self::handleDispatcherError($resp);
         }catch (Throwable $e) {
-            if(SwooleServer::isOpenDebug()) {
-                $resp = "Error code: " . $e->getCode() . '<br>';
-                $resp .= "Error message: " . $e->getMessage() . '<br>';
-                $resp .= "Error file: " . $e->getFile() . '<br>';
-                $resp .= "Error fileline: " . $e->getLine() . '<br>';
-                $resp .= "Error trace: " . $e->getTraceAsString() . '<br>';
-            }else{
-                $resp = 'Sorry,server has error!';
-            }
+            $resp = self::handleDispatcherError($e);
         }
 
         if ($resp instanceof PwResponse) {
@@ -328,6 +321,32 @@ class LkkServer extends SwooleServer {
         yield self::logPv();
 
         return true;
+    }
+
+
+    /**
+     * 处理分发器的错误
+     * @param $e
+     *
+     * @return string
+     */
+    public static function handleDispatcherError($e) {
+        if(is_object($e) && $e instanceof Throwable) {
+            $resp = "Error code:[LkkServer] " . $e->getCode() . '\r\n';
+            $resp .= "Error message: " . $e->getMessage() . '\r\n';
+            $resp .= "Error file: " . $e->getFile() . '\r\n';
+            $resp .= "Error fileline: " . $e->getLine() . '\r\n';
+            $resp .= "Error trace: " . $e->getTraceAsString() . '\r\n';
+
+            if(!SwooleServer::isOpenDebug()) {
+                SwooleServer::getLogger()->error($resp);
+                $resp = 'Sorry,server has error!';
+            }
+
+            $e = $resp;
+        }
+
+        return $e;
     }
 
 

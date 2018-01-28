@@ -31,7 +31,11 @@ class ErrorController extends LkkController {
      */
     public function notfoundAction() {
         $this->response->setStatusCode(404, "Not Found")->sendHeaders();
-        return '404 not found!';
+
+        $viewpath =  $this->view->getViewsDir();
+        $this->view->setViewsDir(dirname($viewpath));
+
+        $this->view->pick('public/404');
     }
 
 
