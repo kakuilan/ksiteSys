@@ -102,16 +102,19 @@ class IndexController extends LkkController {
             return $this->fail($captchaServ->error());
         }
 
-        $res = $this->userService->managerLogin($loginName, $password);
-        if(!$res) {
+        $this->userService->setRemember($remember);
+        $admn = $this->userService->managerLogin($loginName, $password);
+        if(!$admn) {
             return $this->fail($this->userService->error());
         }else{
+            //$this->userService->makeManagerSession($admn);
             $rbacCnf = getConf('rbac');
             $data = [
                 'defaultUrl' => makeUrl($rbacCnf->managerDefautlAction),
+                'admn' => $admn,
                 'info' => [
-                    'uid' => $res->uid,
-                    'username' => $res->username,
+                    'uid' => $admn->uid,
+                    'username' => $admn->username,
                 ],
             ];
 

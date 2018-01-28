@@ -11,6 +11,7 @@
 namespace Apps\Services;
 
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\EncryptHelper;
 use Lkk\Helpers\ValidateHelper;
 use Apps\Models\UserBase;
 use Apps\Models\AdmUser;
@@ -35,8 +36,11 @@ class UserService extends ServiceBase {
     //保留昵称,禁止使用
     public static $holdNicks = ['管理','测试','系统','游客','后台'];
 
-    //配置
+    //登录配置-login
     protected $conf;
+
+    //是否记住登录(长时间cookie)
+    protected $remember;
 
 
     /**
@@ -356,6 +360,24 @@ class UserService extends ServiceBase {
     }
 
 
+    /**
+     * 设置是否记住登录
+     * @param bool $remember
+     */
+    public function setRemember($remember=false) {
+        $this->remember = boolval($remember);
+    }
+
+
+    /**
+     * 是否记住登录
+     * @return mixed
+     */
+    public function getRemember() {
+        return $this->remember;
+    }
+
+
 
     public function memberLogin($username='', $password='') {
         if(empty($username)) {
@@ -471,16 +493,73 @@ class UserService extends ServiceBase {
     }
 
 
-    //生成管理员session
-    public function makeManageSession($admn=[]) {
+    /**
+     * 生成管理员session
+     * @param null $admn
+     *
+     * @return bool
+     */
+    public function makeManagerSession($admn=null) {
         if(empty($admn)) return false;
 
+        $data = [
+            'uid' => $admn->uid,
+            'username' => $admn->username,
+            'last_login_ip' => $admn->last_login_ip,
+            'last_login_time' => $admn->last_login_time,
+        ];
 
+        $session = $this->getDI()->getShared('session');
+        $session->set($this->conf->managerLoginSession, $data);
+        $this->makeManagerCookie($admn->uid);
+
+        return true;
     }
 
 
-    public function destroyManageSession() {
+    /**
+     * 生成管理员cookie
+     * @param int $uid
+     *
+     * @return bool
+     */
+    public function makeManagerCookie($uid=0) {
+        if(empty($uid)) return false;
 
+        $life = $this->remember ? $this->conf->managerRememberLife : $this->conf->managerCookieLifetime;
+        $clientUuid = $this->getDI()->getShared('userAgent')->getAgentUuidNofp();
+        $value = $uid .'|' . substr($clientUuid, -5);
+        $cryptKey = getConf('crypt')->key;
+        $cryptVal = EncryptHelper::ucAuthcode($value, 'ENCODE', $cryptKey, $life);
+        $cryptVal = EncryptHelper::base64urlEncode($cryptVal);
+
+        $cookies  = $this->getDI()->getShared('cookies');
+        $cookies->set($this->conf->managerAuthCookie, $cryptVal, $life);
+
+        return true;
+    }
+
+
+    /**
+     * 获取管理员session
+     * @return mixed
+     */
+    public function getManagerSession() {
+        $session = $this->getDI()->getShared('session');
+        $res = $session->get($this->conf->managerLoginSession);
+        return $res;
+    }
+
+
+    /**
+     * 销毁管理员session
+     * @return mixed
+     */
+    public function destroyManagerSession() {
+        $session = $this->getDI()->getShared('session');
+        $session->set($this->conf->managerLoginSession, null);
+        $res = $session->destroy(true);
+        return $res;
     }
 
 

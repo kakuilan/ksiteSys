@@ -28,6 +28,9 @@ class UserListener extends ListenerBase {
         $uid = $admn ? $admn->uid : 0;
         if(empty($uid)) return false;
 
+        //session和cookie
+        $source->makeManagerSession($admn);
+
         $di = $source->getDI();
         $request = $di->getShared('request');
         $ip = $request->getClientAddress();
