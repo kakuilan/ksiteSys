@@ -25,13 +25,30 @@ class LkkController extends Controller {
     public $headerSeo;
 
 
+    //登录UID
+    protected $uid;
+
+
     /**
      * 初始化
      */
-    public function initialize(){
+    public function initialize() {
         $this->siteId = getSiteId();
 
         //TODO
+    }
+
+
+    /**
+     * 获取登录用户UID
+     * @return mixed
+     */
+    public function getLoginUid() {
+        if(is_null($this->uid)) {
+            //TODO
+        }
+
+        return $this->uid;
     }
 
 

@@ -10,7 +10,7 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Manage\Controller;
 use Lkk\Helpers\ArrayHelper;
 use Apps\Models\AdmModule;
 use Apps\Models\AdmOperateAction;
@@ -23,7 +23,7 @@ use Apps\Models\AdmRoleFunc;
  * Class 后台角色控制器
  * @package Apps\Modules\Manage\Controllers
  */
-class RoleController extends LkkController {
+class RoleController extends Controller {
 
     public function initialize () {
         parent::initialize();

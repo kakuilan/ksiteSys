@@ -10,7 +10,7 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Manage\Controller;
 use Apps\Models\Action;
 use Apps\Models\AdmModule;
 use Apps\Models\AdmOperation;
@@ -21,7 +21,7 @@ use Apps\Models\AdmOperateAction;
  * Class 后台模块操作管理控制器
  * @package Apps\Modules\Manage\Controllers
  */
-class OperationController extends LkkController {
+class OperationController extends Controller {
 
     public function initialize () {
         parent::initialize();

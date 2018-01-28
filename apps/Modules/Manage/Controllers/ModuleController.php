@@ -9,7 +9,7 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Manage\Controller;
 use Apps\Models\Action;
 use Apps\Models\AdmRoleFunc;
 use Apps\Models\AdmModule;
@@ -20,7 +20,7 @@ use Apps\Services\RbacService;
  * Class 后台模块管理控制器
  * @package Apps\Modules\Manage\Controllers
  */
-class ModuleController extends LkkController {
+class ModuleController extends Controller {
 
     public function initialize () {
         parent::initialize();

@@ -10,16 +10,16 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
-use Kengine\LkkController;
-use Lkk\Helpers\CommonHelper;
+use Apps\Modules\Manage\Controller;
 use Apps\Models\AdmUser;
 use Apps\Services\CaptchaService;
+use Lkk\Helpers\CommonHelper;
 
 /**
  * Class 后台首页控制器
  * @package Apps\Modules\Manage\Controllers
  */
-class IndexController extends LkkController {
+class IndexController extends Controller {
 
 
     public function initialize () {
@@ -61,6 +61,9 @@ class IndexController extends LkkController {
      * @desc  -管理后台登录页
      */
     public function loginAction() {
+        $uid = $this->getLoginUid();
+        if($uid>0) return $this->response->redirect(getConf('rbac')->managerDefautlAction);
+
         //视图变量
         $this->view->setVars([
             'saveUrl' => makeUrl('manage/index/loginsave'),

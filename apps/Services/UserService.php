@@ -10,11 +10,12 @@
 
 namespace Apps\Services;
 
+use Apps\Models\AdmUser;
+use Apps\Models\UserBase;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\EncryptHelper;
 use Lkk\Helpers\ValidateHelper;
-use Apps\Models\UserBase;
-use Apps\Models\AdmUser;
+use Lkk\Phalwoo\Phalcon\Session\Adapter\Redis as RedisSession;
 
 class UserService extends ServiceBase {
 
@@ -561,6 +562,39 @@ class UserService extends ServiceBase {
         $res = $session->destroy(true);
         return $res;
     }
+
+
+    /**
+     * 检查管理员是否登录
+     * @return int
+     */
+    public function checkManagerLogin() {
+        $uid = 0;
+
+        //先检查cookie
+        if($this->getDI()->getShared('cookies')->has($this->conf->managerAuthCookie)) {
+            $cookieVal = $this->getDI()->getShared('cookies')->getValue($this->conf->managerAuthCookie);
+            $cookieVal = EncryptHelper::base64urlDecode($cookieVal);
+            $decodeVal = EncryptHelper::ucAuthcode($cookieVal, 'DECODE', getConf('crypt')->key);
+            if(!empty($decodeVal)) {
+                $arr = explode('|', $decodeVal);
+                $clientUuid = $this->getDI()->getShared('userAgent')->getAgentUuidNofp();
+                if(isset($arr[1]) && $arr[1]== substr($clientUuid, -5)) {
+                    $uid = intval($arr[0]);
+
+                    //检查session
+                    $sessionData = $this->getDI()->getShared('session')->get($this->conf->managerLoginSession);
+                    if(empty($sessionData)) {
+                        $admn = AdmUser::getInfoByUid($uid);
+                        $this->makeManagerSession($admn);
+                    }
+                }
+            }
+        }
+
+        return $uid;
+    }
+
 
 
 

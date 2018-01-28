@@ -10,7 +10,7 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Manage\Controller;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\ValidateHelper;
@@ -24,7 +24,7 @@ use Apps\Services\UserService;
  * Class 后台用户管理控制器
  * @package Apps\Modules\Manage\Controllers
  */
-class UserController extends LkkController {
+class UserController extends Controller {
 
     public function initialize () {
         parent::initialize();

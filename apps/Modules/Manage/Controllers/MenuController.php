@@ -10,7 +10,7 @@
 
 namespace Apps\Modules\Manage\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Manage\Controller;
 use Apps\Models\Action;
 use Apps\Models\AdmMenu;
 use Apps\Services\ActionService;
@@ -19,7 +19,7 @@ use Apps\Services\ActionService;
  * Class 后台菜单控制器
  * @package Apps\Modules\Manage\Controllers
  */
-class MenuController extends LkkController {
+class MenuController extends Controller {
 
     public function initialize () {
         parent::initialize();
