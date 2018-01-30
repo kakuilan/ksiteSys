@@ -303,16 +303,14 @@ class LkkServer extends SwooleServer {
         $useTime = CommonHelper::getMillisecond() - ($request->server['request_time_float'] ?? $request->server['request_time']) * 1000;
         $pwRequest->setUseMillisecond($useTime);
 
-        if(self::isXhprofEnable(true) && $useTime > self::instance()->conf['sys_log']['slow_request']) {
-            $xhprofData = xhprof_disable();
-            $xhprofRuns = new \XHProfRuns_Default();
+        //xhprof日志
+        if(self::isXhprofEnable(true)) {
+            $chkTime = (self::instance()->conf['xhprof_ratio']==1);
+            if(!$chkTime) {
+                $chkTime = ($useTime > self::instance()->conf['sys_log']['slow_request']);
+            }
 
-            $module = ucfirst($router->getModuleName());
-            $controller = ucfirst($router->getControllerName());
-            $action = ucfirst($router->getActionName());
-            $reportFile = "{$module}{$controller}{$action}{$request->server['request_time_float']}";
-            $runId = $xhprofRuns->save_run($xhprofData, 'profiler', str_replace('.','T',$reportFile));
-            //$xhprofUrl = "http://127.0.0.1/monitor/xhprof/xhprof_html/index.php?run=" . $runId . '&source=profiler';
+            if($chkTime) self::saveXhprofLog($di);
         }
 
         self::afterSwooleResponse($request, $pwRequest);
@@ -322,6 +320,26 @@ class LkkServer extends SwooleServer {
 
         return true;
     }
+
+
+    /**
+     * 保存xhprof日志
+     * @param $di
+     */
+    public static function saveXhprofLog($di) {
+        $xhprofData = xhprof_disable();
+        $xhprofRuns = new \XHProfRuns_Default();
+
+        $router = $di->get('router');
+        $request = $di->get('swooleRequest');
+        $module = ucfirst($router->getModuleName());
+        $controller = ucfirst($router->getControllerName());
+        $action = ucfirst($router->getActionName());
+        $reportFile = "{$module}{$controller}{$action}{$request->server['request_time_float']}";
+        $runId = $xhprofRuns->save_run($xhprofData, 'profiler', str_replace('.','T',$reportFile));
+        //$xhprofUrl = "http://127.0.0.1/monitor/xhprof/xhprof_html/index.php?run=" . $runId . '&source=profiler';
+    }
+
 
 
     /**

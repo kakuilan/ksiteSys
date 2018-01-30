@@ -50,6 +50,7 @@ return [
     //xhprof性能日志
     'xhprof_enable' => true, //是否开启xhprof
     'xhprof_ratio' => 1, //取样概率,1/N
+    'xhprof_viewpwd' => 'xs4et9', //查看密码,TODO
 
     //pv访问次数记录
     'pv' => [
