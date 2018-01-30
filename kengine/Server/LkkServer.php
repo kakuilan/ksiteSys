@@ -104,7 +104,7 @@ class LkkServer extends SwooleServer {
 
     public static function onSwooleWorkerStart($serv, $workerId) {
         self::getPoolManager()->initAll();
-        set_error_handler("\Kengine\Server\LkkServer::setErrorHandler", E_ALL);
+        //set_error_handler("\Kengine\Server\LkkServer::setErrorHandler", E_ALL);
 
         parent::onSwooleWorkerStart($serv, $workerId);
 
