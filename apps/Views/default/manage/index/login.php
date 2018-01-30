@@ -135,8 +135,7 @@ EOT;
 
     //刷新验证码
     function refreshCaptcha() {
-        $.getJSON(captchaUrl, function (res) {
-            console.log(res);
+        $.getJSON(captchaUrl +'?width=120&height=30', function (res) {
             if(res.status) {
                 $('#verifyImg').attr('src', res.data.img);
                 $('#veriEncode').val(res.data.encode);

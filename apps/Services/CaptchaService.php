@@ -21,10 +21,13 @@ class CaptchaService extends ServiceBase {
      * 生成验证码数组
      * @param int $len 验证码长度
      * @param string $type 字符类型,参考StringHelper::randString
+     * @param int $width 宽
+     * @param int $height 高
+     * @param bool $distortion 是否扭曲
      *
      * @return array
      */
-    public static function createCode($len = 4, $type=0) {
+    public static function createCode($len = 4, $type=0, $width=100, $height=30, $distortion=false) {
         if($len<4) $len = 4;
         if($len>10) $len = 10;
 
@@ -36,7 +39,8 @@ class CaptchaService extends ServiceBase {
         $encode = $crypt->encryptBase64($code);
 
         $builder = new CaptchaBuilder($code);
-        $builder->build();
+        $builder->setDistortion($distortion);
+        $builder->build($width, $height);
         $img = $builder->inline();
 
         $data = [
