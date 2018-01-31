@@ -154,7 +154,7 @@ class XHProfRuns_Default implements iXHProfRuns {
             list($run,$source) = explode('.', basename($file));
             echo '<li><a href="' . htmlentities($_SERVER['SCRIPT_NAME'])
                 . '?run=' . htmlentities($run) . '&source='
-                . htmlentities($source) . '">'
+                . htmlentities($source) . '" target="_blank">'
                 . htmlentities(basename($file)) . "</a><small> "
                 . date("Y-m-d H:i:s", filemtime($file)) . "</small></li>\n";
         }

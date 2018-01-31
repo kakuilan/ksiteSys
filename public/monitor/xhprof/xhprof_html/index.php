@@ -33,6 +33,23 @@
 
 // by default assume that xhprof_html & xhprof_lib directories
 // are at the same level.
+
+require __DIR__ . '../../../../../bootstrap/define.php';
+require __DIR__ . '../../../../../bootstrap/func.system.php';
+
+//载入命名空间
+$loader = require __DIR__ . '../../../../../vendor/autoload.php';
+$loader->addPsr4('Apps\\',      APPSDIR);
+$loader->addPsr4('Kengine\\',   KENGDIR);
+$loader->addPsr4('Tests\\',     TESTDIR);
+
+$conf = getConf('server');
+$pwd = $_GET['pwd'] ?? '';
+$checkPwd = md5($pwd) == $conf->xhprof_viewpwd;
+if(empty($checkPwd)) {
+    die('no permission!');
+}
+
 $GLOBALS['XHPROF_LIB_ROOT'] = dirname(__FILE__) . '/../xhprof_lib';
 
 require_once $GLOBALS['XHPROF_LIB_ROOT'].'/display/xhprof.php';
