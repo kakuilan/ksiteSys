@@ -47,7 +47,7 @@ $conf = getConf('server');
 $pwd = $_GET['pwd'] ?? '';
 $checkPwd = md5($pwd) == $conf->xhprof_viewpwd;
 if(empty($checkPwd)) {
-    die('no permission!');
+    //die('no permission!');
 }
 
 $GLOBALS['XHPROF_LIB_ROOT'] = dirname(__FILE__) . '/../xhprof_lib';
