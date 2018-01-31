@@ -72,6 +72,7 @@ server {
     
     location ~ [^/]\.php(/|$) {
         try_files $uri =404;
+        #注意,以实际的php-cgi.sock路径为准,否则502,具体看/usr/local/php/etc/php-fpm.conf
         fastcgi_pass  unix:/tmp/php-cgi.sock;
         fastcgi_index index.php;
         include fastcgi.conf;
@@ -92,7 +93,6 @@ server {
     }
     
     access_log  /home/wwwlogs/my.log;
-    
 }
 ```
 
