@@ -304,13 +304,8 @@ class LkkServer extends SwooleServer {
         $pwRequest->setUseMillisecond($useTime);
 
         //xhprof日志
-        if(self::isXhprofEnable(true)) {
-            $chkTime = (self::instance()->conf['xhprof_ratio']==1);
-            if(!$chkTime) {
-                $chkTime = ($useTime > self::instance()->conf['sys_log']['slow_request']);
-            }
-
-            if($chkTime) self::saveXhprofLog($di);
+        if(self::isXhprofEnable(true) && ($useTime > self::instance()->conf['xhprof_milltime'])) {
+            self::saveXhprofLog($di);
         }
 
         self::afterSwooleResponse($request, $pwRequest);

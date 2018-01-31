@@ -26,6 +26,7 @@ https://github.com/Intervention/image
 https://gitee.com/lionsoul/ip2region  
 
 ##xhpfrof 
--开启配置xhprof_enable=true  
--查看结果数据
+- https://github.com/longxinH/xhprof.git
+- 开启配置xhprof_enable=true  
+- 查看结果数据
 访问<http://$host_url/monitor/xhprof/xhprof_html/index.php>

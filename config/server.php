@@ -50,6 +50,7 @@ return [
     //xhprof性能日志
     'xhprof_enable' => true, //是否开启xhprof
     'xhprof_ratio' => 1, //取样概率,1/N
+    'xhprof_milltime' => 10, //毫秒,记录高于此值的日志
     'xhprof_viewpwd' => 'e99a18c428cb38d5f260853678922e03', //查看密码,md5值:abc123
 
     //pv访问次数记录
