@@ -43,11 +43,20 @@ $loader->addPsr4('Apps\\',      APPSDIR);
 $loader->addPsr4('Kengine\\',   KENGDIR);
 $loader->addPsr4('Tests\\',     TESTDIR);
 
+
+$option = [
+    'save_path' => RUNTDIR . 'session' ,
+    'name' => 'XHP_SESSIONID' ,
+];
+session_start($option);
+
 $conf = getConf('server');
-$pwd = $_GET['pwd'] ?? '';
+$pwd = $_GET['pwd'] ?? ($_SESSION['pwd'] ?? '');
 $checkPwd = md5($pwd) == $conf->xhprof_viewpwd;
 if(empty($checkPwd)) {
-    //die('no permission!');
+    die('no permission!');
+}elseif (!isset($_SESSION['pwd'])) {
+    $_SESSION['pwd'] = $pwd;
 }
 
 $GLOBALS['XHPROF_LIB_ROOT'] = dirname(__FILE__) . '/../xhprof_lib';
