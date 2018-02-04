@@ -101,7 +101,7 @@
                         <li class="divider"></li>
 
                         <li>
-                            <a href="#">
+                            <a href="{{logoutUrl}}">
                                 <i class="ace-icon fa fa-power-off"></i>
                                 退出
                             </a>
