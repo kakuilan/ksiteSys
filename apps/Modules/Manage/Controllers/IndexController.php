@@ -44,6 +44,7 @@ class IndexController extends Controller {
         $this->view->setVars([
             'mainUrl' => makeUrl('manage/index/main'),
             'menuUrl' => makeUrl('manage/menu/authlist'),
+            'logoutUrl' => makeUrl('manage/index/logout'),
         ]);
 
         //设置静态资源
@@ -133,6 +134,17 @@ class IndexController extends Controller {
      */
     public function logoutAction() {
 
+        $session = $this->getDI()->getShared('session');
+        //删除session变量
+        $session->remove(getConf('login')->managerLoginSession);
+        //销毁全部session会话
+        $session->destroy();
+
+        //删除cookie
+        $cookies  = $this->getDI()->getShared('cookies');
+        $cookies->del(getConf('login')->managerAuthCookie);
+
+        return $this->alert('退出成功','success', makeUrl(getConf('rbac')->managerAuthGateway), 5);
     }
 
 
