@@ -159,13 +159,13 @@ class LkkServer extends SwooleServer {
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
 
-        /*getLogger()->info('request:', [
+        getLogger()->info('request:', [
             'header' => $request->header ?? '',
             'server' => $request->server ?? '',
             'get' => $request->get ?? '',
             'post' => $request->post ?? '',
             'cookie' => $request->cookie ?? '',
-        ]);*/
+        ]);
 
         //加密组件放在cookie和denAgent前面
         $crypt = LkkCmponent::crypt();
