@@ -458,9 +458,28 @@ class UserService extends ServiceBase {
     }
 
 
+    /**
+     * 管理员退出
+     * @param int $uid
+     *
+     * @return bool
+     */
+    public function managerLogout($uid=0) {
+        if(empty($uid)) return false;
+        $session = $this->getDI()->getShared('session');
+        //删除session变量
+        $session->remove($this->conf->managerLoginSession);
+        //销毁全部session会话
+        $session->destroy();
 
-    public function managerLogout() {
+        //删除cookie
+        $cookies  = $this->getDI()->getShared('cookies');
+        $cookies->del($this->conf->managerAuthCookie);
 
+        //退出成功事件
+        $this->fireEvent('afterManagerLogout', $uid);
+
+        return true;
     }
 
 

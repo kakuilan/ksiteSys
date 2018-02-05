@@ -133,18 +133,20 @@ class IndexController extends Controller {
      * @desc  -管理后台退出
      */
     public function logoutAction() {
+        $uid = $this->getLoginUid();
+        if($uid) {
+            $res = $this->userService->managerLogout($uid);
+        }
 
-        $session = $this->getDI()->getShared('session');
-        //删除session变量
-        $session->remove(getConf('login')->managerLoginSession);
-        //销毁全部session会话
-        $session->destroy();
+        $loginUrl = makeUrl(getConf('rbac')->managerAuthGateway);
+        if($this->request->isAjax()) {
+            $data = [
+                'loginUrl' => $loginUrl,
+            ];
+            return $this->success($data);
+        }
 
-        //删除cookie
-        $cookies  = $this->getDI()->getShared('cookies');
-        $cookies->del(getConf('login')->managerAuthCookie);
-
-        return $this->alert('退出成功','success', makeUrl(getConf('rbac')->managerAuthGateway), 5);
+        return $this->alert('退出成功','success', $loginUrl, 2);
     }
 
 

@@ -116,4 +116,21 @@ class UserListener extends ListenerBase {
     }
 
 
+    /**
+     * 管理员退出成功后事件处理
+     * @param     $event
+     * @param     $source
+     * @param int $uid
+     */
+    public function afterManagerLogout($event, $source, $uid=0) {
+        //上次登录信息
+        $loginInfo = UserLoginLog::getRow(['type'=>1, 'status'=>1, 'uid'=>$uid, 'logout_time'=>0], 'id,uid', 'id DESC');
+        if($loginInfo) {
+            UserLoginLog::upData(['logout_time'=>time()], ['id'=>$loginInfo->id]);
+        }
+
+    }
+
+
+
 }
