@@ -79,8 +79,8 @@ class UserListener extends ListenerBase {
         $request = $di->getShared('request');
         $ip = $request->getClientAddress();
         $fingerprint = $di->getShared('userAgent')->getAgentFpValue();
-        $platform = CommonHelper::getClientOS($request->server);
-        $browser  = CommonHelper::getBrowser(false, $request->server);
+        $platform = CommonHelper::getClientOS($request->header['user-agent']);
+        $browser  = CommonHelper::getBrowser(false, $request->header['user-agent']);
         $now = time();
 
         $item = [
