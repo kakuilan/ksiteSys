@@ -20,6 +20,8 @@ License
 - popen  
 - pclose  
 - exec  
+- proc_open
+
 
 
 TODO:  
