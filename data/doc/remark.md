@@ -21,6 +21,10 @@ http://bootstrap-wysiwyg.github.io/bootstrap3-wysiwyg/
 
 ##库  
 https://github.com/Intervention/image  
+https://github.com/flyimg/flyimg(webp)  
+
+## 图片
+nginx image_fileter  
 
 ##IP地址转换
 https://gitee.com/lionsoul/ip2region  
