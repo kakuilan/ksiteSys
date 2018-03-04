@@ -198,12 +198,15 @@ class ActionService extends ServiceBase {
             (stripos($filepath, 'Controller.php')===false && stripos($filepath, 'Task.php')===false)) return false;
 
         $pathArr = explode(DS, str_replace(array(MODULDIR, '.php'), '', $filepath));
+        if(!isset($pathArr[2])) return false;
+
         $moduleName = $pathArr[0];
         $contrlName = str_ireplace(['Controller', 'Task'], '', $pathArr[2]);
         $actionNames = $actionDescs = [];
         $isCli = (strtolower($moduleName)=='clie');
 
         $contrlClassName = "Apps\\Modules\\" .ucwords($moduleName) ."\\" .ucwords($pathArr[1]) ."\\" .$pathArr[2];
+        if(!class_exists($contrlClassName)) return false;
         $refContrlClass = new \ReflectionClass($contrlClassName);
 
         //获取控制器类注释

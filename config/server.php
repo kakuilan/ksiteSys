@@ -14,7 +14,7 @@ return [
     'server_name'   => KSERVER_NAME,
     'server_vers'   => KSERVER_VERS,
     'pid_dir'       => RUNTDIR .'pids' .DS,
-    'open_debug'    => false, //是否打开调试
+    'open_debug'    => true, //是否打开调试
     'open_loger'    => true, //是否打开运行日志
 
     //是否热更新服务代码,需inotify扩展
