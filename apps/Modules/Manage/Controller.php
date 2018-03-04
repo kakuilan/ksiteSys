@@ -11,6 +11,7 @@
 namespace Apps\Modules\Manage;
 
 use Kengine\LkkController;
+use Apps\Models\Action;
 
 class Controller extends  LkkController {
 
@@ -31,6 +32,8 @@ class Controller extends  LkkController {
 
         $this->uid = $uid;
         $this->siteId = getSiteId();
+        $this->getActionId();
+
 
         return null;
     }
@@ -46,6 +49,29 @@ class Controller extends  LkkController {
         }
 
         return $this->uid;
+    }
+
+
+    /**
+     * 获取动作ID
+     * @return int|mixed
+     */
+    public function getActionId() {
+        if(is_null($this->actionId)) {
+            $where = [
+                'site_id' => getSiteId(),
+                'type' => 3,
+                'module' => strtolower($this->router->getModuleName()),
+                'controller' => strtolower($this->router->getControllerName()),
+                'action' => strtolower($this->router->getActionName()),
+            ];
+
+            $info = Action::getRow($where, 'ac_id');
+            $this->actionId = empty($info) ? 0 : $info->ac_id;
+            unset($info);
+        }
+
+        return $this->actionId;
     }
 
 

@@ -29,6 +29,11 @@ class LkkController extends Controller {
     protected $uid;
 
 
+    //动作ID
+    protected $actionId;
+
+
+
     /**
      * 初始化
      */
