@@ -16,6 +16,7 @@ use Kengine\LkkCookies;
 use Kengine\LkkModel;
 use Lkk\Concurrent\Promise;
 use Lkk\Helpers\CommonHelper;
+use Lkk\Helpers\DirectoryHelper;
 use Lkk\LkkService;
 use Lkk\Phalwoo\Phalcon\Debug as PwDebug;
 use Lkk\Phalwoo\Phalcon\Di as PwDi;
@@ -71,6 +72,12 @@ class LkkServer extends SwooleServer {
         //所有全局变量应在swoole事件绑定前设置好
         //否则swoole事件回调时进程间不共享变量
         //TODO 添加自定义的全局变量
+
+        //检查xhprof输出目录
+        $xhprofDir = ini_get('xhprof.output_dir');
+        if(!empty($xhprofDir) && !file_exists($xhprofDir)) {
+            DirectoryHelper::mkdirDeep($xhprofDir);
+        }
 
         //TODO 读取单独的配置
         $this->setPoolManager(getConf('pool')->toArray());

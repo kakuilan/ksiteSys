@@ -178,7 +178,7 @@ class LkkModel extends Model {
         }
 
         $res = $hasPri ? static::$tableColumns[$table] : static::$tableColumns[$table]['all'];
-        getLogger()->info('getTableColumns', ['$table'=>$table, '$res'=>$res, 'self::$tableColumns'=>static::$tableColumns]);
+        //getLogger()->info('getTableColumns', ['$table'=>$table, '$res'=>$res, 'self::$tableColumns'=>static::$tableColumns]);
 
         return $res;
     }
@@ -192,14 +192,14 @@ class LkkModel extends Model {
      * @return array|bool
      */
     public static function filterColumnsData(array $data, $table=null) {
-        getLogger()->info('filterColumnsData-start', ['$table'=>$table, '$data'=>$data]);
+        //getLogger()->info('filterColumnsData-start', ['$table'=>$table, '$data'=>$data]);
         if(!is_array($data) || empty($data)) return false;
         $columns = self::getTableColumns($table);
-        getLogger()->info('filterColumnsData-inner', ['$table'=>$table, '$columns'=>$columns]);
+        //getLogger()->info('filterColumnsData-inner', ['$table'=>$table, '$columns'=>$columns]);
         foreach ($data as $k=>$v) {
             if(!in_array($k, $columns)) unset($data[$k]);
         }
-        getLogger()->info('filterColumnsData-end', ['$table'=>$table, '$data'=>$data]);
+        //getLogger()->info('filterColumnsData-end', ['$table'=>$table, '$data'=>$data]);
         return $data;
     }
 
