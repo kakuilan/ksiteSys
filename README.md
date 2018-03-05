@@ -21,6 +21,7 @@ License
 - pclose  
 - exec  
 - proc_open
+- proc_get_status
 
 
 
