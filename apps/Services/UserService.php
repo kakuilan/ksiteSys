@@ -31,6 +31,8 @@ class UserService extends ServiceBase {
     const USER_PWD_MINLEN = 5;
     //用户密码最大长度
     const USER_PWD_MAXLEN = 32;
+    //access_token有效期,30天
+    const ACCESS_TOKEN_TTL = 2592000;
 
     //保留用户名,禁止注册
     public static $holdNames = ['root','admin','test','manage','system','super','vip','guanli','guest'];
@@ -613,6 +615,49 @@ class UserService extends ServiceBase {
 
         return $uid;
     }
+
+
+    /**
+     * 根据UID生成用户access_token
+     * @param int $uid UID
+     * @param string $veriCode 插入校验码,如客户端指纹
+     * @param int $ttl 有效期,秒
+     * @return string
+     */
+    public static function makeAccessToken($uid=0, $veriCode='', $ttl=0) {
+        $key = getConf('crypt', 'key');
+        $str = "{$uid}|{$veriCode}";
+        if(empty($ttl)) $ttl = self::ACCESS_TOKEN_TTL;
+        $code = EncryptHelper::ucAuthcode($str, 'ENCODE', $key, $ttl);
+        $code = EncryptHelper::base64urlEncode($code);
+
+        return $code;
+    }
+
+
+    /**
+     * 检查解析access_token
+     * @param string $token
+     * @param string $veriCode 插入校验码,如客户端指纹
+     * @return bool|string
+     */
+    public static function parseAccessToken($token='', $veriCode='') {
+        $res = false;
+        if(empty($token)) return $res;
+
+        $key = getConf('crypt', 'key');
+        $code = strval(EncryptHelper::base64urlDecode($token));
+        $code = EncryptHelper::ucAuthcode($code, 'DECODE', $key);
+        if(!empty($code)) {
+            $arr = explode('|', $code);
+            if(!empty($veriCode) && $arr[1]!=$veriCode) return false;
+            if(is_numeric($arr[0])) $res = $arr[0];
+        }
+
+        return $res;
+    }
+
+
 
 
 

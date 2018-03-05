@@ -114,4 +114,5 @@ php bin/cli.php main main
 cd tests/
 phpunit ./  
 phpunit JustTest.php  
+phpunit JustTest.php  --repeat 100 
 

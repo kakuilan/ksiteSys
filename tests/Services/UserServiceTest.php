@@ -12,6 +12,7 @@ namespace Tests\Services;
 use PHPUnit\Framework\TestCase;
 use Apps\Services\UserService;
 use Faker\Factory as FakerFactory;
+use Lkk\Helpers\StringHelper;
 
 class UserServiceTest extends TestCase {
 
@@ -53,6 +54,22 @@ class UserServiceTest extends TestCase {
         if(!$chk) $this->assertNotEmpty($err);
 
     }
+
+
+    public function testAccessToken() {
+        $uid = StringHelper::randNumber(9);
+        $uuid = StringHelper::randSimple(8);
+
+        $token = UserService::makeAccessToken($uid, $uuid);
+        $len = strlen($token);
+        $decod = UserService::parseAccessToken($token, $uuid);
+        $check = $uid == $decod;
+
+        $this->assertTrue($check);
+        $this->assertLessThan(100, $len);
+    }
+
+
 
 
 }
