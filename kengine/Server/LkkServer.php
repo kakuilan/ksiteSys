@@ -238,6 +238,7 @@ class LkkServer extends SwooleServer {
 
         //注册各模块
         $moduleConf = getConf('modules')->toArray();
+        getLogger()->info('moduleCnf', $moduleConf);
         $app->registerModules($moduleConf);
 
         //设置路由

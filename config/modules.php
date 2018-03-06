@@ -9,6 +9,12 @@
 
 
 return [
+    //API模块
+    'api'       => [
+        'className'    => 'Apps\Modules\Api\Module',
+        'path'         => APPSDIR. 'Modules/Api/Module.php',
+        'alias'        => 'api', //模块别名
+    ],
 
     //命令行
     'cli'       => [
