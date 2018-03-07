@@ -17,8 +17,8 @@ class IndexController extends LkkController {
 
 
     /**
-     * @title -
-     * @desc  -
+     * @title -默认动作
+     * @desc  -动作说明
      */
     public function indexAction(){
         $data = [

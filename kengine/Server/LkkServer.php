@@ -15,6 +15,7 @@ use Kengine\LkkCmponent;
 use Kengine\LkkCookies;
 use Kengine\LkkModel;
 use Lkk\Concurrent\Promise;
+use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\DirectoryHelper;
 use Lkk\LkkService;
@@ -165,6 +166,9 @@ class LkkServer extends SwooleServer {
         $app = new PwApplication($di);
         $di->setShared('swooleRequest', $request);
         $di->setShared('swooleResponse', $response);
+        $_uri = $request->get['_url'] ?? $request->server['request_uri'];
+        //当前模块名
+        $curModName = Engine::getModuleNameByUri($_uri);
 
         getLogger()->info('request:', [
             'header' => $request->header ?? '',
@@ -172,6 +176,7 @@ class LkkServer extends SwooleServer {
             'get' => $request->get ?? '',
             'post' => $request->post ?? '',
             'cookie' => $request->cookie ?? '',
+            '$curModName' => $curModName,
         ]);
 
         //加密组件放在cookie和denAgent前面
@@ -238,7 +243,6 @@ class LkkServer extends SwooleServer {
 
         //注册各模块
         $moduleConf = getConf('modules')->toArray();
-        getLogger()->info('moduleCnf', $moduleConf);
         $app->registerModules($moduleConf);
 
         //设置路由
@@ -252,16 +256,22 @@ class LkkServer extends SwooleServer {
         // URL设置
         $di->setShared('url', LkkCmponent::url());
 
-        //多模块应用的视图设置
+        //视图
         $eventsManager = $di->get('eventsManager');
-        $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
-            $router = $di->get('router');
-            $curModule = $router->getModuleName();
+        $denyviews = getConf('view','denyModules');
+        if(ArrayHelper::dstrpos($curModName, $denyviews)) {
+            $app->useImplicitView(false);
+        }else{
+            //多模块应用的视图设置
+            $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
+                $router = $di->get('router');
+                $curModName = $router->getModuleName();
 
-            $view = Engine::setModuleViewer($curModule, $di);
-            $di->setShared('view', $view);
-
-        });
+                $view = Engine::setModuleViewer($curModName, $di);
+                getLogger('server 2222', [$view]);
+                $di->setShared('view', $view);
+            });
+        }
         $app->setEventsManager($eventsManager);
 
         //缓存服务
@@ -285,7 +295,6 @@ class LkkServer extends SwooleServer {
         $app->setDI($di);
 
         //phalcon处理
-        $_uri = $request->get['_url'] ?? $request->server['request_uri'];
         try {
             $resp = yield $app->handle($_uri);
             $resp = self::handleDispatcherError($resp);

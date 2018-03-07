@@ -16,8 +16,8 @@ use Lkk\Helpers\CommonHelper;
 class IndexController extends LkkController {
 
     /**
-     * 默认动作
-     * 动作说明
+     * @title -默认动作
+     * @desc  -动作说明
      */
     public function indexAction(){
         return 'HomeModule-IndexController-IndexAction '.date('Ymd H:i:s'). ' ' .CommonHelper::getMillisecond();
@@ -25,7 +25,7 @@ class IndexController extends LkkController {
 
 
     public function testAction() {
-        return 'HomeModule-IndexController-testAction';
+        return $this->success('HomeModule-IndexController-testAction');
     }
 
 

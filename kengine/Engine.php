@@ -127,11 +127,11 @@ class Engine {
             $router = new PwRouter();
 
             //默认路由o
-            $defaultModule = 'home';
+            $defaultModule = getConf('site', 'defaultModule');
             $defaultNamespace = '/';
             $router->setDefaultModule($defaultModule);
-            $router->setDefaultController('index');
-            $router->setDefaultAction('index');
+            $router->setDefaultController(getConf('site', 'defaultController'));
+            $router->setDefaultAction(getConf('site', 'defaultAction'));
 
             $allmodules = getConf('modules');
             foreach ($allmodules as $module => $options) {
@@ -386,6 +386,30 @@ class Engine {
         return $res;
     }
 
+
+    /**
+     * 根据uri获取模块名
+     * @param string $str
+     * @return string
+     */
+    public static function getModuleNameByUri($str = '') {
+        $default = 'home';
+        if(empty($str)) return $default;
+
+        $str = preg_replace('/\/+/', '/', str_replace('\\', '/', $str));
+        $arr = array_filter(explode('/', $str));
+        if($arr) $arr = array_values($arr);
+
+        $num = count($arr);
+        if($num==0) {
+            $res = $default;
+        }else{
+            $res = $arr[0];
+        }
+
+        unset($arr, $str);
+        return $res;
+    }
 
 
 
