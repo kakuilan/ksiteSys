@@ -88,8 +88,7 @@ class LkkServer extends SwooleServer {
 
         parent::initServer();
 
-        $logger = self::getLogger();
-        $logger->getDefaultHandler()->bindSwooleCloseEvent();
+        self::getLogger()->getDefaultHandler()->bindSwooleCloseEvent();
 
         return $this;
     }
@@ -168,16 +167,16 @@ class LkkServer extends SwooleServer {
         $di->setShared('swooleResponse', $response);
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
         //当前模块名
-        $curModName = Engine::getModuleNameByUri($_uri);
+        $curModName = strtolower(Engine::getModuleNameByUri($_uri));
 
-        getLogger()->info('request:', [
+        /*getLogger()->info('request:', [
             'header' => $request->header ?? '',
             'server' => $request->server ?? '',
             'get' => $request->get ?? '',
             'post' => $request->post ?? '',
             'cookie' => $request->cookie ?? '',
             '$curModName' => $curModName,
-        ]);
+        ]);*/
 
         //加密组件放在cookie和denAgent前面
         $crypt = LkkCmponent::crypt();
@@ -186,7 +185,7 @@ class LkkServer extends SwooleServer {
         //检查客户端,防止爬虫和压力测试
         $loginCnf = getConf('login');
         $agentService = new UserAgent();
-        $agentService->setAllowBench(true); //允许压测
+        $agentService->setAllowBench(self::isOpenDebug()); //允许压测
         $agentService->setAgentFpName($loginCnf->agentFpName);
         $agentService->setTokenName($loginCnf->tokenName);
         $agentService->setTokenFunc(function($token){
@@ -203,7 +202,7 @@ class LkkServer extends SwooleServer {
             return $response->end($agentService->error());
         }
 
-        self::resetRequestGlobal($request);
+        //self::resetRequestGlobal($request);
 
         $pwRequest = new PwRequest();
         $pwRequest->setDI($di);
@@ -215,31 +214,53 @@ class LkkServer extends SwooleServer {
         $pwResponse->setSwooleResponse($response);
         $di->setShared('response', $pwResponse);
 
-        $cookies = new LkkCookies();
-        $cookies->setConf(getConf('cookie')->toArray());
-        $cookies->useEncryption(false);
-        $cookies->setDI($di);
-        $di->setShared('cookies', $cookies);
+        //分别处理API和非API模块
+        $eventsManager = $di->get('eventsManager');
+        if($curModName=='api') {
+            $app->useImplicitView(false);
+        }else{
+            $cookies = new LkkCookies();
+            $cookies->setConf(getConf('cookie')->toArray());
+            $cookies->useEncryption(false);
+            $cookies->setDI($di);
+            $di->setShared('cookies', $cookies);
 
-        $sessionConf = getConf('session')->toArray();
-        $sessionConf['cookie'] = getConf('cookie')->toArray();
+            $sessionConf = getConf('session')->toArray();
+            $sessionConf['cookie'] = getConf('cookie')->toArray();
 
-        //注意下面这几个方法顺序不能改
-        $session = new PwSession($sessionConf);
-        $session->setDI($di);
-        $di->setShared('session', $session);
-        yield $session->start();
+            //注意下面这几个方法顺序不能改
+            $session = new PwSession($sessionConf);
+            $session->setDI($di);
+            $di->setShared('session', $session);
+            yield $session->start();
 
-        //session的pv检查
-        $userQps = $session->getQps();
-        if($userQps>9) {
-            return $response->end('访问过于频繁');
+            //session的pv检查
+            $userQps = $session->getQps();
+            if($userQps>9) {
+                return $response->end('访问过于频繁');
+            }
+
+            //检查是否sessionID变更
+            if($agentService->isSessionIdChange()) {
+                //TODO
+            }
+
+            //视图
+            $denyviews = getConf('view','denyModules');
+            if(ArrayHelper::dstrpos($curModName, $denyviews)) {
+                $app->useImplicitView(false);
+            }else{
+                //多模块应用的视图设置
+                $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
+                    $router = $di->get('router');
+                    $curModName = $router->getModuleName();
+
+                    $view = Engine::setModuleViewer($curModName, $di);
+                    $di->setShared('view', $view);
+                });
+            }
         }
-
-        //检查是否sessionID变更
-        if($agentService->isSessionIdChange()) {
-            //TODO
-        }
+        $app->setEventsManager($eventsManager);
 
         //注册各模块
         $moduleConf = getConf('modules')->toArray();
@@ -255,24 +276,6 @@ class LkkServer extends SwooleServer {
 
         // URL设置
         $di->setShared('url', LkkCmponent::url());
-
-        //视图
-        $eventsManager = $di->get('eventsManager');
-        $denyviews = getConf('view','denyModules');
-        if(ArrayHelper::dstrpos($curModName, $denyviews)) {
-            $app->useImplicitView(false);
-        }else{
-            //多模块应用的视图设置
-            $eventsManager->attach('application:afterStartModule',function($event,$app,$module) use($di){
-                $router = $di->get('router');
-                $curModName = $router->getModuleName();
-
-                $view = Engine::setModuleViewer($curModName, $di);
-                getLogger('server 2222', [$view]);
-                $di->setShared('view', $view);
-            });
-        }
-        $app->setEventsManager($eventsManager);
 
         //缓存服务
         $di->setShared('cache', LkkCmponent::siteCache());

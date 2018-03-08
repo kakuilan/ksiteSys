@@ -123,15 +123,14 @@ class Engine {
     public static function setRouter() {
         static $router;
         if(is_null($router)) {
-            //$router = new Router();
             $router = new PwRouter();
 
-            //默认路由o
-            $defaultModule = getConf('site', 'defaultModule');
+            //默认路由
+            $defaultModule = getConf('site', 'defaultModule', 'home');
             $defaultNamespace = '/';
             $router->setDefaultModule($defaultModule);
-            $router->setDefaultController(getConf('site', 'defaultController'));
-            $router->setDefaultAction(getConf('site', 'defaultAction'));
+            $router->setDefaultController(getConf('site', 'defaultController', 'index'));
+            $router->setDefaultAction(getConf('site', 'defaultAction', 'index'));
 
             $allmodules = getConf('modules');
             foreach ($allmodules as $module => $options) {
@@ -393,7 +392,7 @@ class Engine {
      * @return string
      */
     public static function getModuleNameByUri($str = '') {
-        $default = 'home';
+        $default = getConf('site', 'defaultModule', 'home');
         if(empty($str)) return $default;
 
         $str = preg_replace('/\/+/', '/', str_replace('\\', '/', $str));
