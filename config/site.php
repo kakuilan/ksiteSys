@@ -14,4 +14,5 @@ return [
     'defaultModule'     => 'home', //默认模块
     'defaultController' => 'index', //默认控制
     'defaultAction'     => 'index', //默认动作
+    'csrfToken'         => '__token__', //Csrf参数的名称,form表单
 ];

@@ -11,6 +11,7 @@
 namespace Apps\Services;
 
 use Gregwar\Captcha\CaptchaBuilder;
+use Lkk\Helpers\EncryptHelper;
 use Lkk\Helpers\StringHelper;
 use Kengine\LkkCmponent;
 
@@ -44,7 +45,7 @@ class CaptchaService extends ServiceBase {
         $img = $builder->inline();
 
         $data = [
-            'encode' => $encode,
+            'encode' => EncryptHelper::base64urlEncode($encode),
             'img' => $img, //base64图片
         ];
 
@@ -69,6 +70,7 @@ class CaptchaService extends ServiceBase {
         }
 
         $crypt = LkkCmponent::crypt();
+        $encode = EncryptHelper::base64urlDecode($encode);
         $decode = $crypt->decryptBase64($encode);
 
         if(empty($decode) || strtolower($decode)!=strtolower($code)) {

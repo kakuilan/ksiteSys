@@ -1,376 +1,174 @@
-<?php
-/**
- * Copyright (c) 2017 LKK/lianq.net All rights reserved
- * User: kakuilan@163.com
- * Date: 2017/4/30
- * Time: 15:59
- * Desc: -
- */
- 
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+    <meta charset="UTF-8">
+    <title>{{headerSeo.title}}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+    <meta name="renderer" content="webkit">
 
-?>
-{{ partial("common/header", ['BDCLASS':'login-layout','BDSTYLE':'']) }}
-<style>
-    canvas{
-        position: fixed;
-        top: 0;
-    }
-    i.ace-icon a{
-        display: block;
-        position: relative;
-        top: -1px;
-        right: -5px;
-        overflow: hidden;
-    }
-    #verifyImg{ min-width: 100%; min-height: 100%; vertical-align: middle; max-height: 32px;}
-</style>
-<div class="main-container">
-    <canvas width="100%" height="100%"></canvas>
-    <div class="main-content">
-        <div class="row">
-            <div class="col-sm-10 col-sm-offset-1">
-                <div class="login-container">
-                    <div class="center">
-                        <h2>
-                            <i class="ace-icon fa fa-leaf green"></i>
-                            <span class="red">ipoem</span>
-                            <span class="white" id="id-text2">诗言志</span>
-                        </h2>
-                    </div>
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <!-- Loading Bootstrap -->
+    <link href="/assets/css/backend.min.css" rel="stylesheet">
 
-                    <div class="space-6"></div>
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements. All other JS at the end of file. -->
+    <!--[if lt IE 9]>
+    <script src="/assets/js/html5shiv.js"></script>
+    <script src="/assets/js/respond.min.js"></script>
+    <![endif]-->
+    <script type="text/javascript">
+        var require = {
+            "config": {
+                "site": {
+                    "name": "Admin",
+                    "cdnurl": "{{siteUrl}}",
+                    "version": "1.0.0",
+                    "timezone": "Asia/Shanghai",
+                    "languages": {
+                        "backend": "zh-cn",
+                        "frontend": "zh-cn"
+                    }
+                },
+                "upload": {
+                    "cdnurl": "",
+                    "uploadurl": "",
+                    "bucket": "",
+                    "maxsize": "1mb",
+                    "mimetype": "*",
+                    "multipart": {
+                        "policy": "",
+                        "signature": "",
+                        "bucket": "",
+                        "save-key": "",
+                        "expiration": 0,
+                        "notify-url": ""
+                    },
+                    "multiple": false
+                },
+                "modulename": "admin",
+                "controllername": "index",
+                "actionname": "login",
+                "jsname": "backend/index",
+                "moduleurl": "{{siteUrl}}",
+                "captchaUrl": "{{captchaUrl}}",
+                "language": "zh-cn",
+                "referer": null
+            }
+        };
+    </script>
 
-                    <div class="position-relative">
-                        <div id="login-box" class="login-box visible widget-box no-border">
-                            <div class="widget-body">
-                                <div class="widget-main">
-                                    <h4 class="header blue lighter bigger">
-                                        <i class="ace-icon fa fa-coffee green"></i>
-                                        请输入你的账号
-                                    </h4>
+    <style type="text/css">
+        body {
+            color:#999;
+            background:#1a242f;
+            background-size:cover;
+        }
+        a {
+            color:#fff;
+        }
+        .login-panel{margin-top:150px;}
+        .login-screen {
+            max-width:400px;
+            padding:0;
+            margin:100px auto 0 auto;
 
-                                    <div class="space-6"></div>
+        }
+        .login-screen .well {
+            border-radius: 3px;
+            -webkit-box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            background: rgba(255,255,255, 0.2);
+        }
+        .login-screen .copyright {
+            text-align: center;
+        }
+        @media(max-width:767px) {
+            .login-screen {
+                padding:0 20px;
+            }
+        }
+        .profile-img-card {
+            width: 100px;
+            height: 100px;
+            margin: 10px auto;
+            display: block;
+            -moz-border-radius: 50%;
+            -webkit-border-radius: 50%;
+            border-radius: 50%;
+        }
+        .profile-name-card {
+            text-align: center;
+        }
 
-                                    <form method="post" class="form-horizontal" id="myForm" role="form">
-                                        <fieldset>
-                                            <label class="block clearfix">
-                                                <span class="block input-icon input-icon-right">
-                                                    <input type="text" class="form-control" placeholder="用户名" id="loginName" name="loginName" />
-                                                    <i class="ace-icon fa fa-user"></i>
-                                                </span>
-                                            </label>
+        #login-form {
+            margin-top:20px;
+        }
+        #login-form .input-group {
+            margin-bottom:15px;
+        }
+        .vcode{display: block; height: 30px; width: 140px; overflow: hidden;}
+        i.ace-icon a{
+            display: block;
+            position: absolute;
+            top: 0;
+            right: 0;
+            z-index: 99;
+            float: right;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="login-wrapper">
+        <div class="login-screen">
+            <div class="well">
+                <div class="login-form">
+                    <img id="profile-img" class="profile-img-card" src="/assets/img/avatar.png" />
+                    <p id="profile-name" class="profile-name-card"></p>
 
-                                            <label class="block clearfix">
-                                                <span class="block input-icon input-icon-right">
-                                                    <input type="password" class="form-control" placeholder="密码" id="password" name="password" />
-                                                    <i class="ace-icon fa fa-lock"></i>
-                                                </span>
-                                            </label>
+                    <form action="{{saveUrl}}" method="post" id="login-form">
+                        <div id="errtips" class="hide"></div>
+                        <input type="hidden" name="{{tokenKey}}" value="{{tokenVal}}" />
 
-                                            <label class="block clearfix">
-                                                <span class="block input-icon input-icon-right">
-                                                    <input type="text" class="form-control" placeholder="请输入验证码" id="verifyCode" name="verifyCode" />
-                                                    <input type="hidden" id="veriEncode" name="veriEncode">
-                                                    <i class="ace-icon">
-                                                        <a href="javascript:refreshCaptcha();">
-                                                            <img src="" id="verifyImg">
-                                                        </a>
-                                                    </i>
-                                                </span>
-                                            </label>
+                        <div class="input-group">
+                            <div class="input-group-addon"><span class="glyphicon glyphicon-user" aria-hidden="true"></span></div>
+                            <input type="text" class="form-control" id="loginName" placeholder="用户名" name="loginName" autocomplete="off" value="" data-rule="用户名:required;username" />
+                        </div>
 
-                                            <div class="space"></div>
+                        <div class="input-group">
+                            <div class="input-group-addon"><span class="glyphicon glyphicon-lock" aria-hidden="true"></span></div>
+                            <input type="password" class="form-control" id="password" placeholder="密码" name="password" autocomplete="off" value="" data-rule="密码:required;password" />
+                        </div>
 
-                                            <div class="clearfix">
-                                                <label class="inline">
-                                                    <input type="checkbox" class="ace" id="remember" name="remember" value="1" />
-                                                    <span class="lbl"> 记住我</span>
-                                                </label>
+                        <div class="input-group">
+                            <div class="input-group-addon"><span class="glyphicon glyphicon-copyright-mark" aria-hidden="true"></span></div>
+                            <input type="hidden" id="veriEncode" name="veriEncode">
 
-                                                <button type="submit" class="width-35 pull-right btn btn-sm btn-primary" id="submit">
-                                                    <i class="ace-icon fa fa-key"></i>
-                                                    <span class="bigger-110">登录</span>
-                                                </button>
-                                            </div>
+                            <input type="text" class="form-control" id="pd-form-verifyCode" placeholder="验证码" name="verifyCode" autocomplete="off" value="" data-rule="验证码:required;verifyCode" />
+                            <i class="ace-icon">
+                                <a href="javascript:;">
+                                    <img src="" id="verifyImg">
+                                </a>
+                            </i>
+                        </div>
 
-                                            <div class="space-4"></div>
-                                        </fieldset>
-                                    </form>
-                                </div><!-- /.widget-main -->
+                        <div class="form-group">
+                            <label class="inline" for="remember">
+                                <input type="checkbox" name="remember" id="remember" value="1" />
+                                记住我
+                            </label>
+                        </div>
 
-                                <div class="toolbar clearfix">
-                                    <div>
-                                        <a href="#" data-target="#forgot-box" class="forgot-password-link">
-                                            <i class="ace-icon fa fa-arrow-left"></i>
-                                            忘记密码
-                                        </a>
-                                    </div>
-
-                                    <div>
-                                        <a href="#" data-target="#signup-box" class="user-signup-link">
-                                            去注册
-                                            <i class="ace-icon fa fa-arrow-right"></i>
-                                        </a>
-                                    </div>
-                                </div>
-                            </div><!-- /.widget-body -->
-                        </div><!-- /.login-box -->
-                    </div><!-- /.position-relative -->
+                        <div class="form-group">
+                            <button type="submit" class="btn btn-success btn-lg btn-block">登 录</button>
+                        </div>
+                    </form>
                 </div>
-            </div><!-- /.col -->
-        </div><!-- /.row -->
-    </div><!-- /.main-content -->
-</div><!-- /.main-container -->
-
-<?php $otherJsCont = <<<EOT
-EOT;
-?>
-{{ partial("common/footer", ['FOOT_OTH_CONT': otherJsCont]) }}
-<script>
-    var saveUrl = "{{saveUrl}}";
-    var captchaUrl = "{{captchaUrl}}";
-    //浏览器指纹
-    var fpObj = new Fingerprint();
-    var uafp = fpObj.get();
-
-    //刷新验证码
-    function refreshCaptcha() {
-        $.getJSON(captchaUrl +'?width=120&height=30', function (res) {
-            if(res.status) {
-                $('#verifyImg').attr('src', res.data.img);
-                $('#veriEncode').val(res.data.encode);
-            }
-        });
-    }
-
-    $(function($) {
-        /(iPhone|iPad|iPod|iOS)/i.test(navigator.userAgent) && $("#main-container").css("overflow-y", "auto");
-
-        refreshCaptcha();
-
-        //验证
-        $("#myForm").validate({
-            rules : {
-                loginName : {
-                    required : true,
-                    rangelength : [4, 30]
-                },
-                password : {
-                    required : true,
-                    isPwd : true,
-                    rangelength : [5, 32]
-                },
-                verifyCode : {
-                    required : true
-                }
-            },
-            messages : {
-                loginName : {
-                    required : '请输入用户名',
-                    rangelength : "限制{0}~{1}字符以内"
-                },
-                password : {
-                    required : '请输入密码',
-                    isPwd : '只能是英文、数字和特殊字符',
-                    rangelength : "限制{0}~{1}字符以内"
-                },
-                verifyCode : {
-                    required : '请输入验证码'
-                }
-            },
-            errorElement: "em",
-            errorPlacement: function ( error, element ) {
-                // Add the `help-block` class to the error element
-                error.addClass( "help-block" );
-
-                if ( element.prop( "type" ) === "checkbox" ) {
-                    error.insertAfter( element.parent( "label" ) );
-                } else {
-                    error.insertAfter( element );
-                }
-            },
-            highlight: function ( element, errorClass, validClass ) {
-                $( element ).parents( ".col-sm-5" ).addClass( "has-error" ).removeClass( "has-success" );
-            },
-            unhighlight: function (element, errorClass, validClass) {
-                $( element ).parents( ".col-sm-5" ).addClass( "has-success" ).removeClass( "has-error" );
-            },
-
-            //提交
-            submitHandler : function(form){
-                var formdata = $(form).serializeArray();
-                var sendData = {};
-                $(formdata).each(function(index, obj){
-                    sendData[obj.name] = obj.value;
-                });
-
-                if(sendData.password.length>0) {
-                    sendData.password = md5(sendData.password);
-                }
-                sendData.uafp = uafp;
-                $('#submit').attr("disabled","disabled");
-                $.post(saveUrl, sendData, function(res){
-                    console.log('login', res);
-                    $('#submit').removeAttr("disabled");
-                    if(res.msg==null) res.msg = 'null';
-                    if(res.status){
-                        if(window.top==window.self){
-                            location.href = res.data.defaultUrl;
-                        }else{//从父级页面打开
-                            var index = parent.layer.getFrameIndex(window.name);
-                            parent.layer.close(index);
-                            parent.location.href = res.data.defaultUrl;
-                        }
-                    }else{
-                        layer.alert(res.msg);
-                        return false;
-                    }
-                }, 'json');
-
-                return false;
-            }
-        });
-
-
-    });
-
-
-    /**
-     * Created by Administrator on 2016/6/29.
-     */
-    var canvas = document.querySelector('canvas'),
-        ctx = canvas.getContext('2d')
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    ctx.lineWidth = .3;
-    ctx.strokeStyle = (new Color(150)).style;
-    var mousePosition = {
-        x: 30 * canvas.width / 100,
-        y: 30 * canvas.height / 100
-    };
-    var dots = {
-        nb: 750,
-        distance: 50,
-        d_radius: 100,
-        array: []
-    };
-    function colorValue(min) {
-        return Math.floor(Math.random() * 255 + min);
-    }
-    function createColorStyle(r,g,b) {
-        return 'rgba(' + r + ',' + g + ',' + b + ', 0.8)';
-    }
-    function mixComponents(comp1, weight1, comp2, weight2) {
-        return (comp1 * weight1 + comp2 * weight2) / (weight1 + weight2);
-    }
-    function averageColorStyles(dot1, dot2) {
-        var color1 = dot1.color,
-            color2 = dot2.color;
-
-        var r = mixComponents(color1.r, dot1.radius, color2.r, dot2.radius),
-            g = mixComponents(color1.g, dot1.radius, color2.g, dot2.radius),
-            b = mixComponents(color1.b, dot1.radius, color2.b, dot2.radius);
-        return createColorStyle(Math.floor(r), Math.floor(g), Math.floor(b));
-    }
-
-    function Color(min) {
-        min = min || 0;
-        this.r = colorValue(min);
-        this.g = colorValue(min);
-        this.b = colorValue(min);
-        this.style = createColorStyle(this.r, this.g, this.b);
-    }
-
-    function Dot(){
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-
-        this.vx = -.5 + Math.random();
-        this.vy = -.5 + Math.random();
-
-        this.radius = Math.random() * 2;
-
-        this.color = new Color();
-    }
-
-    Dot.prototype = {
-        draw: function(){
-            ctx.beginPath();
-            ctx.fillStyle = this.color.style;
-            ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-            ctx.fill();
-        }
-    };
-
-    function createDots(){
-        for(i = 0; i < dots.nb; i++){
-            dots.array.push(new Dot());
-        }
-    }
-
-    function moveDots() {
-        for(i = 0; i < dots.nb; i++){
-
-            var dot = dots.array[i];
-
-            if(dot.y < 0 || dot.y > canvas.height){
-                dot.vx = dot.vx;
-                dot.vy = - dot.vy;
-            }
-            else if(dot.x < 0 || dot.x > canvas.width){
-                dot.vx = - dot.vx;
-                dot.vy = dot.vy;
-            }
-            dot.x += dot.vx;
-            dot.y += dot.vy;
-        }
-    }
-
-    function connectDots(){
-        for(i = 0; i < dots.nb; i++){
-            for(j = i; j < dots.nb; j++){
-                i_dot = dots.array[i];
-                j_dot = dots.array[j];
-
-                if((i_dot.x - j_dot.x) < dots.distance && (i_dot.y - j_dot.y) < dots.distance && (i_dot.x - j_dot.x) > - dots.distance && (i_dot.y - j_dot.y) > - dots.distance){
-                    if((i_dot.x - mousePosition.x) < dots.d_radius && (i_dot.y - mousePosition.y) < dots.d_radius && (i_dot.x - mousePosition.x) > - dots.d_radius && (i_dot.y - mousePosition.y) > - dots.d_radius){
-                        ctx.beginPath();
-                        ctx.strokeStyle = averageColorStyles(i_dot, j_dot);
-                        ctx.moveTo(i_dot.x, i_dot.y);
-                        ctx.lineTo(j_dot.x, j_dot.y);
-                        ctx.stroke();
-                        ctx.closePath();
-                    }
-                }
-            }
-        }
-    }
-
-    function drawDots() {
-        for(i = 0; i < dots.nb; i++){
-            var dot = dots.array[i];
-            dot.draw();
-        }
-    }
-
-    function animateDots() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        moveDots();
-        connectDots();
-        drawDots();
-        requestAnimationFrame(animateDots);
-    }
-    document.querySelector('canvas').addEventListener('mousemove',function(e){
-        mousePosition.x = e.pageX;
-        mousePosition.y = e.pageY;
-    })
-
-    document.querySelector('canvas').addEventListener('mouseleave',function(e){
-        mousePosition.x = canvas.width / 2;
-        mousePosition.y = canvas.height / 2;
-    })
-
-    createDots();
-    requestAnimationFrame(animateDots);
-</script>
+            </div>
+            <p class="copyright">Copyright &copy; {{year}} Lkk All Rights. Powered By {{system}}</p>
+        </div>
+    </div>
+</div>
+<script src="/assets/js/require.min.js" data-main="/assets/js/require-backend.min.js"></script>
+</body>
+</html>

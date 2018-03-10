@@ -33,7 +33,8 @@ define(['jquery', 'bootstrap', 'upload', 'validator'], function ($, undefined, U
                         if (ret.hasOwnProperty("code")) {
                             var data = ret.hasOwnProperty("data") && ret.data != "" ? ret.data : null;
                             var msg = ret.hasOwnProperty("msg") && ret.msg != "" ? ret.msg : "";
-                            if (ret.code === 1) {
+                            var status = ret.hasOwnProperty("msg") && ret.status != "" ? ret.status : "";
+                            if(status) {
                                 $('.form-group', form).removeClass('has-feedback has-success has-error');
                                 //成功提交后事件
                                 var afterSubmit = form.data("after-submit");
@@ -51,9 +52,6 @@ define(['jquery', 'bootstrap', 'upload', 'validator'], function ($, undefined, U
                                 }
                                 Toastr.success(msg ? msg : __('Operation completed'));
                             } else {
-                                if (data && typeof data === 'object' && typeof data.token !== 'undefined') {
-                                    $("input[name='__token__']").val(data.token);
-                                }
                                 Toastr.error(msg ? msg : __('Operation failed'));
                             }
                         } else {

@@ -57,6 +57,7 @@ class IndexController extends Controller {
     }
 
 
+
     /**
      * @title -管理后台登录页
      * @desc  -管理后台登录页
@@ -67,18 +68,17 @@ class IndexController extends Controller {
 
         //视图变量
         $this->view->setVars([
+            'siteUrl' => getSiteUrl(),
             'saveUrl' => makeUrl('manage/index/loginsave'),
             'captchaUrl' => makeUrl('common/captcha/create'),
+
+            //Cross-Site Request Forgery (CSRF)
+            'tokenKey' => getConf('site','csrfToken'),
+            'tokenVal' => $this->makeCsrfToken(__CLASS__),
+
+            'year' => date('Y'),
+            'system' => KSERVER_NAME,
         ]);
-
-
-        //设置静态资源
-        $this->assets->addJs('statics/js/lkkFunc.js');
-        $this->assets->addJs('statics/js/plugins/layer/layer.min.js');
-        $this->assets->addJs('statics/js/plugins/validate/jquery.validate.min.js');
-        $this->assets->addJs('statics/js/plugins/validate/localization/messages_zh.min.js');
-        $this->assets->addJs('statics/js/md5.min.js');
-        $this->assets->addJs('statics/js/fingerprint.min.js');
 
         return null;
     }
@@ -89,12 +89,16 @@ class IndexController extends Controller {
      * @desc  -后台登录保存
      */
     public function loginSaveAction() {
-        $loginName = trim($this->request->get('loginName'));
-        $password = trim($this->request->get('password'));
-        $remember = intval($this->request->get('remember')); //24小时
-        $password = trim($this->request->get('password'));
-        $verifyCode = trim($this->request->get('verifyCode'));
-        $veriEncode = trim($this->request->get('veriEncode'));
+        //Csrf检查
+        if(!$this->validateCsrfToken('', __CLASS__)) {
+            return $this->fail('参数错误,请刷新页面');
+        }
+
+        $loginName = $this->getPost('loginName');
+        $password = $this->getPost('password');
+        $verifyCode = $this->getPost('verifyCode');
+        $veriEncode = $this->getPost('veriEncode');
+        $remember = intval($this->getPost('remember')); //24小时
 
         if(empty($verifyCode) || empty($veriEncode)) {
             return $this->fail(20103);
@@ -114,12 +118,9 @@ class IndexController extends Controller {
             //$this->userService->makeManagerSession($admn);
             $rbacCnf = getConf('rbac');
             $data = [
-                'defaultUrl' => makeUrl($rbacCnf->managerDefautlAction),
-                'admn' => $admn,
-                'info' => [
-                    'uid' => $admn->uid,
-                    'username' => $admn->username,
-                ],
+                'username' => $loginName,
+                'avatar' => '',
+                'url' => makeUrl($rbacCnf->managerDefautlAction),
             ];
 
             return $this->success($data);
