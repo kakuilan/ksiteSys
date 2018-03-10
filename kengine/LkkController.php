@@ -12,6 +12,8 @@ namespace Kengine;
 
 use Kengine\LkkCmponent;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\EncryptHelper;
+use Lkk\Helpers\StringHelper;
 use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
 use Lkk\Phalwoo\Phalcon\Mvc\Controller;
 use Lkk\Phalwoo\Server\SwooleServer;
@@ -320,6 +322,46 @@ class LkkController extends Controller {
 
         return $val;
     }
+
+
+
+    /**
+     * 生成CsrfToken(Form表单提交使用)
+     * @param string $code 原始码
+     * @param int $expiry
+     * @return string
+     */
+    public function makeCsrfToken($code='', $expiry = 600) {
+        if(empty($code)) $code = StringHelper::randString(9);
+        $key = getConf('ctypt','key');
+        $encode = EncryptHelper::ucAuthcode($code, 'ENCODE', $key, $expiry);
+
+        return EncryptHelper::base64urlEncode($encode);
+    }
+
+
+
+    /**
+     * 验证CsrfToken
+     * @param string $encode 加密码
+     * @param string $origin 原始码
+     * @return bool
+     */
+    public function validateCsrfToken($encode='', $origin='') {
+        if(empty($encode)) $encode = $this->getRequest(getConf('site','csrfToken'));
+        if(empty($encode)) return false;
+
+        $encode = EncryptHelper::base64urlDecode($encode);
+        $key = getConf('ctypt','key');
+
+        $code = EncryptHelper::ucAuthcode($encode, 'DECODE', $key);
+        if(empty($code)) return false;
+
+        if(!empty($origin) && $origin!=$code) return false;
+
+        return true;
+    }
+
 
 
 
