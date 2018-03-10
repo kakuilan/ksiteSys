@@ -17,6 +17,7 @@ use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Di\FactoryDefault\Cli as CliDi;
 use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Mvc\Url;
+use voku\helper\AntiXSS;
 
 class LkkCmponent {
 
@@ -89,6 +90,7 @@ class LkkCmponent {
 
         return self::$objects[__FUNCTION__];
     }
+
 
 
     /**
@@ -200,6 +202,18 @@ class LkkCmponent {
     }
 
 
+
+    /**
+     * 单例 xssClean对象
+     * @return mixed
+     */
+    public static function xssClean() {
+        if(!isset(self::$objects[__FUNCTION__]) ) {
+            self::$objects[__FUNCTION__] = new AntiXSS();
+        }
+
+        return self::$objects[__FUNCTION__];
+    }
 
 
 }

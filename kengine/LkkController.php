@@ -10,6 +10,7 @@
 
 namespace Kengine;
 
+use Kengine\LkkCmponent;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Phalwoo\Phalcon\Http\Response as PwResponse;
 use Lkk\Phalwoo\Phalcon\Mvc\Controller;
@@ -215,6 +216,109 @@ class LkkController extends Controller {
         $this->jsonRes['code'] = $codeNo;
 
         return $this->json($this->jsonRes, $callback);
+    }
+
+
+
+    /**
+     * 递归去空格
+     * @param array $data
+     * @return array|string
+     */
+    public static function recursionTrim($data = []) {
+        if(empty($data)) return $data;
+        if(is_array($data)) {
+            foreach ($data as &$item) {
+                $item = self::recursionTrim($item);
+            }
+        }elseif (is_string($data)) {
+            $data = trim($data);
+        }
+
+        return $data;
+    }
+
+
+    /**
+     * 获取$_REQUEST参数
+     * @param string $name 参数名,为空则取数组
+     * @param null   $default 默认值
+     * @param bool   $xssClean 是否过滤xss
+     *
+     * @return array|string
+     */
+    public function getRequest($name='', $default=null, $xssClean = true) {
+        if($name=='') {
+            $data = self::recursionTrim($this->request->get(''));
+            if($xssClean && $data) {
+                return LkkCmponent::xssClean()->xss_clean($data);
+            }
+
+            return $data;
+        }
+
+        $val = self::recursionTrim($this->request->get($name, null, $default));
+        if($xssClean && $val && $val!=$default) {
+            $val = LkkCmponent::xssClean()->xss_clean($val);
+        }
+
+        return $val;
+    }
+
+
+
+    /**
+     * 获取$_GET参数
+     * @param string $name 参数名,为空则取数组
+     * @param null   $default 默认值
+     * @param bool   $xssClean 是否过滤xss
+     *
+     * @return array|string
+     */
+    public function getGet($name='', $default=null, $xssClean = true) {
+        if($name=='') {
+            $data = self::recursionTrim($this->request->getQuery(''));
+            if($xssClean && $data) {
+                return LkkCmponent::xssClean()->xss_clean($data);
+            }
+
+            return $data;
+        }
+
+        $val = self::recursionTrim($this->request->getQuery($name, null, $default));
+        if($xssClean && $val && $val!=$default) {
+            $val = LkkCmponent::xssClean()->xss_clean($val);
+        }
+
+        return $val;
+    }
+
+
+
+    /**
+     * 获取$_POST参数
+     * @param string $name 参数名,为空则取数组
+     * @param null   $default 默认值
+     * @param bool   $xssClean 是否过滤xss
+     *
+     * @return array|string
+     */
+    public function getPost($name='', $default=null, $xssClean = true) {
+        if($name=='') {
+            $data = self::recursionTrim($this->request->getPost(''));
+            if($xssClean && $data) {
+                return LkkCmponent::xssClean()->xss_clean($data);
+            }
+
+            return $data;
+        }
+
+        $val = self::recursionTrim($this->request->getPost($name, null, $default));
+        if($xssClean && $val && $val!=$default) {
+            $val = LkkCmponent::xssClean()->xss_clean($val);
+        }
+
+        return $val;
     }
 
 
