@@ -18,6 +18,7 @@ use Phalcon\Di\FactoryDefault\Cli as CliDi;
 use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Mvc\Url;
 use voku\helper\AntiXSS;
+use Overtrue\Pinyin\Pinyin;
 
 class LkkCmponent {
 
@@ -214,6 +215,20 @@ class LkkCmponent {
 
         return self::$objects[__FUNCTION__];
     }
+
+
+    /**
+     * 单例 拼音对象
+     * @return mixed
+     */
+    public static function pinyin() {
+        if(!isset(self::$objects[__FUNCTION__]) ) {
+            self::$objects[__FUNCTION__] = new Pinyin();
+        }
+
+        return self::$objects[__FUNCTION__];
+    }
+
 
 
 }
