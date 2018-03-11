@@ -193,8 +193,9 @@
 
     //生成树型菜单
     lkkTabMenu.prototype.createMenu = function () {
+        var html = '<li class="header">菜单导航</li>';
         if(this.data.length==0) {
-            this.$el.html('<li><a href="javascript:;"><i class="menu-icon ace-icon fa fa-spinner fa-spin"></i><span class="menu-text"> Loading... </span></a></li>');
+            this.$el.html(html);
             return false;
         }
 
@@ -205,7 +206,7 @@
         treeArr = this.createTree(groupArr, groupArr[this.options.rootID], this.options.idField);
         if(treeArr.length==0) return false;
 
-        var html = this._createMenu(treeArr, this.options);
+        html += this._createMenu(treeArr, this.options);
         this.$el.html(html);
         this.bindMenu();
     };
@@ -218,32 +219,9 @@
         for(i in data) {
             item = data[i];
 
-            html.push('<li class="">');
-            html.push('<a href="'+item[option.urlField]+'" data-id="'+item[option.idField]+'" data-parent="'+item[option.parentField]+'" class="lkk_menuItem dropdown-toggle">');
-            html.push('<i class="menu-icon ');
-            if(level==0) {
-                if(typeof item.class !='undefined'){
-                    html.push('fa '+item.class);
-                }else{
-                    html.push('fa fa-list');
-                }
-            }else{
-                html.push('fa fa-caret-right');
-            }
-            html.push(' "></i>');
-            html.push('<span class="menu-text">'+item[option.titleField]+'</span>');
-            if(typeof item.children !='undefined' && item.children.length>0) {
-                html.push('<b class="arrow fa fa-angle-down"></b>');
-            }
-            html.push('</a><b class="arrow"></b>');
 
-            if(typeof item.children !='undefined' && item.children.length>0) {
-                html.push('<ul class="submenu nav-hide">');
-                var subhtml = this._createMenu(item.children, option, level+1);
-                html.push(subhtml);
-                html.push('</ul>');
-            }
-            html.push('</li>');
+
+
         }
 
         return html.join('');

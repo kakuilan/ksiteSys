@@ -13,6 +13,7 @@ namespace Apps\Models;
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
 use Phalcon\Mvc\Model\Query;
 use BlueM\Tree;
+use Kengine\LkkCmponent;
 
 class AdmMenu extends BaseModel {
 
@@ -81,6 +82,7 @@ class AdmMenu extends BaseModel {
 
         $menuData = [];
         if($childrens = $parentNode->getChildren()) {
+            $pinyin = LkkCmponent::pinyin();
             foreach ($childrens as $children) {
                 if($onlyEnable && $children->status==0) continue;
                 $menu = $children->toArray();
@@ -89,9 +91,13 @@ class AdmMenu extends BaseModel {
                 $menu['pId'] = $parentId;
                 $menu['children'] = $_children;
                 $menu['open'] = empty($_children) ? false : true;
-                $menu['isParent'] = empty($_children) ? true : false;
-                $menu['url'] = empty($menu['url']) ? '#' : $menu['url'];
-                $menu['class'] = empty($menu['tag']) ? 'fa-list' : $menu['tag'];
+                $menu['isParent'] = empty($_children) ? false : true;
+                $menu['url'] = empty($menu['url']) ? 'javascript:;' : $menu['url'];
+                $menu['class'] = empty($menu['tag']) ? 'fa fa-list' : $menu['tag'];
+
+                //拼音
+                $menu['pinyin'] = $pinyin->permalink($menu['title']);
+                $menu['py'] = $pinyin->abbr($menu['title']);
 
                 array_push($menuData, $menu);
             }

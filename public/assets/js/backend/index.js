@@ -3,7 +3,7 @@
  * Desc:
  */
 
-define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form','md5'], function ($, undefined, Backend, undefined, AdminLTE, Form, md5) {
+define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form','md5','lkkTabMenu'], function ($, undefined, Backend, undefined, AdminLTE, Form, md5, undefined) {
     var Controller = {
         index: function () {
             //窗口大小改变,修正主窗体最小高度

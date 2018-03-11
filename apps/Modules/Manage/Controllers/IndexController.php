@@ -39,7 +39,7 @@ class IndexController extends Controller {
      * @title -管理后台首页
      * @desc  -管理后台首页
      */
-    public function indexAction(){
+    public function index00Action(){
         //视图变量
         $this->view->setVars([
             'mainUrl' => makeUrl('manage/index/main'),
@@ -56,6 +56,22 @@ class IndexController extends Controller {
         return null;
     }
 
+
+    /**
+     * @title -管理后台首页
+     * @desc  -管理后台首页
+     */
+    public function indexAction(){
+        //视图变量
+        $this->view->setVars([
+            'siteUrl' => getSiteUrl(),
+            'mainUrl' => makeUrl('manage/index/main'),
+            'menuUrl' => makeUrl('manage/menu/authlist'),
+            'logoutUrl' => makeUrl('manage/index/logout'),
+        ]);
+
+        return null;
+    }
 
 
     /**
