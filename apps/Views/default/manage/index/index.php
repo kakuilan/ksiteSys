@@ -170,20 +170,20 @@
             <!--如果想始终显示子菜单,则给ul加上show-submenu类即可-->
             <ul class="sidebar-menu tree" data-widget="tree" id="myMenu">
                 <li class="header">导航菜单</li>
-                <li class="">
+                <li class="active">
                     <a href="http://baidu.com" addtabs="1" url="http://baidu.com" py="kzt" pinyin="kongzhitai">
                         <i class="fa fa-dashboard"></i>
                         <span>控制台</span>
                         <span class="pull-right-container"></span>
                     </a>
                 </li>
-                <li class="treeview menu-close">
+                <li class=""><a href="page.html" addtabs="11186" url="page.html" py="dygl" pinyin="danyeguanli"><i class="fa fa-tags"></i> <span>单页管理</span> <span class="pull-right-container"> </span></a> </li>
+                <li class="treeview">
                     <a href="http://baidu.com" addtabs="2" url="http://baidu.com" py="kzt" pinyin="kongzhitai">
                         <i class="fa fa-dashboard"></i>
                         <span>Multilevel</span>
                         <span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
                     </a>
-
 
                     <ul class="treeview-menu">
                         <li>
@@ -200,7 +200,7 @@
                                     <a href="#">
                                         <i class="fa fa-circle-o"></i>Level Two</a>
                                 </li>
-                                <li class="treeview">
+                                <li class="treeview" style="display: none;">
                                     <a href="#">
                                         <i class="fa fa-circle-o"></i>Level Two
                                         <span class="pull-right-container">
