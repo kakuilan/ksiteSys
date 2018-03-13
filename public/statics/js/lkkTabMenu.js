@@ -207,6 +207,7 @@
         if(treeArr.length==0) return false;
 
         html += this._createMenu(treeArr, this.options);
+        console.log('menu', html);
         this.$el.html(html);
         this.bindMenu();
     };
@@ -219,9 +220,31 @@
         for(i in data) {
             item = data[i];
 
+            if(item.isParent) {
+                html.push('<li class="treeview">');
+            }else{
+                html.push('<li class="">');
+            }
 
+            html.push('<a href="'+item.url+'" addtabs="'+item.id+'" url="'+item.url+'" py="'+item.py+'" pinyin="'+item.pinyin+'">');
+            html.push('<i class="'+item.class+'"></i>');
+            html.push('<span>'+item.title+'</span>');
+            if(item.isParent) {
+                html.push('<span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>');
+            }else{
+                html.push('<span class="pull-right-container"></span>');
+            }
+            html.push('</a>');
 
+            //子节点
+            if(item.isParent && typeof item.children !='undefined' && item.children.length>0) {
+                html.push('<ul class="treeview-menu">');
+                var subhtml = this._createMenu(item.children, option, level+1);
+                html.push(subhtml);
+                html.push('</ul>');
+            }
 
+            html.push('</li>');
         }
 
         return html.join('');

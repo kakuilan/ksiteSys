@@ -170,7 +170,7 @@
             <!--如果想始终显示子菜单,则给ul加上show-submenu类即可-->
             <ul class="sidebar-menu tree" data-widget="tree" id="myMenu">
                 <li class="header">导航菜单</li>
-                <li class="active">
+                <li class="">
                     <a href="http://baidu.com" addtabs="1" url="http://baidu.com" py="kzt" pinyin="kongzhitai">
                         <i class="fa fa-dashboard"></i>
                         <span>控制台</span>
