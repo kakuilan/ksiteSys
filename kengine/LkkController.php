@@ -135,6 +135,35 @@ class LkkController extends Controller {
 
 
     /**
+     * 递归处理数组中的数值元素,转换为字符串
+     * @param array $data
+     * @return array|object
+     */
+    public static function reParseArrayNumToStr($data = []) {
+        if (is_object($data) && empty((array)$data)) { //空对象
+            return $data;
+        }elseif (empty($data)) {
+            return [];
+        }
+
+        if(!is_array($data)) $data = (array)$data;
+        foreach ($data as $k=> &$v) {
+            if(is_scalar($v)) { //标量
+                if(is_numeric($v)) {
+                    $v = strval($v);
+                }
+            }elseif (is_object($v) || is_array($v)){
+                $v = self::reParseArrayNumToStr($v);
+            }else{
+                $v = trim(strval($v));
+            }
+        }
+
+        return $data;
+    }
+
+
+    /**
      * 输出json/jsonp
      * @param array  $res 要输出的结果数组
      * @param string $callback 是否有js回调
@@ -150,10 +179,10 @@ class LkkController extends Controller {
         $this->setJsonRes($res);
         $this->setJsonStatus(true);
         $output = $this->getJsonRes();
+        $output = self::reParseArrayNumToStr($output);
         $output = json_encode($output);
 
-        $get = $this->request->getQuery();
-        if(empty($callback)) $callback = isset($get['callback']) ? trim($get['callback']) : '';
+        if(empty($callback)) $callback = $this->getRequest('callback', '');
         if($callback) $output = "{$callback}($output)";
 
         //设置输出
