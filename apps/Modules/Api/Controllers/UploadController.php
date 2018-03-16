@@ -21,10 +21,28 @@ class UploadController extends LkkController {
      */
     public function indexAction(){
         $fileInfo = $this->swooleRequest->files['file'] ?? [];
-        var_dump($this->swooleRequest);
 
         return $this->success($fileInfo);
     }
+
+
+
+    public function base64Action() {
+
+    }
+
+
+    public function imageAction() {
+
+    }
+
+
+
+    public function fileAction() {
+        
+    }
+
+
 
 
 }
