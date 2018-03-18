@@ -12,11 +12,19 @@ namespace Apps\Modules\Manage;
 
 use Apps\Models\Action;
 use Apps\Models\AdmOperateLog;
+use Apps\Services\ConstService;
 use Kengine\LkkController;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 
 class Controller extends  LkkController {
+
+    //不记访问日志的动作
+    public static $nologActions = [
+        'login',
+        'admloglist',
+    ];
+
 
     /**
      * 初始化
@@ -37,7 +45,7 @@ class Controller extends  LkkController {
         $this->siteId = getSiteId();
         $this->getActionId();
 
-        if($action!='login') {
+        if(!in_array($action, self::$nologActions)) {
             $this->addAdmnOperateLog();
         }
 
@@ -135,7 +143,31 @@ class Controller extends  LkkController {
 
 
 
+    /**
+     * 获取分页页码和每页数量
+     * @param bool $detail
+     * @return array
+     */
+    protected function getPageNumberNSize($detail=false) {
+        //获取每页数量
+        $pageSize = intval($this->getGet('pageSize', 0, false));
+        if($pageSize<=0) {
+            $limit = intval($this->getGet('limit', 0, false));
+            $pageSize = $limit ? $limit : ConstService::BACKEND_PAGE_SIZE;
+        }
 
+        $pageNumber = intval($this->getGet('pageNumber', 0, false));
+        if($pageNumber<=0) {
+            $offset = intval($this->getGet('offset', 0, false));
+            if($offset>0) {
+                $pageNumber = intval($offset / $pageSize) +1;
+            }else{
+                $pageNumber = 1;
+            }
+        }
+
+        return $detail ? ['pageNumber'=>$pageNumber, 'pageSize'=>$pageSize] : [$pageNumber, $pageSize];
+    }
 
 
 

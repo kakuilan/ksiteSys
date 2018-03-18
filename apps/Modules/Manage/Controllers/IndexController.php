@@ -12,7 +12,9 @@ namespace Apps\Modules\Manage\Controllers;
 
 use Apps\Modules\Manage\Controller;
 use Apps\Models\AdmUser;
+use Apps\Models\UserBase;
 use Apps\Services\CaptchaService;
+use Apps\Services\UserService;
 use Lkk\Helpers\CommonHelper;
 
 /**
@@ -172,8 +174,25 @@ class IndexController extends Controller {
      * @desc  -后台主页
      */
     public function mainAction() {
+        $loginUid = $this->getLoginUid();
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $accToken = UserService::makeAccessToken($loginUid, $agUuid, 1800);
+        $tokenName = getConf('login', 'tokenName');
 
+        $userInfo = UserBase::getRow(['uid'=>$loginUid]);
+        $admnInfo = AdmUser::getRow(['uid'=>$loginUid]);
 
+        //视图变量
+        $this->view->setVars([
+            'siteUrl' => getSiteUrl(),
+            'saveUrl' => makeUrl('manage/index/saveprofile'),
+            'logsUrl' => makeUrl('manage/menu/admloglist'),
+            'uploadUrl' => makeUrl('api/upload/image', [$tokenName=>$accToken]),
+            'userInfo' => $userInfo,
+            'admnInfo' => $admnInfo,
+        ]);
+
+        return null;
     }
 
 
@@ -182,6 +201,24 @@ class IndexController extends Controller {
      * @desc  -忘记密码
      */
     public function forgetpwdAction() {
+
+    }
+
+
+    /**
+     * @title -当前管理员操作日志JSON
+     * @desc  -当前登录管理员后台操作日志列表
+     */
+    public function admloglistAction() {
+
+    }
+
+
+    /**
+     * @title -保存个人信息
+     * @desc  -保存管理员个人信息(邮箱/密码)
+     */
+    public function saveprofileAction() {
 
     }
 

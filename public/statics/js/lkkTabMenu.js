@@ -207,7 +207,6 @@
         if(treeArr.length==0) return false;
 
         html += this._createMenu(treeArr, this.options);
-        console.log('menu', html);
         this.$el.html(html);
         this.bindMenu();
     };

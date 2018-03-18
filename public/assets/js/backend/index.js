@@ -113,7 +113,6 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form','md5','l
             //生成菜单
             $.getJSON(Config.extparam.menuUrl, function (res) {
                 var menuData = res.data;
-                console.log('menu data', menuData);
                 $('#myMenu').lkkTabMenu({data: menuData, idField:'id', parentField:'parent', sortField: 'sort'});
             });
 

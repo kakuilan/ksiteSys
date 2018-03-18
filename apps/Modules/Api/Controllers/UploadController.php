@@ -28,18 +28,18 @@ class UploadController extends LkkController {
 
 
     public function base64Action() {
-
+        return $this->success();
     }
 
 
     public function imageAction() {
-
+        return $this->success();
     }
 
 
 
     public function fileAction() {
-        
+        return $this->success();
     }
 
 

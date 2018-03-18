@@ -12,6 +12,9 @@ namespace Apps\Services;
 
 class ConstService extends ServiceBase {
 
+    const API_PAGE_SIZE             = 10; //API默认分页数量
+    const BACKEND_PAGE_SIZE         = 10; //后台默认分页数量
+
 
     //缓存key
 
