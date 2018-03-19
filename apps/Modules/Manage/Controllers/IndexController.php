@@ -64,13 +64,18 @@ class IndexController extends Controller {
      * @title -管理后台首页
      * @desc  -管理后台首页
      */
-    public function indexAction(){
+    public function indexAction() {
+        $loginUid = $this->getLoginUid();
+        $info = $loginUid ? AdmUser::getInfoByUid($loginUid) : [];
+        $info->last_login_time = date('Y-m-d H:i:s', $info->last_login_time);
+
         //视图变量
         $this->view->setVars([
             'siteUrl' => getSiteUrl(),
             'mainUrl' => makeUrl('manage/index/main'),
             'menuUrl' => makeUrl('manage/menu/authlist'),
             'logoutUrl' => makeUrl('manage/index/logout'),
+            'row' => AdmUser::rowToObject($info),
         ]);
 
         return null;

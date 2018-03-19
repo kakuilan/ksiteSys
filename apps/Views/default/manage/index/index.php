@@ -105,8 +105,8 @@
                     <!-- 账号信息下拉框 -->
                     <li class="dropdown user user-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="/assets/img/avatar.png" class="user-image" alt="Admin">
-                            <span class="hidden-xs">Admin</span>
+                            <img src="/assets/img/avatar.png" class="user-image" alt="{{row.username}}">
+                            <span class="hidden-xs">{{row.username}}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- User image -->
@@ -114,8 +114,8 @@
                                 <img src="/assets/img/avatar.png" class="img-circle" alt="">
 
                                 <p>
-                                    Admin
-                                    <small>2017-07-18 18:16:04</small>
+                                    {{row.username}}
+                                    <small>{{row.last_login_time}}</small>
                                 </p>
                             </li>
 
@@ -148,7 +148,7 @@
                     <a href="profile" class="addtabsit"><img src="/assets/img/avatar.png" class="img-circle" /></a>
                 </div>
                 <div class="pull-left info">
-                    <p>Admin</p>
+                    <p>{{row.username}}</p>
                     <i class="fa fa-circle text-success"></i> 在线 </div>
             </div>
 
