@@ -28,6 +28,8 @@ nginx image_fileter
 
 ##IP地址转换
 https://gitee.com/lionsoul/ip2region  
+https://github.com/lionsoul2014/ip2region  
+
 
 ##xhpfrof 
 - https://github.com/longxinH/xhprof.git

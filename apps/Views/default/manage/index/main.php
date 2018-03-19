@@ -120,6 +120,10 @@
                                                 <h3 class="profile-username text-center">{{row.username}}</h3>
 
                                                 <p class="text-muted text-center">{{row.email}}</p>
+                                                <p class="text-muted text-left">管理员等级：{{row.level_desc}}</p>
+                                                <p class="text-muted text-left">上次登录IP：{{row.last_login_ip}}</p>
+                                                <p class="text-muted text-left">上次登录时间：{{row.last_login_time}}</p>
+                                                <p class="text-muted text-left">上次登录区域：{{row.city}}</p>
                                                 <div class="form-group">
                                                     <label for="username" class="control-label">用户名:</label>
                                                     <input type="text" class="form-control" name="row[username]" value="{{row.username}}" disabled />

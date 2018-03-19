@@ -14,6 +14,7 @@ use Apps\Modules\Manage\Controller;
 use Apps\Models\AdmUser;
 use Apps\Models\UserBase;
 use Apps\Services\CaptchaService;
+use Apps\Services\Ip2RegionService;
 use Apps\Services\UserService;
 use Lkk\Helpers\CommonHelper;
 
@@ -184,6 +185,11 @@ class IndexController extends Controller {
         $admLevelArr = AdmUser::getLevelArr();
         $info->level_desc = $admLevelArr[$info->level];
         if(empty($info->mobile)) $info->mobile = '';
+        $info->last_login_time = date('Y-m-d H:i:s', $info->last_login_time);
+        $info->last_login_ip = long2ip($info->last_login_ip);
+
+        $ipServ = new Ip2RegionService();
+        $info->city = $ipServ->getCityName($info->last_login_ip);
 
         //视图变量
         $this->view->setVars([
