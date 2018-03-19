@@ -193,9 +193,11 @@
 
     //生成树型菜单
     lkkTabMenu.prototype.createMenu = function () {
-        var html = '<li class="header">菜单导航</li>';
+        var orig = this.$el.html();
+        //var html = '<li class="header">菜单导航</li>';
+        var html = '';
         if(this.data.length==0) {
-            this.$el.html(html);
+            //this.$el.html(html);
             return false;
         }
 
@@ -207,7 +209,7 @@
         if(treeArr.length==0) return false;
 
         html += this._createMenu(treeArr, this.options);
-        this.$el.html(html);
+        this.$el.html(orig + html);
         this.bindMenu();
     };
 

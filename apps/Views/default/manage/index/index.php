@@ -122,10 +122,10 @@
                             <!-- Menu Footer-->
                             <li class="user-footer">
                                 <div class="pull-left">
-                                    <a href="<?=$passwordUrl?>" class="btn btn-default btn-flat addtabsit">修改密码</a>
+                                    <a href="{{mainUrl}}" class="btn btn-primary addtabsit"><i class="fa fa-user"></i> 个人资料</a>
                                 </div>
                                 <div class="pull-right">
-                                    <a href="<?=$logoutUrl?>" class="btn btn-default btn-flat">退出</a>
+                                    <a href="{{logoutUrl}}" class="btn btn-danger"><i class="fa fa-sign-out"></i> 退出</a>
                                 </div>
                             </li>
                         </ul>
@@ -171,9 +171,9 @@
             <ul class="sidebar-menu tree" data-widget="tree" id="myMenu">
                 <li class="header">导航菜单</li>
                 <li class="">
-                    <a href="{{mainUrl}}" addtabs="0" url="{{mainUrl}}" py="kzt" pinyin="kongzhitai">
-                        <i class="fa fa-dashboard"></i>
-                        <span>控制台</span>
+                    <a href="{{mainUrl}}" addtabs="0" url="{{mainUrl}}" py="grzl" pinyin="gerenziliao">
+                        <i class="fa fa-user"></i>
+                        <span>个人资料</span>
                         <span class="pull-right-container"></span>
                     </a>
                 </li>
@@ -191,7 +191,7 @@
     <footer class="main-footer hide">
         <div class="pull-right hidden-xs">
         </div>
-        <strong>Copyright &copy; 2018 豆播视讯.</strong> All rights
+        <strong>Copyright &copy; 2018 LKK.</strong> All rights
         reserved.
     </footer>
 
