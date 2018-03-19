@@ -179,17 +179,19 @@ class IndexController extends Controller {
         $accToken = UserService::makeAccessToken($loginUid, $agUuid, 1800);
         $tokenName = getConf('login', 'tokenName');
 
-        $userInfo = UserBase::getRow(['uid'=>$loginUid]);
-        $admnInfo = AdmUser::getRow(['uid'=>$loginUid]);
+        $info = $loginUid ? AdmUser::getInfoByUid($loginUid) : [];
+
+        $admLevelArr = AdmUser::getLevelArr();
+        $info->level_desc = $admLevelArr[$info->level];
+        if(empty($info->mobile)) $info->mobile = '';
 
         //视图变量
         $this->view->setVars([
             'siteUrl' => getSiteUrl(),
             'saveUrl' => makeUrl('manage/index/saveprofile'),
-            'logsUrl' => makeUrl('manage/menu/admloglist'),
+            'logsUrl' => makeUrl('manage/index/admloglist'),
             'uploadUrl' => makeUrl('api/upload/image', [$tokenName=>$accToken]),
-            'userInfo' => $userInfo,
-            'admnInfo' => $admnInfo,
+            'row' => AdmUser::rowToObject($info),
         ]);
 
         return null;
@@ -210,7 +212,7 @@ class IndexController extends Controller {
      * @desc  -当前登录管理员后台操作日志列表
      */
     public function admloglistAction() {
-
+        return $this->success();
     }
 
 
@@ -219,7 +221,7 @@ class IndexController extends Controller {
      * @desc  -保存管理员个人信息(邮箱/密码)
      */
     public function saveprofileAction() {
-
+        return $this->success();
     }
 
 

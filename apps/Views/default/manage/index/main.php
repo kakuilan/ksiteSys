@@ -31,7 +31,7 @@
                 },
                 "upload": {
                     "cdnurl": "",
-                    "uploadurl": "",
+                    "uploadurl": "{{uploadUrl}}",
                     "bucket": "",
                     "maxsize": "1mb",
                     "mimetype": "*",
@@ -48,15 +48,14 @@
                 "modulename": "admin",
                 "controllername": "index",
                 "actionname": "index",
-                "jsname": "backend/index",
+                "jsname": "backend/profile",
                 "moduleurl": "{{siteUrl}}",
                 "language": "zh-cn",
                 "referer": null,
                 //扩展参数
                 "extparam" : {
                     "saveUrl" : "{{saveUrl}}",
-                    "logsUrl" : "{{logsUrl}}",
-                    "uploadUrl" : "{{uploadUrl}}"
+                    "logsUrl" : "{{logsUrl}}"
                 }
             }
         };
@@ -108,7 +107,7 @@
                                     </div>
                                     <div class="panel-body">
 
-                                        <form id="update-form" role="form" data-toggle="validator" method="POST" action="data/edit.json">
+                                        <form id="update-form" role="form" data-toggle="validator" method="POST" action="{{saveUrl}}">
                                             <input type="hidden" id="c-avatar" name="row[avatar]" value="/assets/img/avatar.png" />
                                             <div class="box-body box-profile">
 
@@ -118,24 +117,24 @@
                                                     <button id="plupload-avatar" class="plupload" data-input-id="c-avatar" data-after-upload="changeavatar"><i class="fa fa-upload"></i> 上传</button>
                                                 </div>
 
-                                                <h3 class="profile-username text-center">admin</h3>
+                                                <h3 class="profile-username text-center">{{row.username}}</h3>
 
-                                                <p class="text-muted text-center">admin@fastadmin.net</p>
+                                                <p class="text-muted text-center">{{row.email}}</p>
                                                 <div class="form-group">
                                                     <label for="username" class="control-label">用户名:</label>
-                                                    <input type="text" class="form-control" name="row[username]" value="admin" disabled />
+                                                    <input type="text" class="form-control" name="row[username]" value="{{row.username}}" disabled />
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="email" class="control-label">Email:</label>
-                                                    <input type="text" class="form-control" name="row[email]" value="admin@fastadmin.net" data-rule="required;email" />
+                                                    <input type="text" class="form-control" name="row[email]" value="{{row.email}}" data-rule="required;email" />
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="nickname" class="control-label">昵称:</label>
-                                                    <input type="text" class="form-control" name="row[nickname]" value="Admin" data-rule="required" />
+                                                    <label for="nickname" class="control-label">手机:</label>
+                                                    <input type="text" class="form-control" name="row[mobile]" value="{{row.mobile}}" data-rule="mobile" />
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="password" class="control-label">密码:</label>
-                                                    <input type="text" class="form-control" placeholder="不修改密码请留空" name="row[password]" value=""/>
+                                                    <input type="text" class="form-control" placeholder="不修改密码请留空" name="row[password]" value="" data-rule="password"/>
                                                 </div>
                                                 <div class="form-group">
                                                     <button type="submit" class="btn btn-success">提交</button>

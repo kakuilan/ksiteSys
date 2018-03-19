@@ -40,7 +40,9 @@
                        (new RegExp(".(?:" + ext + ")$", "i")).test(value) ||
                        this.renderMsg("只接受{1}后缀的文件", ext.replace(/\|/g, ','));
             }
-            
+            ,isEngNum: [/^([a-zA-Z0-9]+)$/, "只能输入数字和字母"]
+            ,isWord: [/^\w+$/, "只能输入英文、数字和下划线"]
+            ,isUsrname: [/^[\w.]+$/, "只能输入英文、数字、点和下划线"]
         },
 
         // Default error messages
