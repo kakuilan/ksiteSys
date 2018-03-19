@@ -352,8 +352,13 @@ define(['jquery', 'bootstrap', 'backend', 'addtabs', 'adminlte', 'form','md5','l
                 return true;
             }, function (data, ret) {
                 //提交后
-                localStorage.setItem("lastlogin", JSON.stringify({id: data.id, username: data.username, avatar: data.avatar}));
-                location.href = Backend.api.fixurl(data.url);
+                if(ret.status) {
+                    localStorage.setItem("lastlogin", JSON.stringify({id: data.id, username: data.username, avatar: data.avatar}));
+                    location.href = Backend.api.fixurl(data.url);
+                }else{
+                    $("#password").val('');
+                    $("#verifyCode").val('');
+                }
             });
 
             var refreshCaptcha = function () {

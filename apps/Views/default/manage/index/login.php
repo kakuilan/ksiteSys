@@ -144,7 +144,7 @@
                             <div class="input-group-addon"><span class="glyphicon glyphicon-copyright-mark" aria-hidden="true"></span></div>
                             <input type="hidden" id="veriEncode" name="veriEncode">
 
-                            <input type="text" class="form-control" id="pd-form-verifyCode" placeholder="验证码" name="verifyCode" autocomplete="off" value="" data-rule="验证码:required;verifyCode" />
+                            <input type="text" class="form-control" id="verifyCode" placeholder="验证码" name="verifyCode" autocomplete="off" value="" data-rule="验证码:required;verifyCode" />
                             <i class="ace-icon">
                                 <a href="javascript:;">
                                     <img src="" id="verifyImg">

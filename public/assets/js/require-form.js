@@ -44,15 +44,15 @@ define(['jquery', 'bootstrap', 'upload', 'validator'], function ($, undefined, U
                                         return false;
                                     }
                                 }
-                                //自定义函数
-                                if (typeof onAfterSubmit == 'function') {
-                                    if (!onAfterSubmit.call(form, data, ret)) {
-                                        return false;
-                                    }
-                                }
                                 Toastr.success(msg ? msg : __('Operation completed'));
                             } else {
                                 Toastr.error(msg ? msg : __('Operation failed'));
+                            }
+                            //自定义函数
+                            if (typeof onAfterSubmit == 'function') {
+                                if (!onAfterSubmit.call(form, data, ret)) {
+                                    return false;
+                                }
                             }
                         } else {
                             Toastr.error(__('Unknown data format'));
