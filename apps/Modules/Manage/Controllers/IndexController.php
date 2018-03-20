@@ -232,7 +232,9 @@ class IndexController extends Controller {
      * @desc  -保存管理员个人信息(邮箱/密码)
      */
     public function saveprofileAction() {
-        return $this->success();
+        $row = $this->getPost('row');
+
+        return $this->success($row);
     }
 
 

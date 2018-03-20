@@ -108,7 +108,7 @@
                                     <div class="panel-body">
 
                                         <form id="update-form" role="form" data-toggle="validator" method="POST" action="{{saveUrl}}">
-                                            <input type="hidden" id="c-avatar" name="row[avatar]" value="/assets/img/avatar.png" />
+                                            <input type="hidden" id="c-avatar" name="row[avatar]" value="" />
                                             <div class="box-body box-profile">
 
                                                 <div class="profile-avatar-container">
@@ -138,7 +138,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="password" class="control-label">密码:</label>
-                                                    <input type="text" class="form-control" placeholder="不修改密码请留空" name="row[password]" value="" data-rule="password"/>
+                                                    <input type="password" class="form-control" placeholder="不修改密码请留空" name="row[password]" value="" data-rule="password"/>
                                                 </div>
                                                 <div class="form-group">
                                                     <button type="submit" class="btn btn-success">提交</button>
