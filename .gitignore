@@ -3,6 +3,7 @@
 *.pid
 runtime
 vendor
+config/pool.php
 public/asset
 public/html
 public/upload
