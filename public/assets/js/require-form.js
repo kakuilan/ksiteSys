@@ -34,25 +34,26 @@ define(['jquery', 'bootstrap', 'upload', 'validator'], function ($, undefined, U
                             var data = ret.hasOwnProperty("data") && ret.data != "" ? ret.data : null;
                             var msg = ret.hasOwnProperty("msg") && ret.msg != "" ? ret.msg : "";
                             var status = ret.hasOwnProperty("msg") && ret.status != "" ? ret.status : "";
-                            if(status) {
-                                $('.form-group', form).removeClass('has-feedback has-success has-error');
-                                //成功提交后事件
-                                var afterSubmit = form.data("after-submit");
-                                //元素绑定函数
-                                if (afterSubmit && typeof Form.api.custom[afterSubmit] == 'function') {
-                                    if (!Form.api.custom[afterSubmit].call(form, data, ret)) {
-                                        return false;
-                                    }
+
+                            $('.form-group', form).removeClass('has-feedback has-success has-error');
+                            //成功提交后事件
+                            var afterSubmit = form.data("after-submit");
+                            //元素绑定函数
+                            if (afterSubmit && typeof Form.api.custom[afterSubmit] == 'function') {
+                                if (!Form.api.custom[afterSubmit].call(form, data, ret)) {
+                                    return false;
                                 }
-                                Toastr.success(msg ? msg : __('Operation completed'));
-                            } else {
-                                Toastr.error(msg ? msg : __('Operation failed'));
                             }
                             //自定义函数
                             if (typeof onAfterSubmit == 'function') {
                                 if (!onAfterSubmit.call(form, data, ret)) {
                                     return false;
                                 }
+                            }
+                            if(status) {
+                                Toastr.success(msg ? msg : __('Operation completed'));
+                            } else {
+                                Toastr.error(msg ? msg : __('Operation failed'));
                             }
                         } else {
                             Toastr.error(__('Unknown data format'));

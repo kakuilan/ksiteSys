@@ -17,6 +17,7 @@ use Apps\Services\CaptchaService;
 use Apps\Services\Ip2RegionService;
 use Apps\Services\UserService;
 use Lkk\Helpers\CommonHelper;
+use Lkk\Helpers\ValidateHelper;
 
 /**
  * Class 后台首页控制器
@@ -233,6 +234,11 @@ class IndexController extends Controller {
      */
     public function saveprofileAction() {
         $row = $this->getPost('row');
+
+        if(!empty($row['email']) && ValidateHelper::isEmail($row['email'])) {
+            return $this->fail('邮箱格式不正确');
+        }
+
 
         return $this->success($row);
     }
