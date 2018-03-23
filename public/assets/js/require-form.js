@@ -24,41 +24,51 @@ define(['jquery', 'bootstrap', 'upload', 'validator'], function ($, undefined, U
                 type = type && (type == 'GET' || type == 'POST') ? type : 'GET';
                 url = form.attr("action");
                 url = url ? url : location.href;
+                $('button[type="submit"]', form).addClass("disabled");
+                var loIdx = layer.load(1);
                 $.ajax({
                     type: type,
                     url: url,
                     data: form.serialize(),
                     dataType: 'json',
                     success: function (ret) {
+                        layer.close(loIdx);
+                        $('button[type="submit"]', form).removeClass("disabled");
                         if (ret.hasOwnProperty("code")) {
                             var data = ret.hasOwnProperty("data") && ret.data != "" ? ret.data : null;
                             var msg = ret.hasOwnProperty("msg") && ret.msg != "" ? ret.msg : "";
-                            var status = ret.hasOwnProperty("msg") && ret.status != "" ? ret.status : "";
+                            var status = ret.hasOwnProperty("status") && ret.status !== "" ? ret.status : false;
 
-                            $('.form-group', form).removeClass('has-feedback has-success has-error');
-                            //成功提交后事件
-                            var afterSubmit = form.data("after-submit");
-                            //元素绑定函数
-                            if (afterSubmit && typeof Form.api.custom[afterSubmit] == 'function') {
-                                if (!Form.api.custom[afterSubmit].call(form, data, ret)) {
-                                    return false;
-                                }
-                            }
-                            //自定义函数
-                            if (typeof onAfterSubmit == 'function') {
-                                if (!onAfterSubmit.call(form, data, ret)) {
-                                    return false;
-                                }
-                            }
                             if(status) {
+                                $('.form-group', form).removeClass('has-feedback has-success has-error');
+                                //成功提交后事件
+                                var afterSubmit = form.data("after-submit");
+                                //元素绑定函数
+                                if (afterSubmit && typeof Form.api.custom[afterSubmit] == 'function') {
+                                    if (!Form.api.custom[afterSubmit].call(form, data, ret)) {
+                                        return false;
+                                    }
+                                }
+                                //自定义函数
+                                if (typeof onAfterSubmit == 'function') {
+                                    if (!onAfterSubmit.call(form, data, ret)) {
+                                        return false;
+                                    }
+                                }
                                 Toastr.success(msg ? msg : __('Operation completed'));
                             } else {
+                                //自定义函数
+                                if (typeof onAfterSubmit == 'function') {
+                                    onAfterSubmit.call(form, data, ret)
+                                }
                                 Toastr.error(msg ? msg : __('Operation failed'));
                             }
                         } else {
                             Toastr.error(__('Unknown data format'));
                         }
                     }, error: function () {
+                        layer.close(loIdx);
+                        $('button[type="submit"]', form).removeClass("disabled");
                         Toastr.error(__('Network error'));
                     }, complete: function (e) {
                     }
