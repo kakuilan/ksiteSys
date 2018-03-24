@@ -35,4 +35,9 @@ https://github.com/lionsoul2014/ip2region
 - https://github.com/longxinH/xhprof.git
 - 开启配置xhprof_enable=true  
 - 查看结果数据
-访问<http://$host_url/monitor/xhprof/xhprof_html/index.php>
+访问<http://$host_url/monitor/xhprof/xhprof_html/index.php>  
+
+## 查看mysql/redis连接池数量  
+- netstat -nap|grep 3306 |grep KSS|wc -l  
+- netstat -nap|grep 6379 |grep KSS|wc -l  
+

@@ -15,7 +15,7 @@ return [
      */
     'mysql_master' => [
         'type'  => 'mysql',                 // 连接池类型
-        'size'  => 20,                       // 连接池大小
+        'size'  => 4,                       // 连接池大小
         'table_prefix'  => 'k_',          //表前缀
         'charset'   => 'utf8',              //字符集
 
@@ -36,7 +36,7 @@ return [
      */
     'mysql_slave' => [
         'type'  => 'mysql',                 // 连接池类型
-        'size'  => 40,                       // 连接池大小
+        'size'  => 6,                       // 连接池大小
         'table_prefix'  => 'k_',          //表前缀
         'charset'   => 'utf8',              //字符集
 
@@ -57,7 +57,7 @@ return [
      */
     'redis_system' => [
         'type'  => 'redis',                 // 连接池类型
-        'size' => 10,                        // 连接池大小
+        'size' => 4,                        // 连接池大小
 
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
@@ -74,7 +74,7 @@ return [
      */
     'redis_site' => [
         'type'  => 'redis',                 // 连接池类型
-        'size' => 10,                        // 连接池大小
+        'size' => 4,                        // 连接池大小
 
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
@@ -91,7 +91,7 @@ return [
      */
     'redis_session' => [
         'type'  => 'redis',                 // 连接池类型
-        'size' => 10,                        // 连接池大小
+        'size' => 4,                        // 连接池大小
 
         'args'  => [
             'host'      => '127.0.0.1',     // 主机名
