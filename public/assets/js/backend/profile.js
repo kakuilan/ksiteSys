@@ -3,7 +3,7 @@
  * Desc:
  */
 
-define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function ($, undefined, Backend, Table, Form, Upload) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], function ($, undefined, Backend, Table, Form, Upload, md5) {
 
     var Controller = {
         index: function () {
@@ -42,11 +42,18 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
             // 为表格绑定事件
             Table.api.bindevent(table);//当内容渲染完成后
 
-            Form.api.bindevent($("#update-form"), null, function () {
-                $("input[name='row[password]']").val('');
-                var url = Backend.api.cdnurl($("#c-avatar").val());
-                top.window.$(".user-panel .image img,.user-menu > a > img,.user-header > img").prop("src", url);
+            Form.api.bindevent($("#update-form"), function () {
+                //提交前
+                var pwd = $.trim($('#password').val());
+                if(pwd!='') $('#password').val(md5(pwd));
                 return true;
+            }, function (data,ret) {
+                $("input[name='row[password]']").val('');
+                if(ret.status) {
+                    var url = Backend.api.cdnurl($("#c-avatar").val());
+                    top.window.$(".user-panel .image img,.user-menu > a > img,.user-header > img").prop("src", url);
+                    return true;
+                }
             });
             Upload.api.custom.changeavatar = function (response) {
                 var url = Backend.api.cdnurl(response.url);

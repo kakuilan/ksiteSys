@@ -235,9 +235,17 @@ class IndexController extends Controller {
     public function saveprofileAction() {
         $row = $this->getPost('row');
 
-        if(!empty($row['email']) && ValidateHelper::isEmail($row['email'])) {
+        if(!empty($row['avatar']) && !ValidateHelper::isUrl($row['avatar'])) {
+            return $this->fail('头像地址不正确');
+        }elseif(!empty($row['email']) && !ValidateHelper::isEmail($row['email'])) {
             return $this->fail('邮箱格式不正确');
+        }elseif (!empty($row['mobile']) && !ValidateHelper::isMobile($row['mobile'])) {
+            return $this->fail('手机格式不正确');
         }
+
+        $now = time();
+
+
 
 
         return $this->success($row);

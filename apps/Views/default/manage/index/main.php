@@ -138,7 +138,7 @@
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="password" class="control-label">密码:</label>
-                                                    <input type="password" class="form-control" placeholder="不修改密码请留空" name="row[password]" value="" data-rule="password"/>
+                                                    <input type="password" class="form-control" placeholder="不修改密码请留空" name="row[password]" value="" data-rule="password" id="password"/>
                                                 </div>
                                                 <div class="form-group">
                                                     <button type="submit" class="btn btn-success">提交</button>
