@@ -20,8 +20,9 @@ class AdmUser extends BaseModel {
     public static $defaultFields = 'uid,site_id,level,status,password,logins,login_fails,last_login_ip,last_login_time';
     //分页字段
     public static $pageFields = 'uid,site_id,level,status,logins,login_fails,last_login_ip,last_login_time,create_time,update_time';
-    //连表用户字段
-    public static $joinUserFields = 'status AS user_status,mobile_status,email_status,type AS user_type,mobile,email,username';
+    //连表用户基础字段
+    public static $joinUserBaseFields = 'status AS user_status,mobile_status,email_status,type AS user_type,mobile,email,username';
+    public static $joinUserInfoFields = 'nickname,sign,avatar';
 
 
     public function initialize() {
@@ -62,8 +63,9 @@ class AdmUser extends BaseModel {
      */
     public static function getJoinUserFields() {
         $fieldsA = self::makeAliaFields(self::$defaultFields, self::class);
-        $fieldsU = self::makeAliaFields(self::$joinUserFields, 'u');
-        $fields = array_merge($fieldsA, $fieldsU);
+        $fieldsU = self::makeAliaFields(self::$joinUserBaseFields, 'u');
+        $fieldsI = self::makeAliaFields(self::$joinUserInfoFields, 'i');
+        $fields = array_merge($fieldsA, $fieldsU, $fieldsI);
 
         return $fields;
     }
@@ -75,8 +77,9 @@ class AdmUser extends BaseModel {
      */
     public static function getPageFields() {
         $fieldsA = self::makeAliaFields(self::$pageFields, 'a');
-        $fieldsU = self::makeAliaFields(self::$joinUserFields, 'u');
-        $fields = array_merge($fieldsA, $fieldsU);
+        $fieldsU = self::makeAliaFields(self::$joinUserBaseFields, 'u');
+        $fieldsI = self::makeAliaFields(self::$joinUserInfoFields, 'i');
+        $fields = array_merge($fieldsA, $fieldsU, $fieldsI);
 
         return $fields;
     }
@@ -91,12 +94,14 @@ class AdmUser extends BaseModel {
         if(empty($uid)) return false;
 
         $usr = UserBase::class;
+        $info = UserInfo::class;
         $adm = self::class;
         $fields = self::getJoinUserFields();
 
         $result = self::query()
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
             ->where("{$adm}.uid = :uid: ", ['uid'=>$uid])
             ->limit(1)
             ->execute();
@@ -114,12 +119,14 @@ class AdmUser extends BaseModel {
         if(empty($str)) return false;
 
         $usr = UserBase::class;
+        $info = UserInfo::class;
         $adm = self::class;
         $fields = self::getJoinUserFields();
 
         $result = self::query()
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
             ->where("u.username = :username: ", ['username'=>$str])
             ->limit(1)
             ->execute();
@@ -137,12 +144,14 @@ class AdmUser extends BaseModel {
         if(empty($str)) return false;
 
         $usr = UserBase::class;
+        $info = UserInfo::class;
         $adm = self::class;
         $fields = self::getJoinUserFields();
 
         $result = self::query()
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
             ->where("u.email = :email: ", ['email'=>$str])
             ->limit(1)
             ->execute();
@@ -161,12 +170,14 @@ class AdmUser extends BaseModel {
         if(empty($str)) return false;
 
         $usr = UserBase::class;
+        $info = UserInfo::class;
         $adm = self::class;
         $fields = self::getJoinUserFields();
 
         $result = self::query()
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
+            ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
             ->where("u.username = :username:  OR u.email = :email: ", ['username'=>$str, 'email'=>$str])
             ->orderBy('u.uid asc')
             ->limit(1)
@@ -190,7 +201,8 @@ class AdmUser extends BaseModel {
         $builder = $modelsManager->createBuilder()
             ->columns($fields)
             ->addFrom(self::class, 'a')
-            ->leftJoin(UserBase::class, 'u.uid = a.uid', 'u');
+            ->leftJoin(UserBase::class, 'u.uid = a.uid', 'u')
+            ->leftJoin(UserInfo::class, 'i.uid = a.uid', 'i');
 
         if(!empty($where)) {
             $builder->where($where, $binds);

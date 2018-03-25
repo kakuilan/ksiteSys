@@ -105,13 +105,13 @@
                     <!-- 账号信息下拉框 -->
                     <li class="dropdown user user-menu">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                            <img src="/assets/img/avatar.png" class="user-image" alt="{{row.username}}">
+                            <img src="{{row.avatar}}" class="user-image" alt="{{row.username}}">
                             <span class="hidden-xs">{{row.username}}</span>
                         </a>
                         <ul class="dropdown-menu">
                             <!-- User image -->
                             <li class="user-header">
-                                <img src="/assets/img/avatar.png" class="img-circle" alt="">
+                                <img src="{{row.avatar}}" class="img-circle" alt="">
 
                                 <p>
                                     {{row.username}}

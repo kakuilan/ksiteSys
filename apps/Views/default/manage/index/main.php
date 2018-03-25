@@ -112,7 +112,7 @@
                                             <div class="box-body box-profile">
 
                                                 <div class="profile-avatar-container">
-                                                    <img class="profile-user-img img-responsive img-circle plupload" src="/assets/img/avatar.png" alt="">
+                                                    <img class="profile-user-img img-responsive img-circle plupload" src="{{row.avatar}}" alt="">
                                                     <div class="profile-avatar-text img-circle">Click to edit</div>
                                                     <button id="plupload-avatar" class="plupload" data-input-id="c-avatar" data-after-upload="changeavatar"><i class="fa fa-upload"></i> 上传</button>
                                                 </div>
@@ -137,8 +137,12 @@
                                                     <input type="text" class="form-control" name="row[mobile]" value="{{row.mobile}}" data-rule="mobile" />
                                                 </div>
                                                 <div class="form-group">
-                                                    <label for="password" class="control-label">密码:</label>
-                                                    <input type="password" class="form-control" placeholder="不修改密码请留空" name="row[password]" value="" data-rule="password" id="password"/>
+                                                    <label for="frontPassword" class="control-label">前台密码:</label>
+                                                    <input type="password" class="form-control" placeholder="不修改密码请留空" name="row[frontPassword]" value="" data-rule="password" id="frontPassword"/>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="backPassword" class="control-label">后台密码:</label>
+                                                    <input type="password" class="form-control" placeholder="不修改密码请留空" name="row[backPassword]" value="" data-rule="password" id="backPassword"/>
                                                 </div>
                                                 <div class="form-group">
                                                     <button type="submit" class="btn btn-success">提交</button>

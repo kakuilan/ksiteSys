@@ -529,6 +529,7 @@ class UserService extends ServiceBase {
             'username' => $admn->username,
             'last_login_ip' => $admn->last_login_ip,
             'last_login_time' => $admn->last_login_time,
+            'avatar' => $admn->avatar ?? '/assets/img/avatar.png',
         ];
 
         $session = $this->getDI()->getShared('session');

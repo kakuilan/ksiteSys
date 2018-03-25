@@ -13,6 +13,7 @@ namespace Apps\Modules\Manage\Controllers;
 use Apps\Modules\Manage\Controller;
 use Apps\Models\AdmUser;
 use Apps\Models\UserBase;
+use Apps\Models\UserInfo;
 use Apps\Services\CaptchaService;
 use Apps\Services\Ip2RegionService;
 use Apps\Services\UserService;
@@ -67,8 +68,8 @@ class IndexController extends Controller {
      */
     public function indexAction() {
         $loginUid = $this->getLoginUid();
-        $info = $loginUid ? AdmUser::getInfoByUid($loginUid) : [];
-        $info->last_login_time = date('Y-m-d H:i:s', $info->last_login_time);
+        $info = $this->userService->getManagerSession();
+        $info['last_login_time'] = date('Y-m-d H:i:s', $info['last_login_time']);
 
         //视图变量
         $this->view->setVars([
@@ -76,7 +77,7 @@ class IndexController extends Controller {
             'mainUrl' => makeUrl('manage/index/main'),
             'menuUrl' => makeUrl('manage/menu/authlist'),
             'logoutUrl' => makeUrl('manage/index/logout'),
-            'row' => AdmUser::rowToObject($info),
+            'row' => (object)$info,
         ]);
 
         return null;
@@ -186,16 +187,19 @@ class IndexController extends Controller {
         $accToken = UserService::makeAccessToken($loginUid, $agUuid, 1800);
         $tokenName = getConf('login', 'tokenName');
 
-        $info = $loginUid ? AdmUser::getInfoByUid($loginUid) : [];
+        $info = AdmUser::getInfoByUid($loginUid);
 
+        $sessData = $this->userService->getManagerSession();
         $admLevelArr = AdmUser::getLevelArr();
+
         $info->level_desc = $admLevelArr[$info->level];
         if(empty($info->mobile)) $info->mobile = '';
-        $info->last_login_time = date('Y-m-d H:i:s', $info->last_login_time);
-        $info->last_login_ip = long2ip($info->last_login_ip);
+        $info->last_login_time = date('Y-m-d H:i:s', ($sessData['last_login_time'] ?? $info->last_login_time) );
+        $info->last_login_ip = long2ip(($sessData['last_login_ip'] ?? $info->last_login_ip) );
 
         $ipServ = new Ip2RegionService();
         $info->city = $ipServ->getCityName($info->last_login_ip);
+        $info->avatar = $sessData['avatar'] ?? '/assets/img/avatar.png';
 
         //视图变量
         $this->view->setVars([
@@ -233,6 +237,7 @@ class IndexController extends Controller {
      * @desc  -保存管理员个人信息(邮箱/密码)
      */
     public function saveprofileAction() {
+        $loginUid = $this->getLoginUid();
         $row = $this->getPost('row');
 
         if(!empty($row['avatar']) && !ValidateHelper::isUrl($row['avatar'])) {
@@ -244,11 +249,48 @@ class IndexController extends Controller {
         }
 
         $now = time();
+        $resBase = $resInfo = $resAdm = true;
 
+        //更新头像
+        if(!empty($row['avatar'])) {
+            $chkInfo = UserInfo::getRow(['uid'=>$loginUid]);
+            if($chkInfo) {
+                $resInfo = UserInfo::upData([
+                    'avatar' => $row['avatar'],
+                    'update_time' => $now,
+                ], ['uid'=>$loginUid]);
+            }else{
+                $data = [
+                    'uid' => $loginUid,
+                    'create_time' => $now,
+                    'update_time' => $now,
+                    'avatar' => $row['avatar'],
+                ];
+                $resInfo = UserInfo::addData($data);
+            }
+        }
 
+        //更新邮箱、手机和前台密码
+        if(!empty($row['email']) || !empty($row['mobile']) || !empty($row['frontPassword'])) {
+            $data = ['update_time'=>$now];
 
+            if(!empty($row['email'])) $data['email'] = $row['email'];
+            if(!empty($row['mobile'])) $data['mobile'] = $row['mobile'];
+            if(!empty($row['frontPassword'])) $data['password'] = UserService::makePasswdHash($row['frontPassword']);
+            $resBase = UserBase::upData($data, ['uid'=>$loginUid]);
+        }
 
-        return $this->success($row);
+        //更新后台密码
+        if(!empty($row['backPassword'])) {
+            $data = [
+                'update_time' => $now,
+                'password' => UserService::makePasswdHash($row['backPassword']),
+            ];
+            $resAdm = AdmUser::upData($data, ['uid'=>$loginUid]);
+        }
+
+        $res = $resInfo && $resBase && $resAdm;
+        return $res ? $this->success() : $this->fail('操作失败,请稍后再试');
     }
 
 

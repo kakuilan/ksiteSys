@@ -42,12 +42,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], fun
             // 为表格绑定事件
             Table.api.bindevent(table);//当内容渲染完成后
 
+            var $fpwd = $('#frontPassword');
+            var $bpwd = $('#backPassword');
             Form.api.bindevent($("#update-form"), function () {
                 //提交前
-                var pwd = $.trim($('#password').val());
-                if(pwd!='') $('#password').val(md5(pwd));
+                var fpwd = $.trim($fpwd.val());
+                var bpwd = $.trim($bpwd.val());
+                if(fpwd!='') $fpwd.val(md5(fpwd));
+                if(bpwd!='') $bpwd.val(md5(bpwd));
                 return true;
             }, function (data,ret) {
+                //提交后
                 $("input[name='row[password]']").val('');
                 if(ret.status) {
                     var url = Backend.api.cdnurl($("#c-avatar").val());
