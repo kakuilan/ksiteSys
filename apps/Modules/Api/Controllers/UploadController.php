@@ -33,6 +33,7 @@ class UploadController extends LkkController {
 
 
     public function imageAction() {
+        //TODO base64
         $name = 'file';
         $fileInfo = $this->swooleRequest->files[$name] ?? [];
         if(empty($fileInfo)) {
@@ -54,6 +55,24 @@ class UploadController extends LkkController {
         return $res ? $this->success($data) : $this->fail('上传失败');
     }
 
+
+    /**
+     * @title -上传用户头像
+     * @desc  -上传用户头像
+     */
+    public function avatarAction() {
+        $uid = intval($this->getRequest('uid'));
+        $loginUid = $this->getLoginUid();
+        $isAdmin = false;
+
+        if($loginUid == $uid) { //自己传头像
+
+        }elseif ($loginUid!=$uid && $isAdmin) { //管理员修改他人头像
+
+        }
+
+
+    }
 
 
     public function fileAction() {

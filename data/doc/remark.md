@@ -2,6 +2,10 @@
 前台密码使用md5,然后发送到后端  
 视图目录和文件名统一小写  
 
+
+## 参考
+https://github.com/slince/phpdish  
+
 ##  
 
 $query = $this->modelsManager->createBuilder()  

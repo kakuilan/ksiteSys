@@ -30,7 +30,8 @@ swoole里SQL注入处理
 socket  
 404页面慢  
 上次cookie response检查   
-CommonHelper::getBrowser  
+敏感词过滤  
+
   
 
 
