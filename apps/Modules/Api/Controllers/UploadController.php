@@ -10,7 +10,7 @@
 namespace Apps\Modules\Api\Controllers;
 
 use Kengine\LkkController;
-
+use Lkk\LkkUpload;
 
 class UploadController extends LkkController {
 
@@ -33,7 +33,25 @@ class UploadController extends LkkController {
 
 
     public function imageAction() {
-        return $this->success();
+        $name = 'file';
+        $fileInfo = $this->swooleRequest->files[$name] ?? [];
+        if(empty($fileInfo)) {
+            return $this->fail('没有上传的文件');
+        }
+
+        $data = [];
+        $ext = LkkUpload::getExtention($fileInfo['name']);
+        $newFile = LkkUpload::createRandName($fileInfo['name']) . ".{$ext}";
+        $newPath = UPLODIR . $newFile;
+
+        $res = move_uploaded_file($fileInfo['tmp_name'], $newPath);
+        if($res) {
+            $data = [
+                'url' => makeUrl('/upload/'. $newFile),
+            ];
+        }
+
+        return $res ? $this->success($data) : $this->fail('上传失败');
     }
 
 

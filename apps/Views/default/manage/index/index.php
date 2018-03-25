@@ -145,7 +145,7 @@
             <!-- Sidebar user panel -->
             <div class="user-panel hidden-xs">
                 <div class="pull-left image">
-                    <a href="profile" class="addtabsit"><img src="/assets/img/avatar.png" class="img-circle" /></a>
+                    <a href="profile" class="addtabsit"><img src="{{row.avatar}}" class="img-circle" /></a>
                 </div>
                 <div class="pull-left info">
                     <p>{{row.username}}</p>
