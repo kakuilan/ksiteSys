@@ -27,16 +27,36 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], fun
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
+                pk: 'id',
+                sortName: 'id',
+                showExport: true,
+                exportDataType: "base", //basic' 导出当前页的数据, 'all' 导出所有满足条件的数据, 'selected' 导出勾选中的数据.
+                exportTypes: ['json', 'xml', 'csv', 'txt', 'doc', 'excel'],
+                exportOptions:{
+                    ignoreColumn: [0],  //忽略某一列的索引
+                    fileName: 'appUserList',  //文件名称设置
+                    worksheetName: 'sheet1',  //表格工作区名称
+                    tableName: 'appUserList'
+                },
+                pageSize: 10,
+                pageList: [10, 25, 50, 100,500,'All'],
+
+                //禁用默认搜索
+                search: true,
+                //启用普通表单搜索
+                commonSearch: true,
+                //可以控制是否默认显示搜索单表,false则隐藏,默认为false
+                searchFormVisible: false,
                 columns: [
                     [
                         {field: 'id', title: 'ID'},
-                        {field: 'title', title: __('Title')},
-                        {field: 'url', title: __('Url'), align: 'left', formatter: Controller.api.formatter.url},
+                        {field: 'uid', title: 'UID'},
+                        {field: 'url', title: __('Url'), align: 'left'},
                         {field: 'ip', title: __('ip')},
-                        {field: 'createtime', title: __('Createtime'), formatter: Table.api.formatter.datetime},
+                        //{field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime},
+                        {field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime, operate: 'BETWEEN', type: 'datetime', addclass: 'datetimepicker', data: 'data-date-format="YYYY-MM-DD HH:mm:ss"' },
                     ]
-                ],
-                commonSearch: false
+                ]
             });
 
             // 为表格绑定事件

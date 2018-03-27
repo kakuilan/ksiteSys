@@ -12,6 +12,7 @@ namespace Apps\Modules\Manage\Controllers;
 
 use Apps\Modules\Manage\Controller;
 use Apps\Models\AdmUser;
+use Apps\Models\AdmOperateLog;
 use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
 use Apps\Services\CaptchaService;
@@ -228,7 +229,43 @@ class IndexController extends Controller {
      * @desc  -当前登录管理员后台操作日志列表
      */
     public function admloglistAction() {
-        return $this->success();
+        list($pageNumber, $pageSize) = $this->getPageNumberNSize();
+        $sortName = trim($this->getGet('sort'));
+        $sortOrder = trim($this->getGet('order'));
+        if($sortName && $sortOrder) {
+            $order = "{$sortName} {$sortOrder}";
+        }else{
+            $order = 'id desc';
+        }
+
+        //基本条件
+        $isAdmin = true;
+        $siteIds = [$this->siteId];
+        if($isAdmin) array_push($siteIds, 0);
+        $where = [
+            'and',
+            ['site_id' => $siteIds],
+        ];
+
+        $paginator = AdmOperateLog::getPaginator('*', $where, $order, $pageSize, $pageNumber);
+        $pageObj = $paginator->getPaginate();
+        $list = $pageObj->items->toArray();
+        if(!empty($list)) {
+            $ipServ = new Ip2RegionService();
+            foreach ($list as &$item) {
+                $item['city'] = $ipServ->getCityName(long2ip($item['create_ip']));;
+            }
+        }
+
+        $res = [
+            'total' => $pageObj->total_pages, //总记录数
+            'currPage' => $pageNumber, //当前页码
+            'pageSize' => $pageSize, //每页数量
+            'pageTotal' => count($list), //总页数
+            'rows' => $list, //分页列表数据
+        ];
+
+        return $this->success($res);
     }
 
 
