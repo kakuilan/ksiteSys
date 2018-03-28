@@ -11,6 +11,7 @@
 namespace Apps\Modules\Manage\Controllers;
 
 use Apps\Modules\Manage\Controller;
+use Apps\Models\Action;
 use Apps\Models\AdmUser;
 use Apps\Models\AdmOperateLog;
 use Apps\Models\UserBase;
@@ -18,6 +19,7 @@ use Apps\Models\UserInfo;
 use Apps\Services\CaptchaService;
 use Apps\Services\Ip2RegionService;
 use Apps\Services\UserService;
+use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\ValidateHelper;
 
@@ -225,8 +227,8 @@ class IndexController extends Controller {
 
 
     /**
-     * @title -当前管理员操作日志JSON
-     * @desc  -当前登录管理员后台操作日志列表
+     * @title -管理员操作日志JSON
+     * @desc  -管理员后台操作日志列表
      */
     public function admloglistAction() {
         list($pageNumber, $pageSize) = $this->getPageNumberNSize();
@@ -247,21 +249,60 @@ class IndexController extends Controller {
             ['site_id' => $siteIds],
         ];
 
+        //搜索条件
+        $filters = json_decode($this->getGet('filter'), true);
+        $ops = json_decode($this->getGet('op'), true);
+        if(!empty($ops)) {
+            foreach ($ops as $field=>$op) {
+                $value = trim($filters[$field]);
+                if($value!=='') {
+                    if($field=='uid') {
+                        array_push($where, ['uid'=>intval($value)]);
+                    }elseif ($field=='create_time') {
+                        $arr = explode(',', $value);
+                        $start = intval($arr[0]);
+                        $end = intval($arr[1]);
+
+                        array_push($where, ['BETWEEN', 'create_time', $start, $end]);
+                    }elseif ($field=='username') {
+                        $usr = UserBase::getInfoByUsername($value);
+                        array_push($where, ['uid'=> $usr ? $usr->uid : '-1']);
+                    }
+                }
+            }
+        }
+
         $paginator = AdmOperateLog::getPaginator('*', $where, $order, $pageSize, $pageNumber);
         $pageObj = $paginator->getPaginate();
+
         $list = $pageObj->items->toArray();
         if(!empty($list)) {
             $ipServ = new Ip2RegionService();
+
+            $uids = array_column($list, 'uid');
+            $admList = UserBase::getList(['uid'=>$uids]);
+            if($admList) $admList = $admList->toArray();
+
+            $actionIds = array_column($list, 'action_id');
+            $actionList = Action::getList(['ac_id'=>$actionIds]);
+            if($actionList) $actionList = $actionList->toArray();
+
             foreach ($list as &$item) {
+                $usr = ArrayHelper::arraySearchItem($admList, ['uid'=>$item['uid']]);
+                $item['username'] = $usr['username']??'';
+
+                $action = ArrayHelper::arraySearchItem($actionList, ['ac_id'=>$item['action_id']]);
+                $item['action_name'] = $action['title']??'';
+
                 $item['city'] = $ipServ->getCityName(long2ip($item['create_ip']));;
             }
         }
 
         $res = [
-            'total' => $pageObj->total_pages, //总记录数
+            'total' => $pageObj->total_items, //总记录数
             'currPage' => $pageNumber, //当前页码
             'pageSize' => $pageSize, //每页数量
-            'pageTotal' => count($list), //总页数
+            'pageTotal' => $pageObj->total_pages, //总页数
             'rows' => $list, //分页列表数据
         ];
 

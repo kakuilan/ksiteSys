@@ -4,7 +4,6 @@
  */
 
 define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], function ($, undefined, Backend, Table, Form, Upload, md5) {
-
     var Controller = {
         index: function () {
 
@@ -38,29 +37,36 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], fun
                     worksheetName: 'sheet1',  //表格工作区名称
                     tableName: 'appUserList'
                 },
+                columns: [
+                    [
+                        {field: 'id', title: 'ID', sortable:true, operate: false},
+                        {field: 'uid', title: 'UID'},
+                        {field: 'username', title: '用户名'},
+                        {field: 'action_name', title: '动作', operate: false},
+                        {field: 'url', title: __('Url'), align: 'left', operate: false},
+                        {field: 'ip', title: __('ip'), operate: false},
+                        {field: 'city', title: '地区', operate: false},
+                        {field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime, operate: 'BETWEEN', type: 'datetime', addclass: 'datetimepicker', data: 'data-date-format="YYYY-MM-DD HH:mm:ss"' }
+                    ]
+                ],
                 pageSize: 10,
                 pageList: [10, 25, 50, 100,500,'All'],
 
                 //禁用默认搜索
-                search: true,
+                search: false,
                 //启用普通表单搜索
                 commonSearch: true,
                 //可以控制是否默认显示搜索单表,false则隐藏,默认为false
-                searchFormVisible: false,
-                columns: [
-                    [
-                        {field: 'id', title: 'ID'},
-                        {field: 'uid', title: 'UID'},
-                        {field: 'url', title: __('Url'), align: 'left'},
-                        {field: 'ip', title: __('ip')},
-                        //{field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime},
-                        {field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime, operate: 'BETWEEN', type: 'datetime', addclass: 'datetimepicker', data: 'data-date-format="YYYY-MM-DD HH:mm:ss"' },
-                    ]
-                ]
+                searchFormVisible: false
             });
 
-            // 为表格绑定事件
-            Table.api.bindevent(table);//当内容渲染完成后
+            //在表格内容渲染完成后回调的事件
+            table.on('post-body.bs.table', function (e, settings, json, xhr) {
+
+            });
+
+            // 为表格绑定事件,当内容渲染完成后
+            Table.api.bindevent(table);
 
             var $fpwd = $('#frontPassword');
             var $bpwd = $('#backPassword');
