@@ -125,8 +125,8 @@
                     var defaultValue = typeof vObjCol.defaultValue === 'undefined' ? '' : vObjCol.defaultValue;
                     if (/BETWEEN$/.test(vObjCol.operate)) {
                         var defaultValueArr = /^.+|.+$/.test(defaultValue) ? defaultValue.split('|') : ['', ''];
-                        htmlForm.push(sprintf('<input type="%s" class="%s" name="%s" value="%s" placeholder="%s" id="%s" %s %s>', type, addclass, vObjCol.field, defaultValueArr[0], placeholder, vObjCol.field, style, data));
-                        htmlForm.push(sprintf('&nbsp;-&nbsp;<input type="%s" class="%s" name="%s" value="%s" placeholder="%s" id="%s" %s %s>', type, addclass, vObjCol.field, defaultValueArr[1], placeholder, vObjCol.field, style, data));
+                        htmlForm.push(sprintf('<input type="%s" class="%s" name="%s" value="%s" placeholder="%s" id="%s0" %s %s>', type, addclass, vObjCol.field, defaultValueArr[0], placeholder, vObjCol.field, style, data));
+                        htmlForm.push(sprintf('&nbsp;-&nbsp;<input type="%s" class="%s" name="%s" value="%s" placeholder="%s" id="%s1" %s %s>', type, addclass, vObjCol.field, defaultValueArr[1], placeholder, vObjCol.field, style, data));
                     } else {
                         htmlForm.push(sprintf('<input type="%s" class="%s" name="%s" value="%s" placeholder="%s" id="%s" %s %s>', type, addclass, vObjCol.field, defaultValue, placeholder, vObjCol.field, style, data));
                     }
