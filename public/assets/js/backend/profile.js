@@ -44,7 +44,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], fun
                         {field: 'username', title: '用户名'},
                         {field: 'action_name', title: '动作', operate: false},
                         {field: 'url', title: __('Url'), align: 'left', operate: false},
-                        {field: 'ip', title: __('ip'), operate: false},
+                        {field: 'create_ip', title: __('ip'), operate: false},
                         {field: 'city', title: '地区', operate: false},
                         {field: 'create_time', title: __('Createtime'), formatter: Table.api.formatter.datetime, operate: 'BETWEEN', type: 'datetime', addclass: 'datetimepicker', data: 'data-date-format="YYYY-MM-DD HH:mm:ss"' }
                     ]

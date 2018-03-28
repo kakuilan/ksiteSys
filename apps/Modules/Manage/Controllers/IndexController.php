@@ -294,7 +294,8 @@ class IndexController extends Controller {
                 $action = ArrayHelper::arraySearchItem($actionList, ['ac_id'=>$item['action_id']]);
                 $item['action_name'] = $action['title']??'';
 
-                $item['city'] = $ipServ->getCityName(long2ip($item['create_ip']));;
+                $item['create_ip'] = long2ip($item['create_ip']);
+                $item['city'] = $ipServ->getCityName($item['create_ip']);
             }
         }
 

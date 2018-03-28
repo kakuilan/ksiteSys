@@ -8,15 +8,15 @@ eaglewu/swoole-ide-helper
 
 License
 -------
-#### No license.本系统不授权.  
+### No license.本系统不授权.  
 
 
-依赖: 
+### 依赖: 
 - php 7.0  
 - phalcon 3.2.4  
 - swoole 1.9.23  
 
-需打开函数:  
+### 需打开函数:  
 - popen  
 - pclose  
 - exec  
@@ -25,15 +25,16 @@ License
 
 
 
-TODO:  
+### TODO:  
 swoole里SQL注入处理  
 socket  
 404页面慢  
 上次cookie response检查   
 敏感词过滤  
 
-  
 
+### BUG:  
+- 后台日志没记到uid  
 
 
 
