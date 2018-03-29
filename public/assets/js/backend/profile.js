@@ -33,14 +33,14 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'md5'], fun
                 exportTypes: ['json', 'xml', 'csv', 'txt', 'doc', 'excel'],
                 exportOptions:{
                     ignoreColumn: [0],  //忽略某一列的索引
-                    fileName: 'appUserList',  //文件名称设置
+                    fileName: 'list',  //文件名称设置
                     worksheetName: 'sheet1',  //表格工作区名称
-                    tableName: 'appUserList'
+                    tableName: 'list'
                 },
                 columns: [
                     [
                         {field: 'id', title: 'ID', sortable:true, operate: false},
-                        {field: 'uid', title: 'UID'},
+                        {field: 'create_by', title: 'UID'},
                         {field: 'username', title: '用户名'},
                         {field: 'action_name', title: '动作', operate: false},
                         {field: 'url', title: __('Url'), align: 'left', operate: false},

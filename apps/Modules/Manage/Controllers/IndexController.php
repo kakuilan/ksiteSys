@@ -279,7 +279,7 @@ class IndexController extends Controller {
         if(!empty($list)) {
             $ipServ = new Ip2RegionService();
 
-            $uids = array_column($list, 'uid');
+            $uids = array_column($list, 'create_by');
             $admList = UserBase::getList(['uid'=>$uids]);
             if($admList) $admList = $admList->toArray();
 
@@ -288,7 +288,7 @@ class IndexController extends Controller {
             if($actionList) $actionList = $actionList->toArray();
 
             foreach ($list as &$item) {
-                $usr = ArrayHelper::arraySearchItem($admList, ['uid'=>$item['uid']]);
+                $usr = ArrayHelper::arraySearchItem($admList, ['uid'=>$item['create_by']]);
                 $item['username'] = $usr['username']??'';
 
                 $action = ArrayHelper::arraySearchItem($actionList, ['ac_id'=>$item['action_id']]);
