@@ -26,15 +26,17 @@ License
 
 
 ### TODO:  
-swoole里SQL注入处理  
-socket  
-404页面慢  
-上次cookie response检查   
-敏感词过滤  
+- swoole里SQL注入处理  
+- socket  
+- 404页面慢  
+- 上次cookie response检查   
+- 敏感词过滤  
+- 后台配置功能  
+- 上传服务类(支持多文件)  
 
 
 ### BUG:  
--   
+- none
 
 
 
