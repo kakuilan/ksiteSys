@@ -104,7 +104,13 @@ define(['jquery', 'bootstrap', 'upload', 'validator'], function ($, undefined, U
                                 }
                             }
                             //提示及关闭当前窗口
-                            parent.Toastr.success(__('Operation completed'));
+                            var msg = ret.hasOwnProperty("msg") && ret.msg != "" ? ret.msg : "";
+                            var status = ret.hasOwnProperty("status") && ret.status !== "" ? ret.status : false;
+                            if(status) {
+                                parent.Toastr.success(__('Operation completed'));
+                            }else{
+                                parent.Toastr.error(msg ? msg : __('Operation failed'));
+                            }
                             parent.$(".btn-refresh").trigger("click");
                             var index = parent.Layer.getFrameIndex(window.name);
                             parent.Layer.close(index);

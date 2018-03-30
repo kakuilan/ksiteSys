@@ -116,6 +116,22 @@ class UploadService extends ServiceBase {
     }
 
 
+    public function upload($inputNames = [], $newNames = []) {
+        if(empty($inputNames)) {
+            $this->setError('文件域不能为空');
+            return false;
+        }
+
+        $inputNames = array_unique(array_filter($inputNames));
+        
+
+
+
+
+    }
+
+
+
 
 
 }
