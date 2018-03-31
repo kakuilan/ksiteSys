@@ -56,7 +56,7 @@ class UploadService extends ServiceBase {
     ];
 
     protected $errorCodes = [];
-
+    protected $originFiles = []; //上传的源文件数组,$_FILE或request->files
     protected $inputNames = [];
     protected $fileInfos = [];
 
@@ -116,17 +116,27 @@ class UploadService extends ServiceBase {
     }
 
 
-    public function upload($inputNames = [], $newNames = []) {
+    public function setOriginFiles($val=null) {
+        $this->originFiles = $val;
+    }
+
+
+    public function upload($inputNames = [], $newNames = [], $origin=null) {
         if(empty($inputNames)) {
             $this->setError('文件域不能为空');
             return false;
         }
 
         $inputNames = array_unique(array_filter($inputNames));
+        foreach ($inputNames as $inputName) {
+            
+        }
         
 
 
-
+        if(!is_null($origin)) {
+            $this->setOriginFiles($origin);
+        }
 
     }
 
