@@ -659,6 +659,21 @@ class UserService extends ServiceBase {
     }
 
 
+    /**
+     * 生成用户头像路径
+     * @param int $uid
+     *
+     * @return string
+     */
+    public static function makeAvatarPath($uid=0) {
+        $uid = abs(intval($uid));
+        $uid = sprintf("%09d", $uid);
+        $dir1 = substr($uid, -9, 3);
+        $dir2 = substr($uid, -6, 2);
+
+        return $dir1.'/'.$dir2.'/'."{$uid}_avatar.jpg";
+    }
+
 
 
 

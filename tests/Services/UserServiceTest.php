@@ -71,5 +71,15 @@ class UserServiceTest extends TestCase {
 
 
 
+    public function testMakeAvatarPath() {
+        $uid1 = mt_rand(1, 999999999);
+        $uid2 = mt_rand(1, 999999999);
+        $img1 = UserService::makeAvatarPath($uid1);
+        $img2 = UserService::makeAvatarPath($uid2);
+
+        $this->assertTrue($img1!=$img2);
+    }
+
+
 
 }

@@ -127,16 +127,28 @@ class UploadService extends ServiceBase {
             return false;
         }
 
+        if(!is_null($origin)) {
+            $this->setOriginFiles($origin);
+        }
+
+        if(empty($this->originFiles)) {
+            $this->setError('未设置原始上传源');
+            return false;
+        }
+
         $inputNames = array_unique(array_filter($inputNames));
         foreach ($inputNames as $inputName) {
-            
+            if(empty($inputName)) continue;
+
+            array_push($this->inputNames, $inputName);
+
+            $fileInfo = $this->originFiles[$inputName] ?? [];
+            array_push($this->fileInfos, $fileInfo);
         }
         
 
 
-        if(!is_null($origin)) {
-            $this->setOriginFiles($origin);
-        }
+
 
     }
 
