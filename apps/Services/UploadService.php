@@ -11,6 +11,7 @@ namespace Apps\Services;
 
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\DirectoryHelper;
+use Lkk\Helpers\FileHelper;
 use Phalcon\Di;
 
 
@@ -151,6 +152,35 @@ class UploadService extends ServiceBase {
 
 
     }
+
+
+    /**
+     * 生成随机文件名(不包含扩展名)
+     * @return string
+     */
+    public static function makeRandName() {
+        $uniq = md5(uniqid(mt_rand(),true));
+        return date('ymd'). substr($uniq, 8, 16);
+    }
+
+
+    /**
+     * 根据文件名获取子路径
+     * @param string $fileName
+     *
+     * @return string
+     */
+    public static function getSubpathByFilename($fileName='') {
+        if(empty($fileName)) return '';
+
+        $dir1 = substr($fileName, 0, 2);
+        $dir2 = substr($fileName, 2, 2);
+        $dir3 = substr($fileName, 4, 2);
+
+        return $dir1.'/'.$dir2.'/'.$dir3.'/'.$fileName;
+    }
+
+
 
 
 
