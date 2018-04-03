@@ -10,8 +10,10 @@
 namespace Apps\Services;
 
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\DirectoryHelper;
 use Lkk\Helpers\FileHelper;
+use Lkk\Helpers\ValidateHelper;
 use Phalcon\Di;
 
 
@@ -28,7 +30,7 @@ class UploadService extends ServiceBase {
         'size' => 0, //文件大小,单位bit
     ];
 
-    protected $results = [];
+    protected $result = [];
 
     public static $defaultErrorInfo = [ //错误消息
         //系统错误消息
@@ -56,10 +58,10 @@ class UploadService extends ServiceBase {
         '99'  => '上传成功',
     ];
 
-    protected $errorCodes = [];
+    protected $errorCode = [];
     protected $originFiles = []; //上传的源文件数组,$_FILE或request->files
-    protected $inputNames = [];
-    protected $fileInfos = [];
+    protected $inputName = null;
+    protected $fileInfo = [];
 
     //默认参数
     public $webDir         = ''; //WEB目录
@@ -88,42 +90,112 @@ class UploadService extends ServiceBase {
     }
 
 
+    /**
+     * 设置web目录
+     * @param string $val
+     */
     public function setWebDir($val='') {
         if(!empty($val)) $this->webDir = DirectoryHelper::formatDir($val);
     }
 
 
+    /**
+     * 设置保存目录
+     * @param string $val
+     */
     public function setSavePath($val='') {
         if(!empty($val)) $this->savePath = DirectoryHelper::formatDir($val);
     }
 
 
+    /**
+     * 设置允许上传的文件类型
+     * @param array $val
+     */
     public function setAllowType($val=[]) {
         if(!empty($val) && is_array($val)) $this->allowType = $val;
     }
 
 
+    /**
+     * 设置是否允许覆盖
+     * @param bool $val
+     */
     public function setOverwrite($val=false) {
         $this->isOverwrite = boolval($val);
     }
 
 
+    /**
+     * 设置是否允许重命名
+     * @param bool $val
+     */
     public function setRename($val=false) {
         $this->isRename = boolval($val);
     }
 
+
+    /**
+     * 设置允许上传的最大值
+     * @param int $val
+     */
     public function setMaxSize($val=0) {
         if(is_numeric($val) && $val>0) $this->maxSize = $val;
     }
 
 
+    /**
+     * 设置上传源
+     * @param null $val
+     */
     public function setOriginFiles($val=null) {
         $this->originFiles = $val;
     }
 
-
-    public function upload($inputNames = [], $newNames = [], $origin=null) {
+    //上传多个
+    public function uploadMulti($inputNames = [], $newNames = [], $origin=null) {
         if(empty($inputNames)) {
+            $this->setError('文件域不能为空');
+            return false;
+        }
+
+        if(!is_null($origin)) {
+            $this->setOriginFiles($origin);
+        }
+
+        //检查上传源
+        if(empty($this->originFiles)) {
+            $this->setError('未设置原始上传源');
+            return false;
+        }
+
+        //检查保存目录
+        if(empty($this->savePath)) {
+            $this->setError('保存目录不能为空');
+            return false;
+        }elseif (!CommonHelper::isReallyWritable($this->savePath)) {
+
+        }
+
+
+        $inputNames = array_unique(array_filter($inputNames));
+        foreach ($inputNames as $inputName) {
+            if(empty($inputName)) continue;
+
+            array_push($this->inputNames, $inputName);
+
+            $fileInfo = $this->originFiles[$inputName] ?? [];
+            array_push($this->fileInfos, $fileInfo);
+        }
+
+
+
+    }
+
+
+    //上传单个
+    public function uploadSingle($inputName='', $newName='', $origin=null) {
+        if(empty($inputName)) {
             $this->setError('文件域不能为空');
             return false;
         }
@@ -137,21 +209,15 @@ class UploadService extends ServiceBase {
             return false;
         }
 
-        $inputNames = array_unique(array_filter($inputNames));
-        foreach ($inputNames as $inputName) {
-            if(empty($inputName)) continue;
-
-            array_push($this->inputNames, $inputName);
-
-            $fileInfo = $this->originFiles[$inputName] ?? [];
-            array_push($this->fileInfos, $fileInfo);
-        }
-        
-
+        array_push($this->inputNames, $inputName);
+        $fileInfo = $this->originFiles[$inputName] ?? [];
+        array_push($this->fileInfos, $fileInfo);
 
 
 
     }
+
+
 
 
     /**
