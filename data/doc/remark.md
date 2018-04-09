@@ -26,6 +26,7 @@ http://bootstrap-wysiwyg.github.io/bootstrap3-wysiwyg/
 ##库  
 https://github.com/Intervention/image  
 https://github.com/flyimg/flyimg(webp)  
+https://github.com/emojione/emojione (emoji)  
 
 ## 图片
 nginx image_fileter  
@@ -33,6 +34,8 @@ nginx image_fileter
 ##IP地址转换
 https://gitee.com/lionsoul/ip2region  
 https://github.com/lionsoul2014/ip2region  
+
+
 
 
 ##xhpfrof 
