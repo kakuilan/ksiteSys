@@ -8,6 +8,7 @@ https://github.com/slince/phpdish
 
 ##  
 
+
 $query = $this->modelsManager->createBuilder()  
 $res = $query->getQuery()->execute();  
 
@@ -24,6 +25,8 @@ https://github.com/mindmup/bootstrap-wysiwyg
 http://bootstrap-wysiwyg.github.io/bootstrap3-wysiwyg/  
 
 ##库  
+https://github.com/jobbole/awesome-php-cn  
+https://github.com/JingwenTian/awesome-php  
 https://github.com/Intervention/image  
 https://github.com/flyimg/flyimg(webp)  
 https://github.com/emojione/emojione (emoji)  
