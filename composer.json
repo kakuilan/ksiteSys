@@ -23,7 +23,8 @@
     "voku/anti-xss": "^2.1",
     "bluem/tree": "^1.5",
     "gregwar/captcha": "1.*",
-    "intervention/image": "^2.4"
+    "intervention/image": "^2.4",
+    "emojione/emojione": "^3.1"
   },
   "require-dev": {
     "kakuilan/kphplib": "dev-master",
