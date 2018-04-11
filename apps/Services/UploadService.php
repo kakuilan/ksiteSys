@@ -30,8 +30,6 @@ class UploadService extends ServiceBase {
         'size' => 0, //文件大小,单位bit
     ];
 
-    protected $result = [];
-
     public static $defaultErrorInfo = [ //错误消息
         //系统错误消息
         '0' => '没有错误发生',
@@ -55,13 +53,14 @@ class UploadService extends ServiceBase {
         '-9' => '存在同名文件,取消上传',
         '-10' => '文件移动失败',
         '-11' => '文件内容可能不安全',
+        '-12' => '未设置原始上传源',
         '99'  => '上传成功',
     ];
 
-    protected $errorCode = [];
     protected $originFiles = []; //上传的源文件数组,$_FILE或request->files
-    protected $inputName = null;
-    protected $fileInfo = [];
+    protected $inputNames = [];
+    protected $fileInfos = [];
+    protected $results = [];
 
     //默认参数
     public $webDir         = ''; //WEB目录
@@ -155,7 +154,7 @@ class UploadService extends ServiceBase {
     //上传多个
     public function uploadMulti($inputNames = [], $newNames = [], $origin=null) {
         if(empty($inputNames)) {
-            $this->setError('文件域不能为空');
+            $this->setError('文件域不能为空', -2);
             return false;
         }
 
@@ -163,20 +162,25 @@ class UploadService extends ServiceBase {
             $this->setOriginFiles($origin);
         }
 
-        //检查上传源
         if(empty($this->originFiles)) {
-            $this->setError('未设置原始上传源');
+            $this->setError('未设置原始上传源', -12);
             return false;
         }
 
         //检查保存目录
         if(empty($this->savePath)) {
-            $this->setError('保存目录不能为空');
+            $this->setError('保存目录不能为空', -5);
             return false;
+        }elseif (!is_dir($this->savePath)) {
+            $chk = @mkdir($this->params['savePath'], 0755, true);
+            if(!$chk) {
+                $this->setError('保存目录创建失败', -6);
+                return false;
+            }
         }elseif (!CommonHelper::isReallyWritable($this->savePath)) {
-
+            $this->setError('保存目录无写权限', -7);
+            return false;
         }
-
 
         $inputNames = array_unique(array_filter($inputNames));
         foreach ($inputNames as $inputName) {
@@ -196,7 +200,7 @@ class UploadService extends ServiceBase {
     //上传单个
     public function uploadSingle($inputName='', $newName='', $origin=null) {
         if(empty($inputName)) {
-            $this->setError('文件域不能为空');
+            $this->setError('文件域不能为空', -2);
             return false;
         }
 
@@ -205,7 +209,22 @@ class UploadService extends ServiceBase {
         }
 
         if(empty($this->originFiles)) {
-            $this->setError('未设置原始上传源');
+            $this->setError('未设置原始上传源', -12);
+            return false;
+        }
+
+        //检查保存目录
+        if(empty($this->savePath)) {
+            $this->setError('保存目录不能为空', -5);
+            return false;
+        }elseif (!is_dir($this->savePath)) {
+            $chk = @mkdir($this->params['savePath'], 0755, true);
+            if(!$chk) {
+                $this->setError('保存目录创建失败', -6);
+                return false;
+            }
+        }elseif (!CommonHelper::isReallyWritable($this->savePath)) {
+            $this->setError('保存目录无写权限', -7);
             return false;
         }
 
@@ -213,12 +232,43 @@ class UploadService extends ServiceBase {
         $fileInfo = $this->originFiles[$inputName] ?? [];
         array_push($this->fileInfos, $fileInfo);
 
+        $res = $this->doUpload();
+        return $res;
+    }
+
+
+    protected function attachInputs($inputNames = [], $newNames = []) {
 
 
     }
 
 
+    protected function doCheck() {
 
+    }
+
+    protected function doUpload() {
+        if(empty($this->inputNames)) {
+            $this->setError('无上传的文件', -2);
+            return false;
+        }
+
+        foreach ($this->fileInfos as $fileInfo) {
+
+
+        }
+
+
+    }
+
+
+    public function getSingleResult() {
+
+    }
+
+    public function getMultiResult() {
+
+    }
 
     /**
      * 生成随机文件名(不包含扩展名)
@@ -247,6 +297,13 @@ class UploadService extends ServiceBase {
     }
 
 
+    /**
+     * 获取临时目录
+     * @return string
+     */
+    public static function getTmpDir() {
+        return ini_get('upload_tmp_dir') ? ini_get('upload_tmp_dir') : sys_get_temp_dir();
+    }
 
 
 
