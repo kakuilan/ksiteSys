@@ -24,10 +24,11 @@ class UploadService extends ServiceBase {
     public static $defaultResult   = [
         'status' => false, //上传结果
         'info' => '', //提示信息
-        'absolute_path' => '', //绝对路径
-        'relative_path' => '', //相对WEB目录路径
+        'code' => '', //错误码
         'name' => '', //保存的文件名
         'size' => 0, //文件大小,单位bit
+        'absolute_path' => '', //绝对路径
+        'relative_path' => '', //相对WEB目录路径
     ];
 
     public static $defaultErrorInfo = [ //错误消息
@@ -160,6 +161,8 @@ class UploadService extends ServiceBase {
 
         if(!is_null($origin)) {
             $this->setOriginFiles($origin);
+        }else{
+            $this->setOriginFiles($_FILES);
         }
 
         if(empty($this->originFiles)) {
@@ -237,9 +240,46 @@ class UploadService extends ServiceBase {
     }
 
 
+    /**
+     * 匹配文件域
+     * @param array $inputNames
+     * @param array $newNames
+     * @return bool
+     */
     protected function attachInputs($inputNames = [], $newNames = []) {
+        $inputNames = array_unique(array_filter($inputNames));
+        $newNames = array_unique(array_filter($newNames));
+
+        if(empty($inputNames)) {
+            $this->setError('文件域不能为空', -2);
+            return false;
+        }
+
+        if(empty($this->originFiles)) {
+            $this->setError('未设置原始上传源', -12);
+            return false;
+        }
+
+        $this->inputNames = $this->fileInfos = $this->results = [];
+        foreach ($inputNames as $k=>$inputName) {
+            if(empty($inputName)) continue;
+
+            $fileInfo = $this->originFiles[$inputName] ?? [];
+            if($fileInfo) {
+                $fileInfo['new_name'] = $newNames[$k] ?? '';
+            }
+
+            array_push($this->inputNames, $inputName);
+            $this->fileInfos[$inputName] = $fileInfo;
+            $this->results[$inputName] = self::$defaultResult;
+        }
 
 
+
+
+
+
+        return true;
     }
 
 
