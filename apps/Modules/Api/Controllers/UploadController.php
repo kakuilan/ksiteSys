@@ -11,6 +11,7 @@ namespace Apps\Modules\Api\Controllers;
 
 use Kengine\LkkController;
 use Lkk\LkkUpload;
+use Apps\Services\UploadService;
 
 class UploadController extends LkkController {
 

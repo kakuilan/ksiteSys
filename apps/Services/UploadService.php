@@ -20,13 +20,18 @@ use Phalcon\Di;
 class UploadService extends ServiceBase {
 
     public static $defaultAllowType = ['rar','zip','7z','txt','doc','docx','xls','xlsx','ppt','pptx','gif','jpg','jpeg','bmp','png'];	//允许文件类型
-    public static $defaultMaxSize = 512; //允许单个文件最大上传尺寸,单位KB
+    public static $defaultMaxSize = 524288; //允许单个文件最大上传尺寸,单位字节
+    public static $defaultMaxFile = 10; //每次最多允许上传N个文件
     public static $defaultResult   = [
         'status' => false, //上传结果
-        'info' => '', //提示信息
-        'code' => '', //错误码
         'name' => '', //保存的文件名
+        'type' => '', //文件类型
+        'exte' => '', //文件扩展名
         'size' => 0, //文件大小,单位bit
+        'info' => '', //提示信息
+        'error' => '', //错误码
+        'width' => 0, //图片宽度
+        'height' => 0, //图片高度
         'absolute_path' => '', //绝对路径
         'relative_path' => '', //相对WEB目录路径
     ];
@@ -55,6 +60,7 @@ class UploadService extends ServiceBase {
         '-10' => '文件移动失败',
         '-11' => '文件内容可能不安全',
         '-12' => '未设置原始上传源',
+        '-13' => '上传文件数超出限制',
         '99'  => '上传成功',
     ];
 
@@ -69,13 +75,15 @@ class UploadService extends ServiceBase {
     protected $allowType   = [];	//允许文件类型
     protected $isOverwrite = false; //是否允许覆盖同名文件
     protected $isRename    = true; //是否重命名(随机文件名),还是直接使用上传文件的名称
-    protected $maxSize     = 0; //允许单个文件最大上传尺寸,单位KB
+    protected $maxSize     = 0; //允许单个文件最大上传尺寸,单位字节
+    protected $maxFile     = 0; //每次最多允许上传N个文件
 
     public function __construct(array $vars = []) {
         parent::__construct($vars);
 
         if(empty($this->allowType)) $this->allowType = self::$defaultAllowType;
         if(!is_numeric($this->maxSize) || $this->maxSize<=0) $this->maxSize = self::$defaultMaxSize;
+        if(!is_numeric($this->maxFile) || $this->maxFile<=0) $this->maxFile = self::$defaultMaxFile;
 
     }
 
@@ -145,6 +153,15 @@ class UploadService extends ServiceBase {
 
 
     /**
+     * 设置每次最多允许N个文件上传
+     * @param int $val
+     */
+    public function setMaxFile($val=0) {
+        if(is_numeric($val) && $val>0) $this->maxFile = $val;
+    }
+
+
+    /**
      * 设置上传源
      * @param null $val
      */
@@ -152,88 +169,42 @@ class UploadService extends ServiceBase {
         $this->originFiles = $val;
     }
 
-    //上传多个
+
+    /**
+     * 上传多个文件
+     * @param array $inputNames 上传的文件域名称数组
+     * @param array $newNames 文件保存的新名称数组
+     * @param null $origin 上传源
+     * @return bool
+     */
     public function uploadMulti($inputNames = [], $newNames = [], $origin=null) {
-        if(empty($inputNames)) {
-            $this->setError('文件域不能为空', -2);
-            return false;
-        }
+        $attch = $this->attachInputs($inputNames, $newNames);
+        if(!$attch) return false;
 
-        if(!is_null($origin)) {
-            $this->setOriginFiles($origin);
-        }else{
-            $this->setOriginFiles($_FILES);
-        }
+        $check = $this->doCheck();
+        if(!$check) return false;
 
-        if(empty($this->originFiles)) {
-            $this->setError('未设置原始上传源', -12);
-            return false;
-        }
-
-        //检查保存目录
-        if(empty($this->savePath)) {
-            $this->setError('保存目录不能为空', -5);
-            return false;
-        }elseif (!is_dir($this->savePath)) {
-            $chk = @mkdir($this->params['savePath'], 0755, true);
-            if(!$chk) {
-                $this->setError('保存目录创建失败', -6);
-                return false;
-            }
-        }elseif (!CommonHelper::isReallyWritable($this->savePath)) {
-            $this->setError('保存目录无写权限', -7);
-            return false;
-        }
-
-        $inputNames = array_unique(array_filter($inputNames));
-        foreach ($inputNames as $inputName) {
-            if(empty($inputName)) continue;
-
-            array_push($this->inputNames, $inputName);
-
-            $fileInfo = $this->originFiles[$inputName] ?? [];
-            array_push($this->fileInfos, $fileInfo);
-        }
-
-
-
+        $res = $this->doUpload();
+        return $res;
     }
 
 
-    //上传单个
+    /**
+     * 上传单个文件
+     * @param string $inputName 上传的文件域名称
+     * @param string $newName 文件保存的新名称
+     * @param null $origin 上传源
+     * @return bool
+     */
     public function uploadSingle($inputName='', $newName='', $origin=null) {
-        if(empty($inputName)) {
-            $this->setError('文件域不能为空', -2);
-            return false;
-        }
+        $inputNames = [$inputName];
+        $newNames = [$newName];
 
-        if(!is_null($origin)) {
-            $this->setOriginFiles($origin);
-        }
+        $attch = $this->attachInputs($inputNames, $newNames);
+        if(!$attch) return false;
 
-        if(empty($this->originFiles)) {
-            $this->setError('未设置原始上传源', -12);
-            return false;
-        }
-
-        //检查保存目录
-        if(empty($this->savePath)) {
-            $this->setError('保存目录不能为空', -5);
-            return false;
-        }elseif (!is_dir($this->savePath)) {
-            $chk = @mkdir($this->params['savePath'], 0755, true);
-            if(!$chk) {
-                $this->setError('保存目录创建失败', -6);
-                return false;
-            }
-        }elseif (!CommonHelper::isReallyWritable($this->savePath)) {
-            $this->setError('保存目录无写权限', -7);
-            return false;
-        }
-
-        array_push($this->inputNames, $inputName);
-        $fileInfo = $this->originFiles[$inputName] ?? [];
-        array_push($this->fileInfos, $fileInfo);
+        $check = $this->doCheck();
+        if(!$check) return false;
 
         $res = $this->doUpload();
         return $res;
@@ -247,6 +218,12 @@ class UploadService extends ServiceBase {
      * @return bool
      */
     protected function attachInputs($inputNames = [], $newNames = []) {
+        $count = count($inputNames);
+        if($count > $this->maxFile) {
+            $this->setError("每次最多同时上传{$this->maxFile}个文件", -13);
+            return false;
+        }
+
         $inputNames = array_unique(array_filter($inputNames));
         $newNames = array_unique(array_filter($newNames));
 
@@ -256,7 +233,7 @@ class UploadService extends ServiceBase {
         }
 
         if(empty($this->originFiles)) {
-            $this->setError('未设置原始上传源', -12);
+            $this->setError('未设置上传源或无上传文件', -12);
             return false;
         }
 
@@ -271,52 +248,139 @@ class UploadService extends ServiceBase {
 
             array_push($this->inputNames, $inputName);
             $this->fileInfos[$inputName] = $fileInfo;
-            $this->results[$inputName] = self::$defaultResult;
         }
-
-
-
-
-
+        unset($inputNames, $newNames);
 
         return true;
     }
 
 
+    /**
+     * 执行检查
+     * @return bool
+     */
     protected function doCheck() {
+        //检查保存目录
+        if(empty($this->savePath)) {
+            $this->setError('保存目录不能为空', -5);
+            return false;
+        }elseif (!is_dir($this->savePath)) {
+            $chk = @mkdir($this->params['savePath'], 0755, true);
+            if(!$chk) {
+                $this->setError('保存目录创建失败', -6);
+                return false;
+            }
+        }elseif (!CommonHelper::isReallyWritable($this->savePath)) {
+            $this->setError('保存目录无写权限', -7);
+            return false;
+        }
 
+        //检查临时目录
+        $tmpDir = self::getTmpDir();
+        if(empty($tmpDir) || !is_dir($tmpDir)) {
+            $this->setError('临时目录不存在', 6);
+            return false;
+        }
+
+        return true;
     }
 
+
+    /**
+     * 执行上传
+     * @return bool
+     */
     protected function doUpload() {
         if(empty($this->inputNames)) {
             $this->setError('无上传的文件', -2);
             return false;
         }
 
-        foreach ($this->fileInfos as $fileInfo) {
+        $uploadErrs = range(1, 7);
+        foreach ($this->inputNames as $inputName) {
+            $fileInfo = $this->fileInfos[$inputName] ?? [];
+            $error = $fileInfo['error'] ?? -1;
+            $newName = $fileInfo['new_name'] ?? '';
 
+            if(empty($fileInfo)) {
+                $error = -2;
+            }elseif(!in_array($fileInfo['error'], $uploadErrs)) { //上传中无错误
+                $exte = FileHelper::getFileExt($fileInfo['name']);
+                if($fileInfo['size'] > $this->maxSize) { //检查文件大小
+                    $error = -3;
+                }elseif (!in_array($exte, $this->allowType)) { //检查文件扩展名
+                    $error = -4;
+                }elseif (!file_exists($fileInfo['tmp_name'])) {
+                    $error = -8;
+                }else{
+                    if(empty($newName) || !preg_match("/^[a-z0-9\-_]+$/i", $newName)) $newName = self::makeRandName($exte);
+                    $newFilePath = $this->savePath . self::getSubpathByFilename($newName);
 
+                    if(file_exists($newFilePath) && !$this->isOverwrite && $this->isRename) {
+                        $newName = self::makeRandName($exte);
+                        $newFilePath = $this->savePath . self::getSubpathByFilename($newName);
+                    }
+
+                    if(file_exists($newFilePath) && !$this->isOverwrite) {
+                        $error = -9;
+                    }else{
+                        //检查图片
+                        $imgInfo = in_array($exte, ['gif','jpg','jpeg','png','bmp']) ? self::getImageSize($newFilePath, $exte) : true;
+                        if(!$imgInfo) {
+                            $error = -11;
+                        }elseif (!self::saveFile($fileInfo['tmp_name'], $newFilePath)) {
+                            $error = -10;
+                        }else{
+                            $error = 99; //成功
+                            if($imgInfo && is_array($imgInfo)) $fileInfo = array_merge($fileInfo, $imgInfo);
+                            $fileInfo['exte'] = $exte;
+                            $fileInfo['new_name'] = $newName;
+                            $fileInfo['absolute_path'] = $newFilePath;
+                            $fileInfo['relative_path'] = '/'. ltrim(str_replace($this->webDir, '', $newFilePath), '/');
+                        }
+                    }
+                }
+            }
+
+            $result = array_merge(self::$defaultResult, $fileInfo);
+            $result['error'] = $error;
+            $result['info'] = self::getErrorInfoByCode($error);
+
+            $this->results[$inputName] = $result;
         }
 
-
+        return true;
     }
 
-
-    public function getSingleResult() {
-
-    }
-
-    public function getMultiResult() {
-
-    }
 
     /**
-     * 生成随机文件名(不包含扩展名)
+     * 获取单个上传结果
+     * @return mixed
+     */
+    public function getSingleResult() {
+        return current($this->results);
+    }
+
+
+    /**
+     * 获取多个上传结果
+     * @return array
+     */
+    public function getMultiResult() {
+        return $this->results;
+    }
+
+
+    /**
+     * 生成随机文件名
+     * @param string $ext 扩展名
      * @return string
      */
-    public static function makeRandName() {
+    public static function makeRandName($ext='') {
         $uniq = md5(uniqid(mt_rand(),true));
-        return date('ymd'). substr($uniq, 8, 16);
+        $res = date('ymd'). substr($uniq, 8, 16);
+
+        return $res ? $res : ($res . ".{$ext}");
     }
 
 
@@ -346,7 +410,61 @@ class UploadService extends ServiceBase {
     }
 
 
+    /**
+     * 获取图片宽高信息
+     * @param string $srcFile
+     * @param null $srcExt
+     * @return array|bool
+     */
+    public static function getImageSize($srcFile, $srcExt = null) {
+        if(empty($srcFile)) return [];
+        if(empty($srcExt)) $srcExt = FileHelper::getFileExt($srcFile);
 
+        $srcdata = [];
+        try {
+            if (function_exists('read_exif_data') && in_array($srcExt, [
+                    'jpg',
+                    'jpeg',
+                    'jpe',
+                    'jfif'
+                ])) {
+                $datatemp = read_exif_data($srcFile);
+                $srcdata['width'] = $datatemp['COMPUTED']['Width'];
+                $srcdata['height'] = $datatemp['COMPUTED']['Height'];
+                $srcdata['type'] = 2;
+                unset($datatemp);
+            }
+            !$srcdata['width'] && list($srcdata['width'], $srcdata['height'], $srcdata['type']) = getimagesize($srcFile);
+            if (!$srcdata['type'] || ($srcdata['type'] == 1 && in_array($srcExt, [
+                        'jpg',
+                        'jpeg',
+                        'jpe',
+                        'jfif'
+                    ]))) {
+                return false;
+            }
+        }catch (\Throwable $e) {
+
+        }
+
+        return $srcdata;
+    }
+
+
+    /**
+     * 保存文件
+     * @param string $tmpFilePath 临时文件路径
+     * @param string $newFilePath 新文件路径
+     * @return bool
+     */
+    public static function saveFile($tmpFilePath='', $newFilePath='') {
+        if(empty($tmpFilePath) || empty($newFilePath)) return false;
+
+        $res = function_exists("move_uploaded_file") ? @move_uploaded_file($tmpFilePath, $newFilePath) : @copy($tmpFilePath, $newFilePath);
+        if($res) @chmod($newFilePath, 0755);
+
+        return $res;
+    }
 
 
 }
