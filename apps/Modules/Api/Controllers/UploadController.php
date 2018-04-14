@@ -81,6 +81,30 @@ class UploadController extends LkkController {
     }
 
 
+    public function singleAction() {
+        $serv = new UploadService();
+        $serv->setOriginFiles($this->swooleRequest->files)
+            ->setSavePath(UPLODIR)->setWebDir(WWWDIR);
+
+        $ret = $serv->uploadSingle('file');
+        if(!$ret) {
+            return $this->fail($serv->getError());
+        }
+
+        $arr = $serv->getSingleResult();
+        $arr['url'] = rtrim(getSiteUrl(), '/') . $arr['relative_path'];
+
+        return $this->success($arr);
+    }
+
+
+    public function multiAction() {
+
+
+
+    }
+
+
 
 
 }

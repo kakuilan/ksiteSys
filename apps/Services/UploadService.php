@@ -113,6 +113,7 @@ class UploadService extends ServiceBase {
      */
     public function setSavePath($val='') {
         if(!empty($val)) $this->savePath = DirectoryHelper::formatDir($val);
+        return $this;
     }
 
 
@@ -122,6 +123,7 @@ class UploadService extends ServiceBase {
      */
     public function setAllowType($val=[]) {
         if(!empty($val) && is_array($val)) $this->allowType = $val;
+        return $this;
     }
 
 
@@ -131,6 +133,7 @@ class UploadService extends ServiceBase {
      */
     public function setOverwrite($val=false) {
         $this->isOverwrite = boolval($val);
+        return $this;
     }
 
 
@@ -140,6 +143,7 @@ class UploadService extends ServiceBase {
      */
     public function setRename($val=false) {
         $this->isRename = boolval($val);
+        return $this;
     }
 
 
@@ -149,6 +153,7 @@ class UploadService extends ServiceBase {
      */
     public function setMaxSize($val=0) {
         if(is_numeric($val) && $val>0) $this->maxSize = $val;
+        return $this;
     }
 
 
@@ -158,6 +163,7 @@ class UploadService extends ServiceBase {
      */
     public function setMaxFile($val=0) {
         if(is_numeric($val) && $val>0) $this->maxFile = $val;
+        return $this;
     }
 
 
@@ -167,6 +173,7 @@ class UploadService extends ServiceBase {
      */
     public function setOriginFiles($val=null) {
         $this->originFiles = $val;
+        return $this;
     }
 
 
@@ -325,7 +332,7 @@ class UploadService extends ServiceBase {
                         $error = -9;
                     }else{
                         //检查图片
-                        $imgInfo = in_array($exte, ['gif','jpg','jpeg','png','bmp']) ? self::getImageSize($newFilePath, $exte) : true;
+                        $imgInfo = in_array($exte, ['gif','jpg','jpeg','png','bmp']) ? self::getImageSize($fileInfo['tmp_name'], $exte) : true;
                         if(!$imgInfo) {
                             $error = -11;
                         }elseif (!self::saveFile($fileInfo['tmp_name'], $newFilePath)) {
@@ -344,6 +351,7 @@ class UploadService extends ServiceBase {
 
             $result = array_merge(self::$defaultResult, $fileInfo);
             $result['error'] = $error;
+            $result['status'] = ($error==99);
             $result['info'] = self::getErrorInfoByCode($error);
 
             $this->results[$inputName] = $result;
@@ -380,7 +388,7 @@ class UploadService extends ServiceBase {
         $uniq = md5(uniqid(mt_rand(),true));
         $res = date('ymd'). substr($uniq, 8, 16);
 
-        return $res ? $res : ($res . ".{$ext}");
+        return $ext ? ($res . ".{$ext}") : $res;
     }
 
 
@@ -459,6 +467,8 @@ class UploadService extends ServiceBase {
      */
     public static function saveFile($tmpFilePath='', $newFilePath='') {
         if(empty($tmpFilePath) || empty($newFilePath)) return false;
+        $dir = dirname($newFilePath);
+        if(!is_dir($dir)) @mkdir($dir, 0755, true);
 
         $res = function_exists("move_uploaded_file") ? @move_uploaded_file($tmpFilePath, $newFilePath) : @copy($tmpFilePath, $newFilePath);
         if($res) @chmod($newFilePath, 0755);
