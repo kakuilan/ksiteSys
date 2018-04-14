@@ -36,6 +36,7 @@ class UploadService extends ServiceBase {
         'absolute_path' => '', //绝对路径
         'relative_path' => '', //相对WEB目录路径
         'url'   => '', //文件URL地址
+        'is_exists' => false, //根据文件md5检查是否已存在(之前已上传有相同的文件)
     ];
 
     public static $defaultErrorInfo = [ //错误消息
@@ -334,22 +335,24 @@ class UploadService extends ServiceBase {
                 }elseif (!file_exists($fileInfo['tmp_name'])) {
                     $error = -8;
                 }else{
-                    if(empty($newName) || !preg_match("/^[a-z0-9\-_]+$/i", $newName)) $newName = self::makeRandName($exte);
+                    if(empty($newName) || !preg_match("/^[a-z0-9\-_]+$/i", $newName)) $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
                     $newFilePath = $this->savePath . self::getSubpathByFilename($newName);
 
                     if(file_exists($newFilePath) && !$this->isOverwrite && $this->isRename) {
-                        $newName = self::makeRandName($exte);
+                        $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
                         $newFilePath = $this->savePath . self::getSubpathByFilename($newName);
                     }
 
-                    if(file_exists($newFilePath) && !$this->isOverwrite) {
+                    $hasSameFile = file_exists($newFilePath) && md5_file($newFilePath)==md5_file($fileInfo['tmp_name']);//文件md5相同
+                    if(file_exists($newFilePath) && !$this->isOverwrite && !$hasSameFile) { //不允许覆盖
                         $error = -9;
                     }else{
                         //检查图片
                         $imgInfo = in_array($exte, ['gif','jpg','jpeg','png','bmp']) ? self::getImageSize($fileInfo['tmp_name'], $exte) : true;
+                        $saveRes = $hasSameFile ? true : (self::saveFile($fileInfo['tmp_name'], $newFilePath));
                         if(!$imgInfo) {
                             $error = -11;
-                        }elseif (!self::saveFile($fileInfo['tmp_name'], $newFilePath)) {
+                        }elseif (!$saveRes) {
                             $error = -10;
                         }else{
                             $error = 99; //成功
@@ -359,6 +362,7 @@ class UploadService extends ServiceBase {
                             $fileInfo['absolute_path'] = $newFilePath;
                             $fileInfo['relative_path'] = '/'. ltrim(str_replace($this->webDir, '', $newFilePath), '/');
                             $fileInfo['url'] = $this->webUrl . $fileInfo['relative_path'];
+                            $fileInfo['is_exists'] = $hasSameFile;
                         }
                     }
                 }
@@ -396,11 +400,17 @@ class UploadService extends ServiceBase {
 
     /**
      * 生成随机文件名
+     * @param string $file 文件路径
      * @param string $ext 扩展名
      * @return string
      */
-    public static function makeRandName($ext='') {
-        $uniq = md5(uniqid(mt_rand(),true));
+    public static function makeRandName($file='', $ext='') {
+        if(!empty($file) && file_exists($file)) {
+            $uniq = md5_file($file);
+        }else{
+            $uniq = md5(uniqid(mt_rand(),true));
+        }
+
         $res = date('ymd'). substr($uniq, 8, 16);
 
         return $ext ? ($res . ".{$ext}") : $res;
