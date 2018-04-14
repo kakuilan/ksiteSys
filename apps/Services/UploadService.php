@@ -13,6 +13,7 @@ use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\DirectoryHelper;
 use Lkk\Helpers\FileHelper;
+use Lkk\Helpers\UrlHelper;
 use Lkk\Helpers\ValidateHelper;
 use Phalcon\Di;
 
@@ -34,6 +35,7 @@ class UploadService extends ServiceBase {
         'height' => 0, //图片高度
         'absolute_path' => '', //绝对路径
         'relative_path' => '', //相对WEB目录路径
+        'url'   => '', //文件URL地址
     ];
 
     public static $defaultErrorInfo = [ //错误消息
@@ -70,7 +72,8 @@ class UploadService extends ServiceBase {
     protected $results = [];
 
     //默认参数
-    public $webDir         = ''; //WEB目录
+    protected $webDir      = ''; //WEB目录
+    protected $webUrl      = ''; //WEB URL
     protected $savePath    = null; //文件保存目录
     protected $allowType   = [];	//允许文件类型
     protected $isOverwrite = false; //是否允许覆盖同名文件
@@ -99,15 +102,6 @@ class UploadService extends ServiceBase {
 
 
     /**
-     * 设置web目录
-     * @param string $val
-     */
-    public function setWebDir($val='') {
-        if(!empty($val)) $this->webDir = DirectoryHelper::formatDir($val);
-    }
-
-
-    /**
      * 设置保存目录
      * @param string $val
      */
@@ -116,6 +110,26 @@ class UploadService extends ServiceBase {
         return $this;
     }
 
+
+    /**
+     * 设置web目录
+     * @param string $val
+     */
+    public function setWebDir($val='') {
+        if(!empty($val)) $this->webDir = DirectoryHelper::formatDir($val);
+        return $this;
+    }
+
+
+    /**
+     * 设置web Url
+     * @param string $val
+     * @return $this
+     */
+    public function setWebUrl($val='') {
+        if(!empty($val)) $this->webUrl = rtrim(UrlHelper::formatUrl($val), '/');
+        return $this;
+    }
 
     /**
      * 设置允许上传的文件类型
@@ -344,6 +358,7 @@ class UploadService extends ServiceBase {
                             $fileInfo['new_name'] = $newName;
                             $fileInfo['absolute_path'] = $newFilePath;
                             $fileInfo['relative_path'] = '/'. ltrim(str_replace($this->webDir, '', $newFilePath), '/');
+                            $fileInfo['url'] = $this->webUrl . $fileInfo['relative_path'];
                         }
                     }
                 }
@@ -442,8 +457,8 @@ class UploadService extends ServiceBase {
                 $srcdata['type'] = 2;
                 unset($datatemp);
             }
-            !$srcdata['width'] && list($srcdata['width'], $srcdata['height'], $srcdata['type']) = getimagesize($srcFile);
-            if (!$srcdata['type'] || ($srcdata['type'] == 1 && in_array($srcExt, [
+            (!isset($srcdata['width']) || !$srcdata['width']) && list($srcdata['width'], $srcdata['height'], $srcdata['type']) = getimagesize($srcFile);
+            if (!isset($srcdata['type']) || !$srcdata['type'] || ($srcdata['type'] == 1 && in_array($srcExt, [
                         'jpg',
                         'jpeg',
                         'jpe',
@@ -454,6 +469,7 @@ class UploadService extends ServiceBase {
         }catch (\Throwable $e) {
 
         }
+        unset($srcdata['type']);
 
         return $srcdata;
     }

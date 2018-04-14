@@ -81,10 +81,14 @@ class UploadController extends LkkController {
     }
 
 
+    /**
+     * 单文件上传
+     * @return array|string
+     */
     public function singleAction() {
         $serv = new UploadService();
         $serv->setOriginFiles($this->swooleRequest->files)
-            ->setSavePath(UPLODIR)->setWebDir(WWWDIR);
+            ->setSavePath(UPLODIR)->setWebDir(WWWDIR)->setWebUrl(getSiteUrl());
 
         $ret = $serv->uploadSingle('file');
         if(!$ret) {
@@ -92,16 +96,26 @@ class UploadController extends LkkController {
         }
 
         $arr = $serv->getSingleResult();
-        $arr['url'] = rtrim(getSiteUrl(), '/') . $arr['relative_path'];
-
         return $this->success($arr);
     }
 
 
+    /**
+     * 多文件上传
+     * @return array|string
+     */
     public function multiAction() {
+        $serv = new UploadService();
+        $serv->setOriginFiles($this->swooleRequest->files)
+            ->setSavePath(UPLODIR)->setWebDir(WWWDIR)->setWebUrl(getSiteUrl());
 
+        $ret = $serv->uploadMulti(['img','doc','ppt','file','logo','desc']);
+        if(!$ret) {
+            return $this->fail($serv->getError());
+        }
 
-
+        $arr = $serv->getMultiResult();
+        return $this->success($arr);
     }
 
 
