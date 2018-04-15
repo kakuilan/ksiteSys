@@ -9,11 +9,11 @@
 
 namespace Apps\Modules\Api\Controllers;
 
-use Kengine\LkkController;
 use Lkk\LkkUpload;
+use Apps\Modules\Api\Controller;
 use Apps\Services\UploadService;
 
-class UploadController extends LkkController {
+class UploadController extends Controller {
 
 
     /**
@@ -28,12 +28,18 @@ class UploadController extends LkkController {
 
 
 
-    public function base64Action() {
-        return $this->success();
-    }
-
-
     public function imageAction() {
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $token = $this->getAccessToken();
+
+
+        $typeArr = ['file','base64'];
+        $name = $this->getRequest('name', 'file');
+        $type = $this->getRequest('type', 'file');
+
+
+
+
         //TODO base64
         $name = 'file';
         $fileInfo = $this->swooleRequest->files[$name] ?? [];

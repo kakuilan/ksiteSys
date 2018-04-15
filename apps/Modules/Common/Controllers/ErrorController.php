@@ -10,10 +10,9 @@
 
 namespace Apps\Modules\Common\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Common\Controller;
 
-
-class ErrorController extends LkkController {
+class ErrorController extends Controller {
 
 
     /**

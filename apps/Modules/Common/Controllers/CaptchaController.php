@@ -10,10 +10,10 @@
 
 namespace Apps\Modules\Common\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Common\Controller;
 use Apps\Services\CaptchaService;
 
-class CaptchaController extends LkkController {
+class CaptchaController extends Controller {
 
 
     /**

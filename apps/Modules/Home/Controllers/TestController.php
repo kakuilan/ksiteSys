@@ -9,16 +9,16 @@
 
 namespace Apps\Modules\Home\Controllers;
 
-use Kengine\LkkController;
+use Apps\Models\Test;
+use Apps\Models\UserBase;
+use Apps\Modules\Home\Controller;
+use Apps\Services\RedisQueueService;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\StringHelper;
-use Apps\Models\Test;
 use Lkk\Phalwoo\Server\SwooleServer;
-use Apps\Models\UserBase;
-use Apps\Services\RedisQueueService;
 
 
-class TestController extends  LkkController {
+class TestController extends  Controller {
 
     /**
      * 默认动作

@@ -10,10 +10,10 @@
 
 namespace Apps\Modules\Home\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Home\Controller;
 use Lkk\Helpers\CommonHelper;
 
-class IndexController extends LkkController {
+class IndexController extends Controller {
 
     /**
      * @title -默认动作

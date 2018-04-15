@@ -11,13 +11,13 @@
 namespace Apps\Modules\Manage;
 
 use Apps\Models\Action;
+use Apps\Modules\BaseController;
 use Apps\Models\AdmOperateLog;
 use Apps\Services\ConstService;
-use Kengine\LkkController;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 
-class Controller extends  LkkController {
+class Controller extends  BaseController {
 
     //不记访问日志的动作
     public static $nologActions = [

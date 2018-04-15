@@ -10,10 +10,9 @@
 
 namespace Apps\Modules\Api\Controllers;
 
-use Kengine\LkkController;
+use Apps\Modules\Api\Controller;
 
-
-class IndexController extends LkkController {
+class IndexController extends Controller {
 
 
     /**
