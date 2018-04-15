@@ -34,6 +34,7 @@ License
 - 敏感词过滤  
 - 后台配置功能  
 - img base64上传  
+- cli/task加个基础类  
 
 
 ### BUG:  
