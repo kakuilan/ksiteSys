@@ -70,7 +70,7 @@
             <!-- 迷你模式下Logo的大小为50X50 -->
             <span class="logo-mini">Ksys</span>
             <!-- 普通模式下Logo -->
-            <span class="logo-lg"><b>Ksys</b>Admin</span>
+            <span class="logo-lg"><b>Ksys</b>Backend</span>
         </a>
         <!-- 顶部通栏样式 -->
         <nav class="navbar navbar-static-top">
