@@ -19,13 +19,10 @@ use Lkk\Phalwoo\Phalcon\Mvc\Controller;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Phalcon\Mvc\View;
 
-class LkkController extends Controller {
+abstract class LkkController extends Controller {
 
     //当前站点ID
     public $siteId = 0;
-
-    //头部SEO
-    public $headerSeo;
 
 
     //登录UID
@@ -34,6 +31,14 @@ class LkkController extends Controller {
 
     //动作ID
     protected $actionId;
+
+
+    //是否API
+    public $isApi;
+
+
+    //头部SEO
+    public $headerSeo;
 
 
 
@@ -48,16 +53,26 @@ class LkkController extends Controller {
 
 
     /**
+     * 获取动作ID
+     * @return mixed
+     */
+    abstract public function getActionId();
+
+
+    /**
      * 获取登录用户UID
      * @return mixed
      */
-    public function getLoginUid() {
-        if(is_null($this->uid)) {
-            //TODO
-        }
+    abstract public function getLoginUid();
 
-        return $this->uid;
-    }
+
+    /**
+     * 记录请求日志
+     * @param mixed $out 输出的结果
+     *
+     * @return mixed
+     */
+    abstract public function addAccessLog($out);
 
 
     /**
@@ -280,7 +295,7 @@ class LkkController extends Controller {
      */
     public function getRequest($name='', $default=null, $xssClean = true) {
         if($name=='') {
-            $data = self::recursionTrim($this->request->get(''));
+            $data = self::recursionTrim($this->request->get());
             if($xssClean && $data) {
                 return LkkCmponent::xssClean()->xss_clean($data);
             }
@@ -389,6 +404,17 @@ class LkkController extends Controller {
         if(!empty($origin) && $origin!=$code) return false;
 
         return true;
+    }
+
+
+    /**
+     * 获取accessToken
+     * @return array|string
+     */
+    public function getAccessToken() {
+        $tokenName = getConf('login', 'tokenName');
+        $tokenValu = $this->getRequest($tokenName);
+        return $tokenValu;
     }
 
 
