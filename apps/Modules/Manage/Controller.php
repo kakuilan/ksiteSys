@@ -46,7 +46,7 @@ class Controller extends  BaseController {
         $this->getActionId();
 
         if(!in_array($action, self::$nologActions)) {
-            $this->addAdmnOperateLog();
+            $this->addAccessLog();
         }
 
         return null;
@@ -91,8 +91,9 @@ class Controller extends  BaseController {
 
     /**
      * 新增后台操作日志
+     * @param string $out
      */
-    public function addAdmnOperateLog() {
+    public function addAccessLog($out='') {
         $swooleRequest = $this->getDI()->getShared('swooleRequest');
         $params = [
             'get' => $swooleRequest->get ?? [],
