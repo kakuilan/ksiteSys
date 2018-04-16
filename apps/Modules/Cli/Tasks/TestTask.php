@@ -12,11 +12,11 @@ namespace Apps\Modules\Cli\Tasks;
 use Apps\Models\AdmUser;
 use Apps\Models\Site;
 use Apps\Models\UserBase;
+use Apps\Modules\Cli\BaseTask;
 use Apps\Services\Ip2RegionService;
-use Kengine\LkkTask;
 use Lkk\Helpers\StringHelper;
 
-class TestTask extends LkkTask {
+class TestTask extends BaseTask {
 
     /**
      * @title -默认动作

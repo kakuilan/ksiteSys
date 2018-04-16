@@ -10,7 +10,7 @@
 
 namespace Apps\Modules\Cli\Tasks;
 
-use Kengine\LkkTask;
+use Apps\Modules\Cli\BaseTask;
 use Apps\Services\ActionService;
 use Lkk\Helpers\ArrayHelper;
 
@@ -18,7 +18,7 @@ use Lkk\Helpers\ArrayHelper;
  * Class 主任务
  * @package Apps\Modules\Cli\Tasks
  */
-class MainTask extends LkkTask {
+class MainTask extends BaseTask {
 
 
     public function initialize() {

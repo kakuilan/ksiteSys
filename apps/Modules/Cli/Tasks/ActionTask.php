@@ -10,7 +10,7 @@
 
 namespace Apps\Modules\Cli\Tasks;
 
-use Kengine\LkkTask;
+use Apps\Modules\Cli\BaseTask;
 use Apps\Models\Action;
 use Apps\Services\ActionService;
 
@@ -18,7 +18,7 @@ use Apps\Services\ActionService;
  * Class 动作任务
  * @package Apps\Modules\Cli\Tasks
  */
-class ActionTask extends LkkTask {
+class ActionTask extends BaseTask {
 
     /**
      * @title -默认任务

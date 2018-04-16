@@ -9,11 +9,11 @@
 
 namespace Apps\Modules\Cli\Tasks;
 
-use Kengine\LkkTask;
+use Apps\Modules\Cli\BaseTask;
 use Lkk\Helpers\DirectoryHelper;
 use Lkk\Helpers\StringHelper;
 
-class ClearTask extends LkkTask {
+class ClearTask extends BaseTask {
 
     /**
      * @title -清空运行时任务目录
