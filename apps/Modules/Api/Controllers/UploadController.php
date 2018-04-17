@@ -9,10 +9,10 @@
 
 namespace Apps\Modules\Api\Controllers;
 
-use Apps\Services\UserService;
-use Lkk\LkkUpload;
 use Apps\Modules\Api\Controller;
 use Apps\Services\UploadService;
+use Apps\Services\UserService;
+use Lkk\LkkUpload;
 
 class UploadController extends Controller {
 
@@ -80,6 +80,9 @@ class UploadController extends Controller {
         $name = $this->getRequest('name', 'file');
         $type = $this->getRequest('type', 'file');
         $uid = intval($this->getRequest('uid'));
+        if(!in_array($type, $typeArr)) {
+            return $this->fail(20104, 'type类型错误');
+        }
 
         $isAdmin = false;
         if($uid<=0) $uid = $loginUid;
@@ -89,9 +92,25 @@ class UploadController extends Controller {
         }
 
         //自己传头像 or 管理员修改他人头像
+        if($type=='file') {
+            $serv = new UploadService();
+            $serv->setOriginFiles($this->swooleRequest->files)
+                ->setSavePath(UPLODIR)
+                ->setWebDir(WWWDIR)
+                ->setWebUrl(getSiteUrl())
+                ->setAllowType(['gif','jpg','jpeg','bmp','png']);
 
+            $ret = $serv->uploadSingle('file');
+            if(!$ret) {
+                return $this->fail($serv->getError());
+            }
 
+            $data = $serv->getSingleResult();
+        }else{
+            $data = [];
+        }
 
+        return $this->success($data);
     }
 
 

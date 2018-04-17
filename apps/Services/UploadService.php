@@ -105,6 +105,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置保存目录
      * @param string $val
+     * @return $this
      */
     public function setSavePath($val='') {
         if(!empty($val)) $this->savePath = DirectoryHelper::formatDir($val);
@@ -115,6 +116,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置web目录
      * @param string $val
+     * @return $this
      */
     public function setWebDir($val='') {
         if(!empty($val)) $this->webDir = DirectoryHelper::formatDir($val);
@@ -135,6 +137,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置允许上传的文件类型
      * @param array $val
+     * @return $this
      */
     public function setAllowType($val=[]) {
         if(!empty($val) && is_array($val)) $this->allowType = $val;
@@ -145,6 +148,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置是否允许覆盖
      * @param bool $val
+     * @return $this
      */
     public function setOverwrite($val=false) {
         $this->isOverwrite = boolval($val);
@@ -155,6 +159,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置是否允许重命名
      * @param bool $val
+     * @return $this
      */
     public function setRename($val=false) {
         $this->isRename = boolval($val);
@@ -165,6 +170,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置允许上传的最大值
      * @param int $val
+     * @return $this
      */
     public function setMaxSize($val=0) {
         if(is_numeric($val) && $val>0) $this->maxSize = $val;
@@ -175,6 +181,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置每次最多允许N个文件上传
      * @param int $val
+     * @return $this
      */
     public function setMaxFile($val=0) {
         if(is_numeric($val) && $val>0) $this->maxFile = $val;
@@ -185,6 +192,7 @@ class UploadService extends ServiceBase {
     /**
      * 设置上传源
      * @param null $val
+     * @return $this
      */
     public function setOriginFiles($val=null) {
         $this->originFiles = $val;

@@ -116,6 +116,17 @@ class TestController extends  Controller {
 
 
 
+    public function langAction() {
+        $aa = "HELLOWORLD";
+        $bb = lang($aa);
+        $cc = "Hello :user";
+        $dd = lang($cc, [':user'=>'lkk']);
+
+        var_dump($bb, $dd);
+    }
+
+
+
 
 
 }

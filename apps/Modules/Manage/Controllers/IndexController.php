@@ -209,7 +209,7 @@ class IndexController extends Controller {
             'siteUrl' => getSiteUrl(),
             'saveUrl' => makeUrl('manage/index/saveprofile'),
             'logsUrl' => makeUrl('manage/index/admloglist'),
-            'uploadUrl' => makeUrl('api/upload/image', [$tokenName=>$accToken]),
+            'uploadUrl' => makeUrl('api/upload/avatar', [$tokenName=>$accToken]),
             'row' => AdmUser::rowToObject($info),
         ]);
 

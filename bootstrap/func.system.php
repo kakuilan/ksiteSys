@@ -103,8 +103,11 @@ function xssClean(string $str) {
  * @return string
  */
 function lang($string, array $values = []) {
-    if(!is_array($values) || empty($values)) return $string;
-    return LkkLang::getInstance()->translate($string, $values);
+    if(empty($string) || (!is_numeric($string) && (!is_array($values) || empty($values)))) {
+        return $string;
+    }
+
+    return LkkLang::getInstance()->translate(strval($string), $values);
 }
 
 
