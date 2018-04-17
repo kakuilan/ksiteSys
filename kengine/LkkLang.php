@@ -54,7 +54,7 @@ class LkkLang extends LkkService {
         $sysfile = $this->_config['systemdir'] . $lang . PHPEXT;
         if( file_exists($sysfile)) {
             $messages = require $sysfile;
-            $content = array_merge($content, $messages);
+            $content = $content + $messages; //array_merge()会重排两个数组的数字索引,+则不会
         }
 
         $translate = new NativeArray([
