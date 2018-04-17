@@ -652,7 +652,7 @@ class UserService extends ServiceBase {
         if(!empty($code)) {
             $arr = explode('|', $code);
             if(!empty($veriCode) && (!isset($arr[1]) || $arr[1]!=$veriCode)) return false;
-            if(is_numeric($arr[0])) $res = $arr[0];
+            if(is_numeric($arr[0])) $res = intval($arr[0]);
         }
 
         return $res;

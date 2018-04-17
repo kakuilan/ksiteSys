@@ -87,7 +87,7 @@ class UploadController extends Controller {
         $isAdmin = false;
         if($uid<=0) $uid = $loginUid;
 
-        if($loginUid!=$uid || !$isAdmin) {
+        if($loginUid!=$uid && !$isAdmin) {
             return $this->fail(401);
         }
 
@@ -106,6 +106,7 @@ class UploadController extends Controller {
             }
 
             $data = $serv->getSingleResult();
+            unset($data['absolute_path']);
         }else{
             $data = [];
         }
