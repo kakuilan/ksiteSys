@@ -651,7 +651,7 @@ class UserService extends ServiceBase {
         $code = EncryptHelper::ucAuthcode($code, 'DECODE', $key);
         if(!empty($code)) {
             $arr = explode('|', $code);
-            if(!empty($veriCode) && $arr[1]!=$veriCode) return false;
+            if(!empty($veriCode) && (!isset($arr[1]) || $arr[1]!=$veriCode)) return false;
             if(is_numeric($arr[0])) $res = $arr[0];
         }
 

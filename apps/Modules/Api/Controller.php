@@ -11,6 +11,7 @@
 namespace Apps\Modules\Api;
 
 use Apps\Modules\BaseController;
+use Apps\Services\UserService;
 
 class Controller extends BaseController {
 
@@ -31,7 +32,13 @@ class Controller extends BaseController {
      */
     public function getLoginUid() {
         if(is_null($this->uid) || !is_numeric($this->uid)) {
-            //TODO
+            $this->hasAccessToken = false;
+            $this->uid = 0;
+            $accessToken = $this->getAccessToken();
+            if(!empty($accessToken)) {
+                $this->hasAccessToken = true;
+                $this->uid = UserService::parseAccessToken($accessToken);
+            }
         }
 
         return $this->uid;

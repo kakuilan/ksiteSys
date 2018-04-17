@@ -9,6 +9,7 @@
 
 namespace Apps\Modules\Api\Controllers;
 
+use Apps\Services\UserService;
 use Lkk\LkkUpload;
 use Apps\Modules\Api\Controller;
 use Apps\Services\UploadService;
@@ -68,15 +69,27 @@ class UploadController extends Controller {
      * @desc  -上传用户头像
      */
     public function avatarAction() {
-        $uid = intval($this->getRequest('uid'));
-        $loginUid = $this->getLoginUid();
-        $isAdmin = false;
-
-        if($loginUid == $uid) { //自己传头像
-
-        }elseif ($loginUid!=$uid && $isAdmin) { //管理员修改他人头像
-
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $token = $this->getAccessToken();
+        $loginUid = UserService::parseAccessToken($token, $agUuid);
+        if(empty($loginUid) || $loginUid<=0) {
+            return $this->fail(401);
         }
+
+        $typeArr = ['file','base64'];
+        $name = $this->getRequest('name', 'file');
+        $type = $this->getRequest('type', 'file');
+        $uid = intval($this->getRequest('uid'));
+
+        $isAdmin = false;
+        if($uid<=0) $uid = $loginUid;
+
+        if($loginUid!=$uid || !$isAdmin) {
+            return $this->fail(401);
+        }
+
+        //自己传头像 or 管理员修改他人头像
+
 
 
     }
