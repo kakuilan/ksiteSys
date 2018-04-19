@@ -92,15 +92,20 @@ class UploadController extends Controller {
         }
 
         //自己传头像 or 管理员修改他人头像
+
+        $newName = "{$uid}.jpg";
+        $savePath = UPLODIR . 'avatar/' . UserService::makeAvatarPath($uid);
         if($type=='file') {
             $serv = new UploadService();
             $serv->setOriginFiles($this->swooleRequest->files)
-                ->setSavePath(UPLODIR)
+                ->setSavePath($savePath)
                 ->setWebDir(WWWDIR)
                 ->setWebUrl(getSiteUrl())
+                ->setAllowSubDir(false)
+                ->setOverwrite(true)
                 ->setAllowType(['gif','jpg','jpeg','bmp','png']);
 
-            $ret = $serv->uploadSingle('file');
+            $ret = $serv->uploadSingle('file', $newName);
             if(!$ret) {
                 return $this->fail($serv->getError());
             }

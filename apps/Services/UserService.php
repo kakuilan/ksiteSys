@@ -666,12 +666,31 @@ class UserService extends ServiceBase {
      * @return string
      */
     public static function makeAvatarPath($uid=0) {
+        if(empty($uid) || !is_numeric($uid)) return '';
+
         $uid = abs(intval($uid));
         $uid = sprintf("%09d", $uid);
         $dir1 = substr($uid, -9, 3);
         $dir2 = substr($uid, -6, 2);
 
-        return $dir1.'/'.$dir2.'/'."{$uid}_avatar.jpg";
+        $res = $dir1.'/'.$dir2.'/';
+        return $res;
+    }
+
+
+    /**
+     * 根据UID获取用户头像
+     * @param int    $uid
+     * @param string $ext
+     *
+     * @return string
+     */
+    public static function getAvatarByUid($uid=0, $ext='jpg') {
+        if(empty($uid) || !is_numeric($uid)) return '';
+
+        $path = self::makeAvatarPath($uid);
+        $res = $path . "{$uid}.{$ext}";
+        return $res;
     }
 
 

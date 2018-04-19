@@ -73,14 +73,15 @@ class UploadService extends ServiceBase {
     protected $results = [];
 
     //默认参数
-    protected $webDir      = ''; //WEB目录
-    protected $webUrl      = ''; //WEB URL
-    protected $savePath    = null; //文件保存目录
-    protected $allowType   = [];	//允许文件类型
-    protected $isOverwrite = false; //是否允许覆盖同名文件
-    protected $isRename    = true; //是否重命名(随机文件名),还是直接使用上传文件的名称
-    protected $maxSize     = 0; //允许单个文件最大上传尺寸,单位字节
-    protected $maxFile     = 0; //每次最多允许上传N个文件
+    protected $webDir       = ''; //WEB目录
+    protected $webUrl       = ''; //WEB URL
+    protected $savePath     = null; //文件保存目录
+    protected $allowType    = [];	//允许文件类型
+    protected $isOverwrite  = false; //是否允许覆盖同名文件
+    protected $isRename     = true; //是否重命名(随机文件名),还是直接使用上传文件的名称
+    protected $maxSize      = 0; //允许单个文件最大上传尺寸,单位字节
+    protected $maxFile      = 0; //每次最多允许上传N个文件
+    protected $allowSubDir  = true; //允许自动创建目录
 
     public function __construct(array $vars = []) {
         parent::__construct($vars);
@@ -141,6 +142,18 @@ class UploadService extends ServiceBase {
      */
     public function setAllowType($val=[]) {
         if(!empty($val) && is_array($val)) $this->allowType = $val;
+        return $this;
+    }
+
+
+    /**
+     * 设置是否允许创建子目录
+     * @param bool $val
+     *
+     * @return $this
+     */
+    public function setAllowSubDir($val=false) {
+        $this->allowSubDir = boolval($val);
         return $this;
     }
 
@@ -295,7 +308,7 @@ class UploadService extends ServiceBase {
             $this->setError('保存目录不能为空', -5);
             return false;
         }elseif (!is_dir($this->savePath)) {
-            $chk = @mkdir($this->params['savePath'], 0755, true);
+            $chk = @mkdir($this->savePath, 0755, true);
             if(!$chk) {
                 $this->setError('保存目录创建失败', -6);
                 return false;
@@ -343,12 +356,12 @@ class UploadService extends ServiceBase {
                 }elseif (!file_exists($fileInfo['tmp_name'])) {
                     $error = -8;
                 }else{
-                    if(empty($newName) || !preg_match("/^[a-z0-9\-_]+$/i", $newName)) $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
-                    $newFilePath = $this->savePath . self::getSubpathByFilename($newName);
+                    if(empty($newName) || !preg_match("/^[a-z0-9\-_.]+$/i", $newName)) $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
+                    $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
 
                     if(file_exists($newFilePath) && !$this->isOverwrite && $this->isRename) {
                         $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
-                        $newFilePath = $this->savePath . self::getSubpathByFilename($newName);
+                        $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
                     }
 
                     $hasSameFile = file_exists($newFilePath) && md5_file($newFilePath)==md5_file($fileInfo['tmp_name']);//文件md5相同
