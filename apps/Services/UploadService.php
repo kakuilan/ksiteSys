@@ -365,7 +365,7 @@ class UploadService extends ServiceBase {
                     }
 
                     $hasSameFile = file_exists($newFilePath) && md5_file($newFilePath)==md5_file($fileInfo['tmp_name']);//文件md5相同
-                    if(file_exists($newFilePath) && !$this->isOverwrite && !$hasSameFile) { //不允许覆盖
+                    if(file_exists($newFilePath) && !$hasSameFile && !$this->isOverwrite) { //不允许覆盖
                         $error = -9;
                     }else{
                         //检查图片
