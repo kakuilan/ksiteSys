@@ -49,10 +49,6 @@ class UploadController extends Controller {
             return $this->fail(20104, 'type类型错误');
         }
 
-        if(!is_numeric($loginUid) || $loginUid<=0) {
-            return $this->fail(401);
-        }
-
         $newName = "";
         $savePath = UPLODIR . 'picture/';
         $allowTypes = ['gif','jpg','jpeg','bmp','png'];
@@ -167,8 +163,43 @@ class UploadController extends Controller {
     }
 
 
+    /**
+     * @title -文件上传
+     * @desc  -文件上传
+     * @return array|string
+     */
     public function fileAction() {
-        return $this->success();
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $token = $this->getAccessToken();
+        $loginUid = UserService::parseAccessToken($token, $agUuid);
+        if(empty($loginUid) || $loginUid<=0) {
+            return $this->fail(401);
+        }
+
+        $name = $this->getRequest('name', 'file', false);
+
+        $newName = "";
+        $savePath = UPLODIR . 'attach/';
+        $allowTypes = ['rar','zip','7z','txt','doc','docx','xls','xlsx','ppt','pptx','gif','jpg','jpeg','bmp','png'];
+
+        $serv = new UploadService();
+        $serv->setOriginFiles($this->swooleRequest->files ?? [])
+            ->setSavePath($savePath)
+            ->setWebDir(WWWDIR)
+            ->setWebUrl(getSiteUrl())
+            ->setAllowSubDir(false)
+            ->setOverwrite(true)
+            ->setAllowType($allowTypes);
+
+        $ret = $serv->uploadSingle('file', $newName);
+        if(!$ret) {
+            return $this->fail($serv->getError());
+        }
+
+        $data = $serv->getSingleResult();
+        unset($data['absolute_path'], $data['tmp_name']);
+
+        return $this->success($data);
     }
 
 
