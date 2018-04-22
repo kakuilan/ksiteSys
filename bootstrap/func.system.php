@@ -9,6 +9,7 @@
 
 
 use \Apps\Models\Site;
+use \Apps\Services\EmojiService;
 use \Kengine\LkkCmponent;
 use \Kengine\LkkConfig;
 use \Kengine\LkkLang;
@@ -94,6 +95,18 @@ function xssClean(string $str) {
 
     return $antiXss->xss_clean($str);
 }
+
+
+/**
+ * 移除emoji字符
+ * @param string $str
+ *
+ * @return mixed|string
+ */
+function removeEmoji($str='') {
+    return EmojiService::removEmoji($str);
+}
+
 
 
 /**

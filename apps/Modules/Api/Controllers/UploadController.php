@@ -92,7 +92,6 @@ class UploadController extends Controller {
         }
 
         //自己传头像 or 管理员修改他人头像
-
         $newName = "{$uid}.jpg";
         $savePath = UPLODIR . 'avatar/' . UserService::makeAvatarPath($uid);
         if($type=='file') {
@@ -111,7 +110,7 @@ class UploadController extends Controller {
             }
 
             $data = $serv->getSingleResult();
-            unset($data['absolute_path']);
+            unset($data['absolute_path'], $data['tmp_name']);
         }else{
             $data = [];
         }

@@ -15,7 +15,7 @@ License
 - php 7.1  
 - fileinfo 1.0.5  
 - phalcon 3.2.4  
-- swoole 1.9.23  
+- swoole 1.10.4  
 
 ### 需打开函数:  
 - popen  
