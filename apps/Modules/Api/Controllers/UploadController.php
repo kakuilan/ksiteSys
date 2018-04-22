@@ -12,6 +12,7 @@ namespace Apps\Modules\Api\Controllers;
 use Apps\Modules\Api\Controller;
 use Apps\Services\UploadService;
 use Apps\Services\UserService;
+use Lkk\Helpers\ValidateHelper;
 use Lkk\LkkUpload;
 
 class UploadController extends Controller {
@@ -77,8 +78,8 @@ class UploadController extends Controller {
         }
 
         $typeArr = ['file','base64'];
-        $name = $this->getRequest('name', 'file');
-        $type = $this->getRequest('type', 'file');
+        $name = $this->getRequest('name', 'file', false);
+        $type = $this->getRequest('type', 'file', false);
         $uid = intval($this->getRequest('uid'));
         if(!in_array($type, $typeArr)) {
             return $this->fail(20104, 'type类型错误');
@@ -94,15 +95,16 @@ class UploadController extends Controller {
         //自己传头像 or 管理员修改他人头像
         $newName = "{$uid}.jpg";
         $savePath = UPLODIR . 'avatar/' . UserService::makeAvatarPath($uid);
+        $allowTypes = ['gif','jpg','jpeg','bmp','png'];
         if($type=='file') {
             $serv = new UploadService();
-            $serv->setOriginFiles($this->swooleRequest->files)
+            $serv->setOriginFiles($this->swooleRequest->files ?? [])
                 ->setSavePath($savePath)
                 ->setWebDir(WWWDIR)
                 ->setWebUrl(getSiteUrl())
                 ->setAllowSubDir(false)
                 ->setOverwrite(true)
-                ->setAllowType(['gif','jpg','jpeg','bmp','png']);
+                ->setAllowType($allowTypes);
 
             $ret = $serv->uploadSingle('file', $newName);
             if(!$ret) {
@@ -112,7 +114,22 @@ class UploadController extends Controller {
             $data = $serv->getSingleResult();
             unset($data['absolute_path'], $data['tmp_name']);
         }else{
-            $data = [];
+            $serv = new UploadService();
+            $serv->setSavePath($savePath)
+                ->setWebDir(WWWDIR)
+                ->setWebUrl(getSiteUrl())
+                ->setAllowSubDir(false)
+                ->setOverwrite(true)
+                ->setAllowType($allowTypes);
+
+            $content = $this->getRequest($name, '', false);
+            $ret = $serv->uploadBase64Img($content, $newName);
+            if(!$ret) {
+                return $this->fail($serv->getError());
+            }
+
+            $data = $serv->getSingleResult();
+            unset($data['absolute_path'], $data['tmp_name']);
         }
 
         return $this->success($data);
