@@ -150,6 +150,10 @@ time2Date = function(){
                     difMinu = curDate.getMinutes() - dt.getMinutes();
                 if(difHour<1) {
                     return (difMinu>5) ? difMinu+'分钟前' : '刚刚';
+                }else if(difHour<24) {
+                    return difHour +'小时前';
+                }else if(difHour<(24*10)) {
+                    return parseInt(difHour/24) +'天前';
                 }else{
                     format = 'Y-n-j H:i';
                 }
