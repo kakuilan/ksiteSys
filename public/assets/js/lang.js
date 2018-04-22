@@ -160,7 +160,7 @@ define({
     "redirect now": "立即跳转",
     "operation completed": "操作成功!",
     "operation failed": "操作失败!",
-    "unknown data format": "未知的数据格式!",
+    "unknown data format": "未知的数据格式或登录超时!",
     "network error": "网络错误!",
     "auth manager": "权限管理",
     "general manager": "常规管理",
