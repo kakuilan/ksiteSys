@@ -30,7 +30,7 @@ class UploadService extends ServiceBase {
         'exte' => '', //文件扩展名
         'size' => 0, //文件大小,单位bit
         'info' => '', //提示信息
-        'error' => '', //错误码
+        'error' => '-1', //错误码
         'width' => 0, //图片宽度
         'height' => 0, //图片高度
         'absolute_path' => '', //绝对路径
@@ -64,6 +64,8 @@ class UploadService extends ServiceBase {
         '-11' => '文件内容可能不安全',
         '-12' => '未设置原始上传源',
         '-13' => '上传文件数超出限制',
+        '-14' => '不是有效的base64图片',
+        '-15' => 'base64图片信息获取失败',
         '99'  => '上传成功',
     ];
 
@@ -255,6 +257,84 @@ class UploadService extends ServiceBase {
 
 
     /**
+     * 上传base64图片
+     * @param string $cont
+     * @param string $newName
+     *
+     * @return bool
+     */
+    public function uploadBase64Img($cont='', $newName='') {
+        $result = self::$defaultResult;
+        $inputName = 'base64';
+        $this->results[$inputName] = $result;
+
+        if(empty($cont)) {
+            $this->setError('base64为空', 4);
+            return false;
+        }
+        $chkInfo = ValidateHelper::isBase64Image($cont);
+        if(empty($chkInfo)) {
+            $this->setError('base64图片错误', -14);
+            return false;
+        }
+
+        $imgInfo = self::getBase64ImageSize($cont);
+        $exte = $imgInfo['exte'] ?? '';
+        if(empty($imgInfo)) {
+            $this->setError('图片信息获取失败', -15);
+            return false;
+        }elseif (!in_array($exte, $this->allowType)) {
+            $this->setError('文件类型不允许', -4);
+            return false;
+        }
+
+        $cont = base64_decode(str_replace($chkInfo[1], '', $cont));
+        $error = -1;
+        if(empty($newName) || !preg_match("/^[a-z0-9\-_.]+$/i", $newName)) $newName = self::makeRandName($cont, $exte);
+        $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
+
+        if(file_exists($newFilePath) && !$this->isOverwrite && $this->isRename) {
+            $newName = self::makeRandName($cont, $exte);
+            $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
+        }
+
+
+        $hasSameFile = file_exists($newFilePath) && $cont==file_get_contents($newFilePath);//文件内容相同
+        if(file_exists($newFilePath) && !$hasSameFile && !$this->isOverwrite) { //不允许覆盖
+            $error = -9;
+        }else{
+            //检查图片
+            $saveRes = $hasSameFile ? true : (self::saveFile($cont, $newFilePath));
+            if(!$imgInfo) {
+                $error = -11;
+            }elseif (!$saveRes) {
+                $error = -10;
+            }else{
+                $error = 99; //成功
+                $imgInfo['exte'] = $exte;
+                $imgInfo['size'] = filesize($newFilePath);
+                $imgInfo['new_name'] = $newName;
+                $imgInfo['absolute_path'] = $newFilePath;
+                $imgInfo['relative_path'] = '/'. ltrim(str_replace($this->webDir, '', $newFilePath), '/');
+                $imgInfo['url'] = $this->webUrl . $imgInfo['relative_path'];
+                $imgInfo['is_exists'] = $hasSameFile;
+            }
+        }
+
+        $result = array_merge($result, $imgInfo);
+        $result['error'] = $error;
+        $result['status'] = ($error==99);
+        $result['info'] = self::getErrorInfoByCode($error);
+
+        $this->results[$inputName] = $result;
+
+        return true;
+    }
+
+
+
+
+    /**
      * 匹配文件域
      * @param array $inputNames
      * @param array $newNames
@@ -426,8 +506,8 @@ class UploadService extends ServiceBase {
      * @return string
      */
     public static function makeRandName($file='', $ext='') {
-        if(!empty($file) && file_exists($file)) {
-            $uniq = md5_file($file);
+        if(!empty($file)) {
+            $uniq = file_exists($file) ? md5_file($file) : md5($file);
         }else{
             $uniq = md5(uniqid(mt_rand(),true));
         }
@@ -507,8 +587,37 @@ class UploadService extends ServiceBase {
 
 
     /**
+     * 获取base64图片宽高信息
+     * @param string $str
+     *
+     * @return array|bool
+     */
+    public static function getBase64ImageSize($str='') {
+        if(!ValidateHelper::isBase64Image($str)) return false;
+        $types = [
+            1 => 'gif',
+            2 => 'jpg',
+            3 => 'png',
+            4 => 'swf',
+            5 => 'psd',
+            6 => 'bmp',
+        ];
+        $arr = getimagesize($str);
+        $res = [
+            'width' => $arr[0] ?? 0,
+            'height' => $arr[1] ?? 0,
+            'type' => $arr[2] ?? 0,
+            'exte' => $types[$arr[2]] ?? '',
+        ];
+
+        return $res;
+    }
+
+
+
+    /**
      * 保存文件
-     * @param string $tmpFilePath 临时文件路径
+     * @param string $tmpFilePath 旧文件路径/文件内容
      * @param string $newFilePath 新文件路径
      * @return bool
      */
@@ -517,7 +626,12 @@ class UploadService extends ServiceBase {
         $dir = dirname($newFilePath);
         if(!is_dir($dir)) @mkdir($dir, 0755, true);
 
-        $res = function_exists("move_uploaded_file") ? @move_uploaded_file($tmpFilePath, $newFilePath) : @copy($tmpFilePath, $newFilePath);
+        if(strlen($tmpFilePath)<=512 && is_file($tmpFilePath)) {
+            $res = function_exists("move_uploaded_file") ? @move_uploaded_file($tmpFilePath, $newFilePath) : @copy($tmpFilePath, $newFilePath);
+        }else{
+            $res = file_put_contents($newFilePath, $tmpFilePath); //以内容填充文件
+        }
+
         if($res) @chmod($newFilePath, 0755);
 
         return $res;
