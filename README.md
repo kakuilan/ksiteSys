@@ -33,8 +33,8 @@ License
 - 上次cookie response检查   
 - 敏感词过滤  
 - 后台配置功能  
-- img base64上传  
-- 上传头像  
+- redis pool库错乱问题  
+
 
 
 ### BUG:  

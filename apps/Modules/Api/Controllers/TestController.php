@@ -11,6 +11,8 @@
 namespace Apps\Modules\Api\Controllers;
 
 use Apps\Modules\Api\Controller;
+use Kengine\Server\LkkServer;
+use Redis;
 
 class TestController extends Controller {
 
@@ -29,15 +31,38 @@ class TestController extends Controller {
     }
 
 
+    /**
+     * @title -语言转换
+     * @desc  -语言转换
+     * @return array|string
+     */
     public function langAction() {
-        $aa = "HELLOWORLD";
-        $bb = lang($aa);
-        $cc = "Hello :user";
-        $dd = lang($cc, [':user'=>'lkk']);
-        $ee = lang(401);
+        $str1 = 'HELLOWORLD';
+        $str2 = 'Hello :user';
 
-        var_dump($bb, $dd, $ee);
+        $res = [
+            lang($str1),
+            lang($str2, [':user'=>'lkk']),
+            lang(401)
+        ];
+
+        return $this->success($res);
     }
+
+
+    /**
+     * @title -获取同步redis
+     * @desc  -获取同步redis
+     * @return array|string
+     */
+    public function getSyncRedisAction() {
+        $redis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
+        $res = yield $redis->set('test', date('Y-m-d H:i:s') .' hhe', 600);
+
+        return $this->success($res);
+    }
+
+
 
 
 
