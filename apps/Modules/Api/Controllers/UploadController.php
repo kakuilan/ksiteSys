@@ -29,39 +29,70 @@ class UploadController extends Controller {
     }
 
 
-
+    /**
+     * @title -上传图片
+     * @desc  -上传图片
+     * @return array|string
+     */
     public function imageAction() {
         $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
         $token = $this->getAccessToken();
-
+        $loginUid = UserService::parseAccessToken($token, $agUuid);
+        if(empty($loginUid) || $loginUid<=0) {
+            return $this->fail(401);
+        }
 
         $typeArr = ['file','base64'];
-        $name = $this->getRequest('name', 'file');
-        $type = $this->getRequest('type', 'file');
-
-
-
-
-        //TODO base64
-        $name = 'file';
-        $fileInfo = $this->swooleRequest->files[$name] ?? [];
-        if(empty($fileInfo)) {
-            return $this->fail('没有上传的文件');
+        $name = $this->getRequest('name', 'file', false);
+        $type = $this->getRequest('type', 'file', false);
+        if(!in_array($type, $typeArr)) {
+            return $this->fail(20104, 'type类型错误');
         }
 
-        $data = [];
-        $ext = LkkUpload::getExtention($fileInfo['name']);
-        $newFile = LkkUpload::createRandName($fileInfo['name']) . ".{$ext}";
-        $newPath = UPLODIR . $newFile;
-
-        $res = move_uploaded_file($fileInfo['tmp_name'], $newPath);
-        if($res) {
-            $data = [
-                'url' => makeUrl('/upload/'. $newFile),
-            ];
+        if(!is_numeric($loginUid) || $loginUid<=0) {
+            return $this->fail(401);
         }
 
-        return $res ? $this->success($data) : $this->fail('上传失败');
+        $newName = "";
+        $savePath = UPLODIR . 'picture/';
+        $allowTypes = ['gif','jpg','jpeg','bmp','png'];
+        if($type=='file') {
+            $serv = new UploadService();
+            $serv->setOriginFiles($this->swooleRequest->files ?? [])
+                ->setSavePath($savePath)
+                ->setWebDir(WWWDIR)
+                ->setWebUrl(getSiteUrl())
+                ->setAllowSubDir(false)
+                ->setOverwrite(true)
+                ->setAllowType($allowTypes);
+
+            $ret = $serv->uploadSingle('file', $newName);
+            if(!$ret) {
+                return $this->fail($serv->getError());
+            }
+
+            $data = $serv->getSingleResult();
+            unset($data['absolute_path'], $data['tmp_name']);
+        }else{
+            $serv = new UploadService();
+            $serv->setSavePath($savePath)
+                ->setWebDir(WWWDIR)
+                ->setWebUrl(getSiteUrl())
+                ->setAllowSubDir(false)
+                ->setOverwrite(true)
+                ->setAllowType($allowTypes);
+
+            $content = $this->getRequest($name, '', false);
+            $ret = $serv->uploadBase64Img($content, $newName);
+            if(!$ret) {
+                return $this->fail($serv->getError());
+            }
+
+            $data = $serv->getSingleResult();
+            unset($data['absolute_path'], $data['tmp_name']);
+        }
+
+        return $this->success($data);
     }
 
 
@@ -156,6 +187,8 @@ class UploadController extends Controller {
         }
 
         $arr = $serv->getSingleResult();
+        unset($arr['absolute_path'], $arr['tmp_name']);
+
         return $this->success($arr);
     }
 
