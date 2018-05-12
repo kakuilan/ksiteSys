@@ -234,3 +234,13 @@ function getLogger($logname='', $useServerLog=false) {
         return $monLoggers[$logname];
     }
 }
+
+
+
+function getlockBackendOperate($operation = '', $dataId = 0, $admUid = 0, $ttl = 120) {
+    $expire = time() + $ttl;
+
+
+
+
+}
