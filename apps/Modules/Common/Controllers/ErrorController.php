@@ -14,6 +14,17 @@ use Apps\Modules\Common\Controller;
 
 class ErrorController extends Controller {
 
+    public function initialize () {
+        parent::initialize();
+
+        $this->setHeaderSeo('网站名称', '关键词', '描述');
+
+        //视图变量
+        $this->view->setVars([
+            'headerSeo' => $this->headerSeo,
+        ]);
+
+    }
 
     /**
      * @title -

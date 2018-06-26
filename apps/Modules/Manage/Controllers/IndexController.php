@@ -53,6 +53,7 @@ class IndexController extends Controller {
             'mainUrl' => makeUrl('manage/index/main'),
             'menuUrl' => makeUrl('manage/menu/authlist'),
             'logoutUrl' => makeUrl('manage/index/logout'),
+            'clearCacheUrl' => makeUrl('manage/cache/clearcache'),
         ]);
 
         //设置静态资源
@@ -80,6 +81,7 @@ class IndexController extends Controller {
             'mainUrl' => makeUrl('manage/index/main'),
             'menuUrl' => makeUrl('manage/menu/authlist'),
             'logoutUrl' => makeUrl('manage/index/logout'),
+            'clearCacheUrl' => makeUrl('manage/cache/clearcache'),
             'row' => (object)$info,
         ]);
 

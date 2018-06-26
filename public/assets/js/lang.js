@@ -239,5 +239,8 @@ define({
     "invalid request": "非法请求",
     "bind attr has exists": "模型的属性已经存在",
     "relation data not exists": "关联数据不存在",
-    "relation not support": "关联不支持"
+    "relation not support": "关联不支持",
+    "is_del": "是否已删",
+    "create_time": "创建时间",
+    "update_time": "更新时间"
 });

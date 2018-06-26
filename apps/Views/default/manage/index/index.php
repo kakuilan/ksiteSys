@@ -46,7 +46,7 @@
                     },
                     "multiple": false
                 },
-                "modulename": "admin",
+                "modulename": "manage",
                 "controllername": "index",
                 "actionname": "index",
                 "jsname": "backend/index",

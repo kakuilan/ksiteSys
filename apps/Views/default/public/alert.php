@@ -16,9 +16,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
     <meta name="renderer" content="webkit">
-    <title>{{sitetitle}}</title>
-    <meta name="keywords" content="{{keywords}}">
-    <meta name="description" content="{{desc}}">
+    <title>{{headerSeo.title}}</title>
+    <meta name="keywords" content="{{headerSeo.keywords}}">
+    <meta name="description" content="{{headerSeo.desc}}">
     <link rel="shortcut icon" href="/favicon.ico">
 
     <!-- bootstrap & fontawesome -->

@@ -136,7 +136,7 @@ abstract class LkkController extends Controller {
 
         //seo
         $seo = $this->getHeaderSeo();
-        $data['sitetitle'] = $seo->title . ' ' .$data['title'];
+        $data['title'] = $seo->title . ' ' .$data['title'];
         $data['keywords'] = $seo->keywords;
         $data['desc'] = $seo->desc;
 
