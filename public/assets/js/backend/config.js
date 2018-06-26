@@ -78,14 +78,79 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
 
         },
 
-        //新增页
-        add: function () {
-            Controller.api.bindevent();
-        },
-
         //编辑页
         edit: function () {
             Controller.api.bindevent();
+
+            var oriRow = Config.extparam.row;
+            var $dataType = $('#data_type');
+            var $inputType = $('#input_type');
+            var $valueDiv = $('#valueDiv');
+            var vueInputName = 'value';
+            var dtype, itype = null;
+
+            //绑定数据类型
+            $dataType.change(function () {
+                dtype = $(this).val();
+
+                if(dtype==='bool') {
+                    $inputType.val('radio');
+                }else if(dtype==='integer' || dtype==='float') {
+                    $inputType.val('input');
+                }else if(dtype==='text' || dtype==='array' || dtype==='json') {
+                    $inputType.val('textarea');
+                }
+                $inputType.change();
+            });
+            
+            //绑定控件类型
+            $inputType.change(function () {
+                itype = $(this).val();
+                console.log('log:', oriRow, dtype, itype);
+
+                $valueDiv.html('');
+                if(itype==='radio' && dtype!=='bool') {
+                    $(this).val('');
+                    Toastr.error('请先修改数据类型-布尔型');
+                    return false;
+                }else if(itype==='textarea' && $.inArray(dtype, ['text', 'array', 'json'])===-1 ) {
+                    $(this).val('');
+                    Toastr.error('请先修改数据类型-长文本,数组,JSON');
+                    return false;
+                }else if(itype==='file' && dtype!=='string') {
+                    $(this).val('');
+                    Toastr.error('请先修改数据类型-字符串');
+                    return false;
+                }else if(itype==='input' && $.inArray(dtype, ['integer', 'float', 'string'])===-1 ) {
+                    $(this).val('');
+                    Toastr.error('请先修改数据类型-整型,浮点型,字符串');
+                    return false;
+                }
+
+                makeVueFun(dtype, itype, oriRow);
+            });
+
+            var makeVueFun = function (dtype, itype, row) {
+                var html = [];
+                var hasVue = (row.length>0);
+                var defVue = hasVue ? row.value : null;
+
+                if(itype==='radio') {
+                    if(hasVue) {
+                        html.push('<label for="row[value]-1"><input id="row[value]-1" name="row[value]" type="radio" value="1" '+(defVue==1?' checked ':'')+' />是</label>');
+                        html.push('<label for="row[value]-0"><input id="row[value]-0" name="row[value]" type="radio" value="0" '+(defVue==0?' checked ':'')+' />否</label>');
+                    }else{
+                        html.push('<label for="row[value]-1"><input id="row[value]-1" name="row[value]" type="radio" value="1" />是</label>');
+                        html.push('<label for="row[value]-0"><input id="row[value]-0" name="row[value]" type="radio" value="0" />否</label>');
+                    }
+                }
+
+                html = html.join('');
+                $valueDiv.html(html);
+            }
+
+
+
         },
 
         api: {

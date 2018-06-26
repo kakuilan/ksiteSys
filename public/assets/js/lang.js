@@ -242,5 +242,6 @@ define({
     "relation not support": "关联不支持",
     "is_del": "是否已删",
     "create_time": "创建时间",
-    "update_time": "更新时间"
+    "update_time": "更新时间",
+    "thumb": "缩略图"
 });

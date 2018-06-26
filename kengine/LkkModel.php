@@ -943,7 +943,6 @@ class LkkModel extends Model {
      * @param null   $table
      *
      * @return bool
-     * @throws \Exception
      */
     public static function upData(array $data=[], $where='', $table=null) {
         if(!is_array($data) || empty($data) ) return false;
@@ -957,7 +956,7 @@ class LkkModel extends Model {
         $err = $_conn->getErrorInfo();
 
         if(!$res && is_array($err) && $err[0]!='00000') {
-            throw new \Exception(json_encode($err));
+            logException(json_encode($err));
         }
 
         return $res;
@@ -971,7 +970,6 @@ class LkkModel extends Model {
      * @param null   $table
      *
      * @return bool
-     * @throws \Exception
      */
     public static function upDataAsync(array $data=[], $where='', $table=null) {
         if(!is_array($data) || empty($data) ) return false;
@@ -1000,7 +998,12 @@ class LkkModel extends Model {
         $res = yield $asyncMysql->execute($query, true);
 
         if($res['code']!=0 && isset($res['errno'])) {
-            throw new \Exception($res['errno']);
+            $error = [
+                'errno' => $res['errno'],
+                'query' => $query,
+            ];
+
+            logException(json_encode($error));
         }
 
         return ($res && $res['code']==0) ? $res['affected_rows'] : false;

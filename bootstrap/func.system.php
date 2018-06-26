@@ -9,6 +9,7 @@
 
 
 use \Apps\Models\Site;
+use \Apps\Services\ConstService;
 use \Apps\Services\EmojiService;
 use \Kengine\LkkCmponent;
 use \Kengine\LkkConfig;
@@ -236,11 +237,91 @@ function getLogger($logname='', $useServerLog=false) {
 }
 
 
+/**
+ * 记录异常日志
+ * @param object|string $e \Exception或字符串
+ * @return bool
+ */
+function logException($e=null) {
+    if(empty($e)) {
+        return false;
+    }
 
-function getlockBackendOperate($operation = '', $dataId = 0, $admUid = 0, $ttl = 120) {
-    $expire = time() + $ttl;
+    $loger = getLogger('exception');
+    if(is_string($e)) {
+        $loger->error($e);
+    }else{
+        $msg = $e->getMessage() . ' ##code:' . $e->getCode() . ' ##file:' . $e->getFile() . ' ##line:' . $e->getLine();
+        $loger->error($msg, $e->getTrace());
+    }
 
-
-
-
+    return true;
 }
+
+
+/**
+ * 获取后台操作锁
+ * @param string $operation 后台操作名称(英文)
+ * @param int $dataId 数据ID,比如用户ID
+ * @param int $admUid 后台UID
+ * @param int $ttl 锁时间,秒
+ * @return int
+ */
+function getlockBackendOperate($operation = '', $dataId = 0, $admUid = 0, $ttl = 120) {
+    $res = 0;
+    if (empty($operation) || empty($dataId) || empty($admUid)) {
+        return $res;
+    }
+
+    if (!is_numeric($ttl) || $ttl <= 0) $expire = 60;
+    $now = time();
+    $expire = $now + $ttl;
+
+    //同步的redis
+    $redis = SwooleServer::getPoolManager()->get('redis_site')->pop(true);
+    $key = ConstService::ADM_OPERATION_LOCK ."{$operation}_{$dataId}";
+    $data = implode('|', [$admUid, $expire]);
+
+    if ($ret = $redis->setnx($key, $data)) {
+        $redis->expire($key, $ttl);
+        $res = $admUid;
+    } else {
+        $val = $redis->get($key);
+        $arr = $val ? explode('|', $val) : [];
+        $uid = $arr[0] ?? 0;
+        $exp = $arr[1] ?? 0;
+        if(empty($val) || $uid==0) {
+            $redis->set($key, $data, $ttl);
+            $res = $admUid;
+        }else{
+            if($uid==$admUid || ($now>$exp)) {
+                $redis->set($key, $data, $ttl);
+                $res = $admUid;
+            }else{
+                $res = - abs($uid);
+            }
+        }
+    }
+
+    return $res;
+}
+
+
+/**
+ * 解锁后台操作
+ * @param string $operation 后台操作名称(英文)
+ * @param int $dataId 数据ID,比如用户ID
+ * @return bool
+ */
+function unlockBackendOperate($operation = '', $dataId = 0) {
+    $res = false;
+    if (empty($operation) || empty($dataId)) {
+        return true;
+    }
+
+    $redis = SwooleServer::getPoolManager()->get('redis_site')->pop(true);
+    $key = ConstService::ADM_OPERATION_LOCK ."{$operation}_{$dataId}";
+
+    return $redis->delete($key);
+}
+

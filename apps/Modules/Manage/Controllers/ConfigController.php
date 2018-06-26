@@ -37,8 +37,8 @@ class ConfigController extends Controller {
     public function indexAction() {
         //站点
         $sites = [
-            '0' => '系统平台',
             $this->siteId => '本站',
+            '0' => '系统平台',
         ];
 
         //数据类型
@@ -110,7 +110,6 @@ class ConfigController extends Controller {
             foreach ($list as &$item) {
                 $usr = ArrayHelper::arraySearchItem($admList, ['uid'=>$item['update_by']]);
                 $item['username'] = $usr['username']??'';
-
             }
         }
 
@@ -127,10 +126,16 @@ class ConfigController extends Controller {
 
 
     public function editAction() {
+        $loginUid = $this->getLoginUid();
         $id = intval($this->getGet('ids'));
         $info = [];
 
         if($id) {
+            $lock = getlockBackendOperate('editConfig', $id, $loginUid);
+            if(empty($lock) || $lock<=0) {
+                return $this->fail("该信息已被其他后台用户[".abs($lock)."]锁定操作，您不能操作！");
+            }
+
             $info = Config::findFirst($id);
             if(empty($info) || $info->is_del) {
                 return $this->fail('信息不存在或已删除');
@@ -139,8 +144,8 @@ class ConfigController extends Controller {
 
         //站点
         $sites = [
-            '0' => '系统平台',
             $this->siteId => '本站',
+            '0' => '系统平台',
         ];
 
         //数据类型
@@ -148,7 +153,6 @@ class ConfigController extends Controller {
         //控件类型
         $inputTypes = Config::getInputTypeArr();
 
-        $loginUid = $this->getLoginUid();
         $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
         $accToken = UserService::makeAccessToken($loginUid, $agUuid, 1800);
         $tokenName = getConf('login', 'tokenName');
@@ -158,19 +162,28 @@ class ConfigController extends Controller {
             'siteUrl' => getSiteUrl(),
             'saveUrl' => makeUrl('manage/config/save'),
             'uploadUrl' => makeUrl('api/upload/single', [$tokenName=>$accToken]),
+            'id' => $id,
             'row' => $info ? Config::rowToObject($info) : $info,
-            'dataTypes' => json_encode($dataTypes),
-            'inputTypes' => json_encode($inputTypes),
+            'rowJson' => json_encode($info ? $info->toArray() : ''),
+            'sites' => $sites,
+            'dataTypes' => $dataTypes,
+            'inputTypes' => $inputTypes,
         ]);
 
         return null;
     }
 
+
     public function saveAction() {
 
+        return $this->success();
     }
 
 
+    /**
+     * 删除配置项
+     * @return array|string
+     */
     public function delAction() {
         $ids = (array)$this->getPost('ids');
         $ids = array_filter($ids, function ($v) {
@@ -188,8 +201,17 @@ class ConfigController extends Controller {
             return $this->fail('每批最多只能删10个');
         }
 
+        $data = [
+            'is_del' => 1,
+            'update_time' => $now,
+            'update_by' => $this->getLoginUid(),
+        ];
+        $res = Config::upData($data, ['id' => $ids]);
+        if($res) {
+            //TODO 缓存操作
+        }
 
-
+        return $res ? $this->success($res) : $this->fail('操作失败,请稍后再试');
     }
 
 
