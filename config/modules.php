@@ -16,6 +16,7 @@ return [
         'alias'        => 'api', //模块别名
     ],
 
+
     //命令行
     'cli'       => [
         'className'    => 'Apps\Modules\Cli\Module',
