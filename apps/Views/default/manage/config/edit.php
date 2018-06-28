@@ -60,6 +60,11 @@
             }
         };
     </script>
+    <style>
+        dd.form-inline > span.n-right {
+            margin-top: -20px;
+        }
+    </style>
 </head>
 
 <body class="inside-header inside-aside is-dialog">
@@ -129,7 +134,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="key">配置键</label>
                                 <div class="col-sm-8 col-xs-7">
-                                    <input type="text" class="form-control" name="row[key]" id="key" value="{% if row %}{{row.key}}{% endif %}" maxlength="25" data-rule="required;isWord;length(1~50)">
+                                    <input type="text" class="form-control" name="row[key]" id="key" value="{% if row %}{{row.key}}{% endif %}" maxlength="25" data-rule="required;isWord;length(1~30)">
                                 </div>
                             </div>
 
@@ -143,6 +148,13 @@
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="value">配置值</label>
                                 <div class="col-sm-8 col-xs-7" id="valueDiv"></div>
+                            </div>
+
+                            <div class="form-group" id="uploadDiv" style="display: none">
+                                <label for="c-local" class="control-label col-xs-12 col-sm-2"></label>
+                                <div class="col-xs-12 col-sm-8">
+                                    <button id="plupload-local" class="btn btn-primary plupload" data-input-id="c-value" data-url="{{uploadUrl}}"><i class="fa fa-upload"></i>上传</button>
+                                </div>
                             </div>
 
                             <div class="form-group hide layer-footer">

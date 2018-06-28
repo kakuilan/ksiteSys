@@ -14,6 +14,7 @@ use Apps\Models\Config;
 use Apps\Models\UserBase;
 use Apps\Services\UserService;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\ValidateHelper;
 
 /**
  * Class 后台配置控制器
@@ -175,6 +176,20 @@ class ConfigController extends Controller {
 
 
     public function saveAction() {
+        $row = $this->getPost('row');
+
+        $id = intval($row['id'] ?? 0);
+        unset($row['id']);
+
+        if(empty($row['title'])) {
+            return $this->fail('配置名称不能为空');
+        }elseif (empty($row['key'])) {
+            return $this->fail('配置键不能为空');
+        }elseif (!preg_match("/^[a-z][a-z\d\_]+$/", $row['key'])) {
+            return $this->fail('配置键只能是小写英文、数字和下划线组成,英文开头');
+        }
+
+
 
         return $this->success();
     }

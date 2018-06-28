@@ -24,9 +24,10 @@ class Config extends BaseModel {
             'bool' => '布尔型',
             'integer' => '整型',
             'float' => '浮点型',
+            'datetime' => '日期时间',
             'string' => '字符串', //255字符以内
-            'text' => '长文本', //255字符以外
             'array' => '数组',
+            'text' => '长文本', //255字符以外
             'json' => 'JSON',
         ];
     }
@@ -39,10 +40,11 @@ class Config extends BaseModel {
     public static function getInputTypeArr() {
         return [
             'radio' => '单选框',
+            'number' => '数字框',
+            'datetime' => '日期时间框',
             'input' => '文本框',
             'file' => '文件域',
             'textarea' => '文本域',
-            'other' => '其他',
         ];
     }
 

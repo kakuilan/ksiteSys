@@ -1,4 +1,4 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-datetimepicker','dragsort'], function ($, undefined, Backend, Table, Form) {
     var table = $("#table");
     var Controller = {
         //配置列表首页
@@ -82,12 +82,51 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
         edit: function () {
             Controller.api.bindevent();
 
-            var oriRow = Config.extparam.row;
+            var oriRow = $.parseJSON(Config.extparam.row);
+            console.log('oriRow:', oriRow);
             var $dataType = $('#data_type');
             var $inputType = $('#input_type');
             var $valueDiv = $('#valueDiv');
+            var $uploadDiv = $('#uploadDiv');
             var vueInputName = 'value';
-            var dtype, itype = null;
+            var dtype, itype, mesg, rule = '';
+
+            //是否有配置值
+            var hasVue = (oriRow!=='' && oriRow.length>0);
+
+            //绑定数组元素拖拽排序
+            var bindDragsort = function (form) {
+                $("dl.fieldlist", form).dragsort({
+                    itemSelector: 'dd',
+                    dragSelector: ".btn-dragsort",
+                    dragEnd: function () {
+
+                    },
+                    placeHolderTemplate: "<dd></dd>"
+                });
+            };
+
+            //绑定日期时间元素事件
+            var form = $('form');
+            var bindDatepicker = function (form) {
+                $('.datetimepicker', form).parent().css('position', 'relative');
+                $('.datetimepicker', form).datetimepicker({
+                        format: 'YYYY-MM-DD HH:mm:ss',
+                        icons: {
+                            time: 'fa fa-clock-o',
+                            date: 'fa fa-calendar',
+                            up: 'fa fa-chevron-up',
+                            down: 'fa fa-chevron-down',
+                            previous: 'fa fa-chevron-left',
+                            next: 'fa fa-chevron-right',
+                            today: 'fa fa-history',
+                            clear: 'fa fa-trash',
+                            close: 'fa fa-remove'
+                        },
+                        showTodayButton: true,
+                        showClose: true
+                });
+            };
 
             //绑定数据类型
             $dataType.change(function () {
@@ -96,34 +135,53 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
                 if(dtype==='bool') {
                     $inputType.val('radio');
                 }else if(dtype==='integer' || dtype==='float') {
+                    $inputType.val('number');
+                }else if(dtype==='datetime') {
+                    $inputType.val('datetime');
+                }else if(dtype==='string') {
                     $inputType.val('input');
-                }else if(dtype==='text' || dtype==='array' || dtype==='json') {
+                }else if(dtype==='array') {
+                    $inputType.val('input');
+                }else if(dtype==='text' || dtype==='json') {
                     $inputType.val('textarea');
                 }
+
                 $inputType.change();
             });
             
             //绑定控件类型
             $inputType.change(function () {
                 itype = $(this).val();
-                console.log('log:', oriRow, dtype, itype);
+                mesg = '请选择控件类型';
+                console.log('log 111:', oriRow, dtype, itype, mesg);
 
                 $valueDiv.html('');
-                if(itype==='radio' && dtype!=='bool') {
-                    $(this).val('');
-                    Toastr.error('请先修改数据类型-布尔型');
-                    return false;
-                }else if(itype==='textarea' && $.inArray(dtype, ['text', 'array', 'json'])===-1 ) {
-                    $(this).val('');
-                    Toastr.error('请先修改数据类型-长文本,数组,JSON');
-                    return false;
-                }else if(itype==='file' && dtype!=='string') {
-                    $(this).val('');
-                    Toastr.error('请先修改数据类型-字符串');
-                    return false;
-                }else if(itype==='input' && $.inArray(dtype, ['integer', 'float', 'string'])===-1 ) {
-                    $(this).val('');
-                    Toastr.error('请先修改数据类型-整型,浮点型,字符串');
+                $uploadDiv.hide();
+
+                if(dtype==='bool' && itype!=='radio') {
+                    itype = '';
+                    mesg = '数据类型[布尔型]只能选择控件[单选框]';
+                }else if($.inArray(dtype, ['integer','float'])!==-1 && itype!=='number') {
+                    itype = '';
+                    mesg = '数据类型[整型、浮点型]只能选择控件[数字框]';
+                }else if(dtype==='datetime' && itype!=='datetime') {
+                    itype = '';
+                    mesg = '数据类型[日期时间]只能选择控件[日期时间框]';
+                }else if(dtype==='string' && $.inArray(itype, ['input','file'])===-1) {
+                    itype = '';
+                    mesg = '数据类型[字符串]只能选择控件[文本框、文件域]';
+                }else if(dtype==='array' && $.inArray(itype, ['number','datetime','input','file'])===-1 ) {
+                    itype = '';
+                    mesg = '数据类型[数组]只能选择控件[数字框、日期时间框、文本框、文件域]';
+                }else if($.inArray(dtype, ['text','json'])!==-1 && itype!=='textarea') {
+                    itype = '';
+                    mesg = '数据类型[长文本、JSON]只能选择控件[文本域]';
+                }
+
+                console.log('log 222:', oriRow, dtype, itype, mesg);
+                if(itype==='') {
+                    $(this).val(itype);
+                    Toastr.error(mesg);
                     return false;
                 }
 
@@ -132,10 +190,11 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
 
             var makeVueFun = function (dtype, itype, row) {
                 var html = [];
-                var hasVue = (row.length>0);
-                var defVue = hasVue ? row.value : null;
+                var defVue = hasVue ? row.value : '';
+                console.log('row:', row, row.length, hasVue, defVue, dtype, itype);
 
                 if(itype==='radio') {
+                    html.push('<div class="radio">');
                     if(hasVue) {
                         html.push('<label for="row[value]-1"><input id="row[value]-1" name="row[value]" type="radio" value="1" '+(defVue==1?' checked ':'')+' />是</label>');
                         html.push('<label for="row[value]-0"><input id="row[value]-0" name="row[value]" type="radio" value="0" '+(defVue==0?' checked ':'')+' />否</label>');
@@ -143,12 +202,48 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
                         html.push('<label for="row[value]-1"><input id="row[value]-1" name="row[value]" type="radio" value="1" />是</label>');
                         html.push('<label for="row[value]-0"><input id="row[value]-0" name="row[value]" type="radio" value="0" />否</label>');
                     }
+                    html.push('</div>');
+                }else if(itype==='textarea') {
+                    defVue = hasVue ? row.extra : '';
+                    html.push('<textarea name="row[value]" cols="30" rows="3" class="form-control">'+defVue+'</textarea>');
+                }else if(dtype==='array') {
+                    defVue = hasVue ? row.extra : [];
+                    var arrLen = defVue.length;
+                    html.push('<dl class="fieldlist" data-name="row[value]" rel="'+arrLen+'"><dd><ins>键名</ins><ins>键值</ins></dd><dd><a href="javascript:;" class="btn btn-sm btn-success btn-append"><i class="fa fa-plus"></i>追加</a></dd></dl>');
+                }else if(itype==='number') {
+                    rule = (dtype==='integer') ? 'digits' : 'isFloat';
+                    html.push('<input type="number" class="form-control" name="row[value]" value="'+(defVue===''?'':defVue)+'" data-rule="'+rule+'" />');
+                }else if(itype==='datetime') {
+                    rule = 'length(0~19)';
+                    html.push('<input type="text" class="form-control datetimepicker" name="row[value]" value="'+(defVue===''?'':defVue)+'" data-rule="'+rule+'" />');
+                }else if(itype==='file') {
+                    html.push('<input type="text" name="row[value]" id="c-value" class="form-control" value="'+(defVue===''?'':defVue)+'" />');
+                    $uploadDiv.show();
+                }else{ //input
+                    if(itype==='input') rule = 'length(0~125)';
+                    html.push('<input type="text" class="form-control" name="row[value]" value="'+(defVue===''?'':defVue)+'" data-rule="'+rule+'" />');
                 }
 
-                html = html.join('');
-                $valueDiv.html(html);
-            }
+                $valueDiv.html(html.join(''));
 
+                if(dtype==='array') {
+                    bindDragsort(form);
+                }
+                if(itype==='datetime') {
+                    bindDatepicker(form);
+                }
+            };
+
+            //数组元素列表绑定
+            $(document).on("click", ".fieldlist .btn-append", function () {
+                var rel = parseInt($(this).closest("dl").attr("rel")) + 1;
+                var name = $(this).closest("dl").data("name");
+                $(this).closest("dl").attr("rel", rel);
+                $('<dd class="form-inline"><input type="text" name="' + name + '[field][' + rel + ']" class="form-control" value="" size="10" /> <input type="text" name="' + name + '[value][' + rel + ']" class="form-control" value="" data-rule="required" /> <span class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></span> <span class="btn btn-sm btn-primary btn-dragsort"><i class="fa fa-arrows"></i></span></dd>').insertBefore($(this).parent());
+            });
+            $(document).on("click", ".fieldlist dd .btn-remove", function () {
+                $(this).parent().remove();
+            });
 
 
         },
