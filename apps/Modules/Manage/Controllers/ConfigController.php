@@ -176,6 +176,7 @@ class ConfigController extends Controller {
 
 
     public function saveAction() {
+        $loginUid = $this->getLoginUid();
         $row = $this->getPost('row');
 
         $id = intval($row['id'] ?? 0);
@@ -185,13 +186,113 @@ class ConfigController extends Controller {
             return $this->fail('配置名称不能为空');
         }elseif (empty($row['key'])) {
             return $this->fail('配置键不能为空');
-        }elseif (!preg_match("/^[a-z][a-z\d\_]+$/", $row['key'])) {
-            return $this->fail('配置键只能是小写英文、数字和下划线组成,英文开头');
+        }elseif (!preg_match("/^[a-z][a-z\d\_]{2,29}$/", $row['key'])) {
+            return $this->fail('配置键只能是小写英文、数字和下划线组成,英文开头,3~30个字符');
+        }
+
+        //配置值处理
+        switch ($row['data_type']) {
+            case '' :default :
+                return $this->fail('数据类型错误');
+                break;
+            case 'bool' :
+                if($row['input_type'] !=='radio') {
+                    return $this->fail('控件类型错误');
+                }elseif (!isset($row['value'])) {
+                    return $this->fail('请选择配置值');
+                }
+
+                $row['value'] = intval($row['value']) ? 1 : 0;
+                break;
+            case 'integer' :
+                if($row['input_type'] !=='number') {
+                    return $this->fail('控件类型错误');
+                }elseif (!ValidateHelper::isInteger($row['value'])) {
+                    return $this->fail('配置值不是整型');
+                }
+
+                $row['value'] = intval($row['value']);
+                break;
+            case 'float' :
+                if($row['input_type'] !=='number') {
+                    return $this->fail('控件类型错误');
+                }elseif (!ValidateHelper::isFloat($row['value'])) {
+                    return $this->fail('配置值不是浮点型');
+                }
+
+                $row['value'] = floatval($row['value']);
+                break;
+            case 'datetime' :
+                if($row['input_type'] !=='datetime') {
+                    return $this->fail('控件类型错误');
+                }elseif (!ValidateHelper::isDate2time($row['value'])) {
+                    return $this->fail('配置值不是日期时间');
+                }
+
+                break;
+            case 'string' :
+                if(!in_array($row['input_type'], ['input','file'])) {
+                    return $this->fail('控件类型错误');
+                }
+
+                break;
+            case 'array' :
+                if(!in_array($row['input_type'], ['number','datetime','input','file'])) {
+                    return $this->fail('控件类型错误');
+                }
+
+                $arr = [];
+                if(!empty($row['value'])) {
+                    foreach ($row['value']['value'] as $k=>$item) {
+                        $key = $row['value']['value'][$k] ?? '';
+                        if($key=='' && $item=='') continue;
+
+                        if(empty($key)) {
+                            array_push($arr, $item);
+                        }else{
+                            $arr[$key] = $item;
+                        }
+                    }
+                }
+
+                $row['extra'] = json_encode($arr);
+                break;
+            case 'text' :
+                if($row['input_type'] !=='textarea') {
+                    return $this->fail('控件类型错误');
+                }
+
+                $row['extra'] = $row['value'];
+                break;
+            case 'json' :
+                if($row['input_type'] !=='textarea') {
+                    return $this->fail('控件类型错误');
+                }elseif (!ValidateHelper::isJson($row['value'])) {
+                    return $this->fail('配置值不是JSON');
+                }
+
+                $row['extra'] = $row['value'];
+                break;
+        }
+
+        if(in_array($row['data_type'], ['array', 'text', 'json'])) {
+            $row['value'] = '';
+        }
+
+        $now = time();
+        $row['update_time'] = $now;
+        $row['update_by'] = $loginUid;
+
+        if($id) {
+            $row['create_time'] = $now;
+            $row['create_by'] = $loginUid;
+            $res = Config::upData($row, ['id'=>$id]);
+        }else{
+            $res = Config::addData($row);
         }
 
 
-
-        return $this->success();
+        return $res ? $this->success() : $this->fail('操作失败');
     }
 
 

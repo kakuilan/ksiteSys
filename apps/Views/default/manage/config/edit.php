@@ -139,6 +139,13 @@
                             </div>
 
                             <div class="form-group">
+                                <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="sort">排序</label>
+                                <div class="col-sm-8 col-xs-7">
+                                    <input type="number" class="form-control" name="row[sort]" id="sort" value="{% if row %}{{row.sort}}{% else %}99{% endif %}" maxlength="4" data-rule="required;digits">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="remark">备注</label>
                                 <div class="col-sm-8 col-xs-7">
                                     <textarea name="row[remark]" id="remark" cols="30" rows="3" class="form-control" data-rule="length(1~100)">{% if row %}{{row.remark}}{% endif %}</textarea>
