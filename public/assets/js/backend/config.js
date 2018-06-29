@@ -1,4 +1,4 @@
-define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-datetimepicker','dragsort'], function ($, undefined, Backend, Table, Form) {
+define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-datetimepicker','dragsort','lkkFunc'], function ($, undefined, Backend, Table, Form) {
     var table = $("#table");
     var Controller = {
         //配置列表首页
@@ -44,7 +44,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
                 sortName: 'id',
-                sortOrder: 'asc',
+                sortOrder: 'desc',
                 showExport: false,
                 exportDataType: "base", //basic' 导出当前页的数据, 'all' 导出所有满足条件的数据, 'selected' 导出勾选中的数据.
                 exportTypes: ['json', 'xml', 'csv', 'txt', 'doc', 'excel'],
@@ -211,9 +211,23 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                     defVue = hasVue ? row.extra : '';
                     html.push('<textarea name="row[value]" cols="30" rows="3" class="form-control">'+defVue+'</textarea>');
                 }else if(dtype==='array') {
-                    defVue = hasVue ? row.extra : [];
+                    //defVue = hasVue ? row.extra : [];
+                    defVue = hasVue ? (oriRow.data_type!=='array' ? [] : row.extra) : '';
                     var arrLen = defVue.length;
-                    html.push('<dl class="fieldlist" data-name="row[value]" rel="'+arrLen+'"><dd><ins>键名</ins><ins>键值</ins></dd><dd><a href="javascript:;" class="btn btn-sm btn-success btn-append"><i class="fa fa-plus"></i>追加</a></dd></dl>');
+                    html.push('<dl class="fieldlist" data-name="row[value]" rel="'+arrLen+'"><dd><ins>键名</ins><ins>键值</ins></dd><dd><a href="javascript:;" class="btn btn-sm btn-success btn-append"><i class="fa fa-plus"></i>追加</a></dd>');
+
+                    //原数组
+                    if(arrLen>0) {
+                        var item = null;
+                        for(i=0;i<arrLen;i++) {
+                            item = defVue[i];
+
+
+
+                        }
+                    }
+
+                    html.push('</dl>');
                 }else if(itype==='number') {
                     rule = (dtype==='integer') ? 'digits' : 'isFloat';
                     html.push('<input type="number" class="form-control" name="row[value]" value="'+(defVue===''?'':defVue)+'" data-rule="'+rule+'" />');
@@ -248,7 +262,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             $(document).on("click", ".fieldlist dd .btn-remove", function () {
                 $(this).parent().remove();
             });
-            
+
             //触发原值点击
             if(hasVue) {
                 $dataType.change();

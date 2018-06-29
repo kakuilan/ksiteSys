@@ -162,13 +162,16 @@ class ConfigController extends Controller {
         $tokenName = getConf('login', 'tokenName');
 
         //视图变量
+        $rowJson = $info ? $info->toArray() : '';
+        if($rowJson) $rowJson['extra'] = addslashes($rowJson['extra']);
+
         $this->view->setVars([
             'siteUrl' => getSiteUrl(),
             'saveUrl' => makeUrl('manage/config/save'),
             'uploadUrl' => makeUrl('api/upload/single', [$tokenName=>$accToken]),
             'id' => $id,
             'row' => $info ? Config::rowToObject($info) : $info,
-            'rowJson' => json_encode($info ? $info->toArray() : ''),
+            'rowJson' => json_encode($rowJson),
             'sites' => $sites,
             'dataTypes' => $dataTypes,
             'inputTypes' => $inputTypes,
@@ -275,7 +278,7 @@ class ConfigController extends Controller {
                     return $this->fail('配置值不是JSON');
                 }
 
-                $row['extra'] = $row['value'];
+                $row['extra'] = json_encode(json_decode($row['value']));
                 break;
         }
 
