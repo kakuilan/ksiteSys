@@ -25,13 +25,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 {field: 'state', checkbox: true },
                 {field: 'id', title: 'ID', sortable:true},
                 {field: 'site_id', title: '站点', searchList: sites },
-                {field: 'is_del', title: __('is_del'), searchList: {'1': '已删', '0': '正常'}, formatter: Controller.api.formatter.is_del },
+                {field: 'is_del', title: __('is_del'), searchList: {'1': '已删', '0': '正常'}, formatter: Controller.api.formatter.isdel },
                 {field: 'data_type', title: '数据类型', searchList: dataTypes },
-                {field: 'input_type', title: '控件类型', searchList: inputTypes },
                 {field: 'key', title: '配置键'},
-                {field: 'title', title: '配置标题', operate: false},
+                {field: 'title', title: '配置名称', operate: false},
+                {field: 'value', title: '配置值', operate: false},
+                {field: 'extra', title: '扩展值', operate: false},
                 {field: 'sort', title: '排序', operate: false, sortable:true},
-
                 {field: 'create_time', title: __('create_time'), operate: false, formatter: Table.api.formatter.datetime },
                 {field: 'update_time', title: __('update_time'), operate: false, formatter: Table.api.formatter.datetime },
                 {field: 'username', title: '更新者', operate: false},
@@ -42,17 +42,17 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             // 初始化表格
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
-                pk: 'slide_id',
-                sortName: 'listorder',
+                pk: 'id',
+                sortName: 'id',
                 sortOrder: 'asc',
                 showExport: false,
                 exportDataType: "base", //basic' 导出当前页的数据, 'all' 导出所有满足条件的数据, 'selected' 导出勾选中的数据.
                 exportTypes: ['json', 'xml', 'csv', 'txt', 'doc', 'excel'],
                 exportOptions:{
                     ignoreColumn: [0],  //忽略某一列的索引
-                    fileName: 'appUserList',  //文件名称设置
+                    fileName: 'list',  //文件名称设置
                     worksheetName: 'sheet1',  //表格工作区名称
-                    tableName: 'appUserList'
+                    tableName: 'list'
                 },
                 columns: [
                     columns
@@ -83,7 +83,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             Controller.api.bindevent();
 
             var oriRow = $.parseJSON(Config.extparam.row);
-            console.log('oriRow:', oriRow);
             var $dataType = $('#data_type');
             var $inputType = $('#input_type');
             var $valueDiv = $('#valueDiv');
@@ -92,7 +91,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             var dtype, itype, mesg, rule = '';
 
             //是否有配置值
-            var hasVue = (oriRow!=='' && oriRow.length>0);
+            var hasVue = (oriRow!=='' && (typeof oriRow.id !== 'undefined') );
+            if(hasVue) {
+                dtype = oriRow.data_type;
+                itype = oriRow.input_type;
+            }
+            console.log('oriRow:', oriRow, hasVue, dtype, itype);
 
             //绑定数组元素拖拽排序
             var bindDragsort = function (form) {
@@ -148,7 +152,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
 
                 $inputType.change();
             });
-            
+
             //绑定控件类型
             $inputType.change(function () {
                 itype = $(this).val();
@@ -244,8 +248,13 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             $(document).on("click", ".fieldlist dd .btn-remove", function () {
                 $(this).parent().remove();
             });
-
-
+            
+            //触发原值点击
+            if(hasVue) {
+                $dataType.change();
+                $inputType.change();
+                makeVueFun(dtype, itype, oriRow);
+            }
         },
 
         api: {
@@ -259,6 +268,12 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 isdel: function (value, row, index) {
                     value = (value=='1') ? '<span class="text-muted"><i class="fa fa-circle"></i>已删</span>' : '<span class="text-success"><i class="fa fa-circle"></i>正常</span>';
                     return value;
+                },
+                operate:function (value, row, index) {
+                    console.log('opp', value, row, index);
+                    var defOpr = Table.api.formatter.operate(value, row, index, $("#table"));
+                    var extOpr = '';
+                    return defOpr + extOpr;
                 }
             },
             events: {//绑定事件的方法

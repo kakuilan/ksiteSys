@@ -14,6 +14,7 @@ use Apps\Models\Config;
 use Apps\Models\UserBase;
 use Apps\Services\UserService;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\StringHelper;
 use Lkk\Helpers\ValidateHelper;
 
 /**
@@ -66,8 +67,8 @@ class ConfigController extends Controller {
 
     public function listAction() {
         list($pageNumber, $pageSize) = $this->getPageNumberNSize();
-        $sortName = trim($this->getGet('sort'));
-        $sortOrder = trim($this->getGet('order'));
+        $sortName = trim($this->getGet('sortName'));
+        $sortOrder = trim($this->getGet('sortOrder'));
         if($sortName && $sortOrder) {
             $order = "{$sortName} {$sortOrder}";
         }else{
@@ -111,6 +112,8 @@ class ConfigController extends Controller {
             foreach ($list as &$item) {
                 $usr = ArrayHelper::arraySearchItem($admList, ['uid'=>$item['update_by']]);
                 $item['username'] = $usr['username']??'';
+                $item['value'] = StringHelper::cutStr($item['value'], 10);
+                $item['extra'] = StringHelper::cutStr($item['extra'], 10);
             }
         }
 
@@ -134,12 +137,12 @@ class ConfigController extends Controller {
         if($id) {
             $lock = getlockBackendOperate('editConfig', $id, $loginUid);
             if(empty($lock) || $lock<=0) {
-                return $this->fail("该信息已被其他后台用户[".abs($lock)."]锁定操作，您不能操作！");
+                return $this->alert("该信息已被其他后台用户[".abs($lock)."]锁定操作，您不能操作！");
             }
 
             $info = Config::findFirst($id);
             if(empty($info) || $info->is_del) {
-                return $this->fail('信息不存在或已删除');
+                return $this->alert('该信息不存在或已删除');
             }
         }
 
@@ -217,8 +220,8 @@ class ConfigController extends Controller {
             case 'float' :
                 if($row['input_type'] !=='number') {
                     return $this->fail('控件类型错误');
-                }elseif (!ValidateHelper::isFloat($row['value'])) {
-                    return $this->fail('配置值不是浮点型');
+                }elseif (!is_numeric($row['value'])) {
+                    return $this->fail('配置值不是有效数值');
                 }
 
                 $row['value'] = floatval($row['value']);
@@ -280,18 +283,34 @@ class ConfigController extends Controller {
             $row['value'] = '';
         }
 
+        //检查配置键是否已存在
+        $where = [
+            'and',
+            ['site_id' => $row['site_id'] ],
+            ['key' => $row['key'] ],
+            ['neq', 'id', $id]
+        ];
+        $chkKey = Config::getRow($where);
+        if($chkKey) {
+            if($chkKey->is_del==0) {
+                return $this->fail("该配置键已存在ID:{$chkKey->id}");
+            }else{
+                $id = $chkKey->id;
+            }
+        }
+
         $now = time();
+        $row['is_del'] = 0;
         $row['update_time'] = $now;
         $row['update_by'] = $loginUid;
 
         if($id) {
-            $row['create_time'] = $now;
-            $row['create_by'] = $loginUid;
             $res = Config::upData($row, ['id'=>$id]);
         }else{
+            $row['create_time'] = $now;
+            $row['create_by'] = $loginUid;
             $res = Config::addData($row);
         }
-
 
         return $res ? $this->success() : $this->fail('操作失败');
     }
@@ -330,6 +349,51 @@ class ConfigController extends Controller {
 
         return $res ? $this->success($res) : $this->fail('操作失败,请稍后再试');
     }
+
+
+    /**
+     * 批量操作
+     * @return array|string
+     */
+    public function multiAction() {
+        $ids = (array)$this->getPost('ids');
+        $ids = array_filter($ids, function ($v) {
+            if(!is_numeric($v) || $v<=0) return false;
+            return true;
+        });
+
+        $params = trim($this->getPost('params'));
+        $params = explode('=', $params);
+
+        if(empty($ids) || count($params)!=2) {
+            return $this->fail('参数错误');
+        }
+
+        $field = strtolower(trim($params[0]));
+        $value = intval($params[1]);
+        $now = time();
+
+        switch ($field) {
+            default : case '' :
+                return $this->fail('参数错误');
+                break;
+            case 'is_del' : //恢复已删
+                $data = [
+                    'is_del' => 0,
+                    'update_time' => $now,
+                    'update_by' => $this->getLoginUid(),
+                ];
+                $res = Config::upData($data, ['id' => $ids]);
+                if($res) {
+                    //TODO 缓存操作
+                }
+
+                break;
+        }
+
+        return $res ? $this->success($res) : $this->fail('操作失败,请稍后再试');
+    }
+
 
 
 

@@ -91,15 +91,13 @@
                                                 <div class="dropdown btn-group">
                                                     <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown"><i class="fa fa-cog"></i> 更多</a>
                                                     <ul class="dropdown-menu text-left" role="menu">
-                                                        <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="slide_status=1"><i class="fa fa-eye"></i>显示</a></li>
-                                                        <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="slide_status=0"><i class="fa fa-eye-slash"></i>隐藏</a></li>
+                                                        <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="is_del=0"><i class="fa fa-eye-slash"></i>恢复已删</a></li>
                                                     </ul>
                                                 </div>
                                             </div>
                                             <table id="table" class="table table-striped table-bordered table-hover" width="100%">
 
                                             </table>
-
                                         </div>
                                     </div>
 
