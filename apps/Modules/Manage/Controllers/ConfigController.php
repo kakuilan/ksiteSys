@@ -189,6 +189,7 @@ class ConfigController extends Controller {
         }elseif (!preg_match("/^[a-z][a-z\d\_]{2,29}$/", $row['key'])) {
             return $this->fail('配置键只能是小写英文、数字和下划线组成,英文开头,3~30个字符');
         }
+        $row['key'] = strtolower($row['key']);
 
         //配置值处理
         switch ($row['data_type']) {

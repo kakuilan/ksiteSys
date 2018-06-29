@@ -126,8 +126,14 @@ class LkkCmponent {
      */
     public static function syncDbMaster(string $requestUuid ='') {
         $key = $requestUuid . __FUNCTION__;
-        if(!isset(self::$objects[$key]) ) {
-            $conf = getConf('pool');
+
+        $connInfo = self::$objects[$key] ?? [];
+
+        $now = time();
+        $conf = getConf('pool');
+        $expireTime = $now - ($conf->mysql_master->args->wait_timeout ?? 3600);
+
+        if(empty($connInfo) || ($expireTime && $connInfo['first_connect_time']<$expireTime) ) {
             $db = new Mysql([
                 'host'      => $conf->mysql_master->args->host,
                 'port'      => $conf->mysql_master->args->port,
@@ -137,10 +143,15 @@ class LkkCmponent {
                 'charset'   => $conf->mysql_master->charset,
             ]);
 
-            self::$objects[$key] = $db;
+            $connInfo = [
+                'first_connect_time' => $now,
+                'db' => $db,
+            ];
+            self::$objects[$key] = $connInfo;
         }
+        unset($now, $conf);
 
-        return self::$objects[$key];
+        return $connInfo['db'] ?? null;
     }
 
 
@@ -153,8 +164,14 @@ class LkkCmponent {
      */
     public static function syncDbSlave(string $requestUuid ='') {
         $key = $requestUuid . __FUNCTION__;
-        if(!isset(self::$objects[$key]) ) {
-            $conf = getConf('pool');
+
+        $connInfo = self::$objects[$key] ?? [];
+
+        $now = time();
+        $conf = getConf('pool');
+        $expireTime = $now - ($conf->mysql_slave->args->wait_timeout ?? 3600);
+
+        if(empty($connInfo) || ($expireTime && $connInfo['first_connect_time']<$expireTime) ) {
             $db = new Mysql([
                 'host'      => $conf->mysql_slave->args->host,
                 'port'      => $conf->mysql_slave->args->port,
@@ -164,10 +181,15 @@ class LkkCmponent {
                 'charset'   => $conf->mysql_slave->charset,
             ]);
 
-            self::$objects[$key] = $db;
+            $connInfo = [
+                'first_connect_time' => $now,
+                'db' => $db,
+            ];
+            self::$objects[$key] = $connInfo;
         }
+        unset($now, $conf);
 
-        return self::$objects[$key];
+        return $connInfo['db'] ?? null;
     }
 
 

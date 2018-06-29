@@ -16,8 +16,8 @@ return [
     'mysql_master' => [
         'type'  => 'mysql',                 // 连接池类型
         'size'  => 2,                       // 连接池大小
-        'table_prefix'  => 'k_',          //表前缀
-        'charset'   => 'utf8',              //字符集
+        'table_prefix'  => 'k_',            //表前缀
+        'charset'       => 'utf8',          //字符集
 
         'args'  => [                        // 连接参数
             'host'      => '127.0.0.1',     // 主机名
@@ -27,6 +27,7 @@ return [
             'database'  => 'test_ksys',     // 数据库名称
             'open_log'  => true,
             'slow_query' => 0,              //慢查询20毫秒
+            'wait_timeout' => 345600,       //连接超时,4小时
         ]
     ],
 
@@ -37,7 +38,7 @@ return [
     'mysql_slave' => [
         'type'  => 'mysql',                 // 连接池类型
         'size'  => 4,                       // 连接池大小
-        'table_prefix'  => 'k_',          //表前缀
+        'table_prefix'  => 'k_',            //表前缀
         'charset'   => 'utf8',              //字符集
 
         'args'  => [                        // 连接参数
@@ -48,6 +49,7 @@ return [
             'database'  => 'test_ksys',     // 数据库名称
             'open_log'  => true,
             'slow_query' => 0,              //慢查询20毫秒
+            'wait_timeout' => 345600,       //连接超时,4小时
         ]
     ],
 
