@@ -132,6 +132,15 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 });
             };
 
+
+            var getLength = function(o) {
+                var count = 0;
+                for(var i in o){
+                    count++;
+                }
+                return count;
+            };
+
             //绑定数据类型
             $dataType.change(function () {
                 dtype = $(this).val();
