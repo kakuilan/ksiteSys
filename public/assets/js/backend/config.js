@@ -221,22 +221,23 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                     html.push('<textarea name="row[value]" cols="30" rows="3" class="form-control">'+defVue+'</textarea>');
                 }else if(dtype==='array') {
                     //defVue = hasVue ? row.extra : [];
-                    defVue = hasVue ? (oriRow.data_type!=='array' ? [] : row.extra) : '';
-                    var arrLen = defVue.length;
-                    html.push('<dl class="fieldlist" data-name="row[value]" rel="'+arrLen+'"><dd><ins>键名</ins><ins>键值</ins></dd><dd><a href="javascript:;" class="btn btn-sm btn-success btn-append"><i class="fa fa-plus"></i>追加</a></dd>');
+                    defVue = hasVue ? (oriRow.data_type!=='array' ? [] : $.parseJSON(row.extra)) : '';
+                    var arrLen = defVue==='' ? 0 : getLength(defVue);
+                    console.log('arr', defVue, arrLen);
+                    html.push('<dl class="fieldlist" data-name="row[value]" rel="'+arrLen+'"><dd><ins>键名</ins><ins>键值</ins></dd>');
 
-                    //原数组
+                    //原数组或对象
                     if(arrLen>0) {
                         var item = null;
-                        for(i=0;i<arrLen;i++) {
-                            item = defVue[i];
-
-
-
+                        var i = 0;
+                        for(var k in defVue) {
+                            item = defVue[k];
+                            html.push('<dd class="form-inline"><input type="text" name="row[value][field][' + i + ']" class="form-control" value="'+(isArray(defVue)?'':k)+'" size="10" /> <input type="text" name="row[value][value][' + i + ']" class="form-control" value="'+item+'" data-rule="required" /> <span class="btn btn-sm btn-danger btn-remove"><i class="fa fa-times"></i></span> <span class="btn btn-sm btn-primary btn-dragsort"><i class="fa fa-arrows"></i></span></dd>');
+                            i++;
                         }
                     }
 
-                    html.push('</dl>');
+                    html.push('<dd><a href="javascript:;" class="btn btn-sm btn-success btn-append"><i class="fa fa-plus"></i>追加</a></dd></dl>');
                 }else if(itype==='number') {
                     rule = (dtype==='integer') ? 'digits' : 'isFloat';
                     html.push('<input type="number" class="form-control" name="row[value]" value="'+(defVue===''?'':defVue)+'" data-rule="'+rule+'" />');

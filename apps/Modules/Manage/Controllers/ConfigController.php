@@ -250,9 +250,15 @@ class ConfigController extends Controller {
 
                 $arr = [];
                 if(!empty($row['value'])) {
+                    $idxArr = array_unique(array_filter($row['value']['field'], function ($v) {
+                        return empty(trim($v)) ? false : true;
+                    }));
+                    $hasStrKey = empty($idxArr) ? false : true;
+
                     foreach ($row['value']['value'] as $k=>$item) {
-                        $key = $row['value']['value'][$k] ?? '';
+                        $key = $row['value']['field'][$k] ?? '';
                         if($key=='' && $item=='') continue;
+                        if($hasStrKey && $key=='') $key = 'idx_' . $k;
 
                         if(empty($key)) {
                             array_push($arr, $item);
