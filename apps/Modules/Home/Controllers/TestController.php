@@ -21,14 +21,18 @@ use Lkk\Phalwoo\Server\SwooleServer;
 class TestController extends  Controller {
 
     /**
-     * 默认动作
-     * 动作说明
+     * @title -默认动作
+     * @desc  -动作说明
      */
     public function indexAction(){
         return 'HomeModule-TestController-IndexAction '.date('Ymd H:i:s'). ' ' .CommonHelper::getMillisecond();
     }
 
 
+    /**
+     * @title -测试
+     * @desc  -测试
+     */
     public function testAction() {
         $row = Test::getRow()->toArray();
         $str = var_export($row, true);
@@ -36,6 +40,29 @@ class TestController extends  Controller {
     }
 
 
+    /**
+     * @title -测试sessionpv
+     * @desc  -测试sessionpv
+     */
+    public function sessionpvAction() {
+        $pv = $this->session->getPv();
+        $qps = $this->session->getQps();
+        $online = $this->session->getSiteOnlineNum();
+
+        $data = [
+            'pv' => $pv,
+            'qps' => $qps,
+            'online' => $online,
+        ];
+
+        return $this->success($data);
+    }
+
+
+    /**
+     * @title -测试异步协程
+     * @desc  -测试异步协程
+     */
     public function asyncAction() {
         //协程
         /*$prom = Promise::co(function(){
@@ -56,17 +83,24 @@ class TestController extends  Controller {
     }
 
 
+    /**
+     * @title -测试获取请求参数
+     * @desc  -测试获取请求参数
+     */
     public function getreqAction() {
         $get = $this->request->getQuery();
         $post = $this->request->getPost();
         $reque = $this->request->get();
 
         var_dump($get, $post, $reque);
-
     }
 
 
-    public function testerrAction() {
+    /**
+     * @title -测试模型操作
+     * @desc  -测试模型操作
+     */
+    public function testmodelAction() {
         //asdf = adsf;
 
         $data = [
@@ -88,7 +122,10 @@ class TestController extends  Controller {
     }
 
 
-
+    /**
+     * @title -测试获取redis配置
+     * @desc  -测试获取redis配置
+     */
     public function querediscnfAction() {
         $poolCnf = getConf('pool')->toArray();
         $redisCnf = $poolCnf['redis_queue']['args'];
@@ -107,6 +144,10 @@ class TestController extends  Controller {
     }
 
 
+    /**
+     * @title -测试同步redis操作
+     * @desc  -测试同步redis操作
+     */
     public function redisAction() {
         $redis = SwooleServer::getPoolManager()->get('redis_site')->pop(true);
         $key = 'test';
@@ -115,7 +156,10 @@ class TestController extends  Controller {
     }
 
 
-
+    /**
+     * @title -测试多语言
+     * @desc  -测试多语言
+     */
     public function langAction() {
         $aa = "HELLOWORLD";
         $bb = lang($aa);

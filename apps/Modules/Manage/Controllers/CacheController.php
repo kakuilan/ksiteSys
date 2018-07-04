@@ -18,6 +18,10 @@ use Apps\Modules\Manage\Controller;
  */
 class CacheController extends Controller {
 
+    /**
+     * @title -清除缓存
+     * @desc  -清除缓存
+     */
     public function clearCacheAction() {
         return $this->success();
     }

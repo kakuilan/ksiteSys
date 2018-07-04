@@ -27,11 +27,11 @@ class ErrorController extends Controller {
     }
 
     /**
-     * @title -
-     * @desc  -
+     * @title -错误首页
+     * @desc  -错误首页
      */
     public function indexAction(){
-        return 'ErrorModule-IndexController-IndexAction';
+        return $this->fail('ErrorModule-IndexController-IndexAction');
     }
 
 

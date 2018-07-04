@@ -36,6 +36,10 @@ class ConfigController extends Controller {
     }
 
 
+    /**
+     * @title -配置管理首页
+     * @desc  -配置管理首页
+     */
     public function indexAction() {
         //站点
         $sites = [
@@ -65,6 +69,10 @@ class ConfigController extends Controller {
     }
 
 
+    /**
+     * @title -配置列表JSON
+     * @desc  -配置列表JSON
+     */
     public function listAction() {
         list($pageNumber, $pageSize) = $this->getPageNumberNSize();
         $sortName = trim($this->getGet('sortName'));
@@ -128,7 +136,10 @@ class ConfigController extends Controller {
         return $this->success($res);
     }
 
-
+    /**
+     * @title -配置编辑页
+     * @desc  -配置编辑页
+     */
     public function editAction() {
         $loginUid = $this->getLoginUid();
         $id = intval($this->getGet('ids'));
@@ -181,6 +192,10 @@ class ConfigController extends Controller {
     }
 
 
+    /**
+     * @title -配置保存
+     * @desc  -配置保存
+     */
     public function saveAction() {
         $loginUid = $this->getLoginUid();
         $row = $this->getPost('row');
@@ -326,8 +341,8 @@ class ConfigController extends Controller {
 
 
     /**
-     * 删除配置项
-     * @return array|string
+     * @title -删除配置项
+     * @desc  -删除配置项
      */
     public function delAction() {
         $ids = (array)$this->getPost('ids');
@@ -361,8 +376,8 @@ class ConfigController extends Controller {
 
 
     /**
-     * 批量操作
-     * @return array|string
+     * @title -批量操作配置项
+     * @desc  -批量操作配置项
      */
     public function multiAction() {
         $ids = (array)$this->getPost('ids');

@@ -20,21 +20,18 @@ class IndexController extends Controller {
      * @desc  -动作说明
      */
     public function indexAction(){
-        return 'HomeModule-IndexController-IndexAction '.date('Ymd H:i:s'). ' ' .CommonHelper::getMillisecond();
+        return $this->success('HomeModule-IndexController-IndexAction '.date('Ymd H:i:s'). ' ' .CommonHelper::getMillisecond());
     }
 
 
+    /**
+     * @title -测试
+     * @desc  -测试
+     */
     public function testAction() {
         return $this->success('HomeModule-IndexController-testAction');
     }
 
-
-    public function sessionAction() {
-        $pv = $this->session->getPv();
-        $qps = $this->session->getQps();
-        $online = $this->session->getSiteOnlineNum();
-        return "sessioin pv[{$pv}] qps[{$qps}] online[{$online}] ";
-    }
 
 
 }
