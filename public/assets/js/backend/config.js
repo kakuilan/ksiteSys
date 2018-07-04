@@ -26,6 +26,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 {field: 'id', title: 'ID', sortable:true},
                 {field: 'site_id', title: '站点', searchList: sites },
                 {field: 'is_del', title: __('is_del'), searchList: {'1': '已删', '0': '正常'}, formatter: Controller.api.formatter.isdel },
+                {field: 'disable_del', title: '禁止删除', searchList: {'1': '是', '0': '否'}, formatter: Controller.api.formatter.isnot },
                 {field: 'data_type', title: '数据类型', searchList: dataTypes },
                 {field: 'key', title: '配置键'},
                 {field: 'title', title: '配置名称', operate: false},

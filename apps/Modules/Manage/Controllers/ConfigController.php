@@ -361,6 +361,16 @@ class ConfigController extends Controller {
             return $this->fail('每批最多只能删10个');
         }
 
+        //检查是否有禁止删除的配置项
+        $chkWhere = [
+            'disable_del' => 1,
+            'id' => $ids,
+        ];
+        $chkCount = Config::getCount($chkWhere);
+        if($chkCount>0) {
+            return $this->fail('所选项包含禁止删除');
+        }
+
         $data = [
             'is_del' => 1,
             'update_time' => $now,
