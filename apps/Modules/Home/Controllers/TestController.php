@@ -9,12 +9,17 @@
 
 namespace Apps\Modules\Home\Controllers;
 
+use Apps\Models\AdmUser;
 use Apps\Models\Test;
 use Apps\Models\UserBase;
+use Apps\Models\UserInfo;
 use Apps\Modules\Home\Controller;
 use Apps\Services\RedisQueueService;
+use Apps\Services\UserService;
+use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\StringHelper;
+use Lkk\Helpers\ValidateHelper;
 use Lkk\Phalwoo\Server\SwooleServer;
 
 
@@ -168,6 +173,17 @@ class TestController extends  Controller {
 
         var_dump($bb, $dd);
     }
+
+    /**
+     * @title -测试生成密码
+     * @desc  -测试生成密码
+     */
+    public function makepwdAction() {
+        $pwd = 'mypw@123';
+        $new = UserService::makePasswdHash(md5($pwd));
+        return $this->success($new);
+    }
+
 
 
 

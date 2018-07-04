@@ -51,3 +51,29 @@ https://github.com/lionsoul2014/ip2region
 - netstat -nap|grep 3306 |grep KSS|wc -l  
 - netstat -nap|grep 6379 |grep KSS|wc -l  
 
+
+配置表项
+web_site_title	站点标题
+web_site_slogan	站点标语
+web_site_logo	站点LOGO
+web_site_description	站点描述
+web_site_keywords	站点关键词
+web_site_copyright	版权信息
+web_site_icp	备案信息
+web_site_statistics_js	站点统计脚本
+upload_file_size	文件上传大小限制,0为不限制大小，单位：kb
+upload_file_ext	允许上传的文件后缀,doc,docx,xls,xlsx,ppt,pptx,pdf,wps,txt,rar,zip,gz,bz2,7z
+upload_image_size	图片上传大小限制,0为不限制大小，单位：kb
+upload_image_ext	允许上传的图片后缀,gif,jpg,jpeg,bmp,png
+list_rows_num	分页数量,每页的记录数
+smtp_port	邮件服务端口
+smtp_server	邮件服务器
+smtp_username 邮件服务用户名
+smtp_password	邮件服务密码
+smtp_from	邮件服务发送者地址
+smtp_fromname	邮件服务发送者名称
+
+
+
+
+

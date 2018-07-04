@@ -180,6 +180,7 @@ class ConfigController extends Controller {
             'siteUrl' => getSiteUrl(),
             'saveUrl' => makeUrl('manage/config/save'),
             'uploadUrl' => makeUrl('api/upload/single', [$tokenName=>$accToken]),
+            'globalConfPrefix' => Config::$globalConfPrefix,
             'id' => $id,
             'row' => $info ? Config::rowToObject($info) : $info,
             'rowJson' => json_encode($rowJson),
@@ -209,6 +210,8 @@ class ConfigController extends Controller {
             return $this->fail('配置键不能为空');
         }elseif (!preg_match("/^[a-z][a-z\d\_]{2,29}$/", $row['key'])) {
             return $this->fail('配置键只能是小写英文、数字和下划线组成,英文开头,3~30个字符');
+        }elseif (empty($row['site_id']) && stripos($row['key'], Config::$globalConfPrefix)!==0) {
+            return $this->fail('系统全局配置只能以'.Config::$globalConfPrefix.'开头');
         }
         $row['key'] = strtolower($row['key']);
 

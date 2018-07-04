@@ -16,4 +16,19 @@ class Attach extends BaseModel {
         parent::initialize();
     }
 
+
+    /**
+     * 获取附件标识数组
+     * @return array
+     */
+    public static function getTagArr() {
+        return [
+            'system' => '系统',
+            'backend' => '后台',
+            'avatar' => '头像',
+            'ad' => '广告',
+            'user' => '用户',
+        ];
+    }
+
 }
