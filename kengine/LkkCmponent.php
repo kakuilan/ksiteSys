@@ -76,6 +76,7 @@ class LkkCmponent {
 
     /**
      * 单例 当前站点缓存操作类
+     * 异步协程,使用yield
      * @return mixed
      */
     public static function siteCache() {
@@ -86,7 +87,7 @@ class LkkCmponent {
                 'lifetime' => $cacheConf->lifetime,
             ]);
 
-            self::$objects[__FUNCTION__] = new BackendRedis($frontCache, $cacheConf);
+            self::$objects[__FUNCTION__] = new BackendRedis($frontCache, $cacheConf->toArray());
         }
 
         return self::$objects[__FUNCTION__];
@@ -96,6 +97,7 @@ class LkkCmponent {
 
     /**
      * 单例 站群缓存操作类
+     * 异步协程,使用yield
      * @return mixed
      */
     public static function sysCache() {
