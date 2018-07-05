@@ -39,6 +39,7 @@ function getConf($file, $key = null, $default=null) {
  * @return string
  */
 function getSiteUrl($server=null) {
+    //TODO 修改读数据库记录
     static $url;
     if(is_null($url)) {
         $siteConf = getConf('site');
@@ -46,7 +47,7 @@ function getSiteUrl($server=null) {
         if(isset($siteConf['url']) && !empty($siteConf['url'])) {
             $url = $siteConf['url'];
         }elseif(isset($server['HTTP_HOST'])){
-            $url = parse_url(CommonHelper::getUrl());
+            $url = parse_url(CommonHelper::getUrl($server));
             $url = $url['scheme'] .'://' . $url['host'];
         }else{
             $url = '';
@@ -67,7 +68,13 @@ function getSiteUrl($server=null) {
 function getSiteId($url='') {
     static $siteIds;
 
-    if(empty($url)) $url = getSiteUrl();
+    if(empty($url)) {
+        $siteConf = getConf('site');
+        return $siteConf['siteId'] ?? 0;
+    }else{
+        $url = strtolower($url);
+    }
+
     if(is_null($siteIds) || !isset($siteIds[$url])) {
         $siteIds[$url] = 0;
         $res = Site::getRow(['site_url'=>$url]);
@@ -76,7 +83,7 @@ function getSiteId($url='') {
         }
     }
 
-    return $siteIds[$url];
+    return $siteIds[$url] ?? 0;
 }
 
 

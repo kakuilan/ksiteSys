@@ -10,6 +10,8 @@
 
 namespace Kengine\Server;
 
+use Apps\Models\Site;
+use Apps\Services\UserService;
 use Kengine\Engine;
 use Kengine\LkkCmponent;
 use Kengine\LkkCookies;
@@ -35,7 +37,6 @@ use Lkk\Phalwoo\Server\Component\Log\Handler\AsyncStreamHandler;
 use Lkk\Phalwoo\Server\Component\Log\SwooleLogger;
 use Lkk\Phalwoo\Server\Component\Pool\PoolManager;
 use Lkk\Phalwoo\Server\SwooleServer;
-use Apps\Services\UserService;
 use Throwable;
 
 class LkkServer extends SwooleServer {
@@ -97,6 +98,15 @@ class LkkServer extends SwooleServer {
     public function startServer() {
         //TODO 自定义逻辑
 
+        //TODO 检查站点ID和网址是否存在
+        $siteId = getSiteId();
+        $siteInfo = Site::findFirst($siteId);
+        if(empty($siteInfo)) {
+            $msg = "siteId is empty or siteInfo not exist\r\n";
+            logException($msg);
+            die($msg);
+        }
+        
         parent::startServer();
 
         return $this;

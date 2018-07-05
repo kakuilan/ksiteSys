@@ -16,4 +16,22 @@ class Site extends  BaseModel {
         parent::initialize();
     }
 
+
+    /**
+     * 获取站点状态数组
+     * @return array
+     */
+    public static function getStatusArr() {
+        return [
+            '-1' => '关闭',
+            '0' => '维护',
+            '1' => '开启',
+        ];
+    }
+
+
+
+
+
+
 }
