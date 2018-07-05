@@ -137,12 +137,22 @@ class SiteController extends Controller {
             return $this->alert('该信息不存在或已删除');
         }
 
+        $statusArr = Site::getStatusArr();
+        $this->view->setVars([
+            'siteUrl' => getSiteUrl(),
+            'saveUrl' => makeUrl('manage/site/save'),
+            'uploadUrl' => '',
+            'id' => $id,
+            'statusArr' => json_encode($statusArr),
+        ]);
 
-
-
-
+        return null;
     }
 
+
+    public function saveAction() {
+
+    }
 
 
 

@@ -12,6 +12,7 @@ namespace Apps\Modules\Api\Controllers;
 
 use Apps\Modules\Api\Controller;
 use Kengine\Server\LkkServer;
+use Kengine\LkkCmponent;
 use Redis;
 
 class TestController extends Controller {
@@ -58,6 +59,22 @@ class TestController extends Controller {
     public function getSyncRedisAction() {
         $redis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
         $res = yield $redis->set('test', date('Y-m-d H:i:s') .' hhe', 600);
+
+        return $this->success($res);
+    }
+
+
+    public function sitecacheAction() {
+        $rang = range(1, 99);
+        $cache = LkkCmponent::siteCache();
+
+        $res = [];
+        foreach ($rang as $item) {
+            $key = 'test_' . $item;
+            $vue = $item;
+            $ret = yield $cache->save($key, $vue);
+            array_push($res, intval($ret));
+        }
 
         return $this->success($res);
     }

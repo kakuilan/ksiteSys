@@ -9,5 +9,5 @@
 
 
 return [
-    'key' => 'q45sdfd23454sdft',    //16, 24 or 32位
+    'key' => 'XbRpWM4c$!vs6$^l',    //16, 24 or 32位
 ];

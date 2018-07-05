@@ -21,6 +21,7 @@ use \Monolog\Handler\StreamHandler as MonoStreamHandler;
 use \Monolog\Logger as Monologger;
 use \voku\helper\AntiXSS;
 
+
 /**
  * 获取配置
  * @param string $file 配置文件
@@ -31,6 +32,14 @@ use \voku\helper\AntiXSS;
 function getConf($file, $key = null, $default=null) {
     return LkkConfig::get($file, $key, $default);
 }
+
+
+function getSiteInfo($siteId=0) {
+
+
+
+}
+
 
 
 /**
@@ -114,7 +123,6 @@ function xssClean(string $str) {
 function removeEmoji($str='') {
     return EmojiService::removEmoji($str);
 }
-
 
 
 /**

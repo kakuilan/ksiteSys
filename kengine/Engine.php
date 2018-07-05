@@ -65,7 +65,7 @@ class Engine {
     public static function defineAppConstant() {
         //定义项目URL相关常量
         $siteConf = getConf('site');
-        $url = $siteConf['sourceFullUrl'] ? getSiteUrl() : '/';
+        $url = $siteConf['srcFullUrl'] ? getSiteUrl() : '/';
 
         define('SITE_URL',      $url );
         define('HTML_URL',      $url .'html'     . DS ); //url-html html生成目录
