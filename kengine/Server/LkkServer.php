@@ -172,6 +172,8 @@ class LkkServer extends SwooleServer {
             xhprof_enable(XHPROF_FLAGS_CPU + XHPROF_FLAGS_MEMORY);
         }
 
+        //TODO 检查站点状态
+
         $di = new PwDi();
         $app = new PwApplication($di);
         $di->setShared('swooleRequest', $request);

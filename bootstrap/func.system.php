@@ -97,37 +97,6 @@ function logException($e=null) {
 
 
 /**
- * 获取站点信息
- * @param int $siteId 站点ID
- * @param bool|array $newInfo 新信息:false取缓存,true取数据库,array使用该信息作缓存
- * @return array|bool|\Phalcon\Mvc\Model|\Phalcon\Mvc\ModelInterface
- */
-function getSiteInfo($siteId=0, $newInfo=false) {
-    if(empty($siteId)) return false;
-
-    //获取同步redis
-    $redis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
-    $key = ConstService::CACHE_SITE_INFO . $siteId;
-
-    $info = promiseRedisResult($redis->get($key));
-    if($info) $info = (array)json_decode($info);
-
-    if($newInfo || empty($info)) {
-        $info = Site::getBaseInfo($siteId);
-        if($info) {
-            $info = $info->toArray();
-            if(is_array($newInfo)) $info = array_merge($info, $newInfo);
-            $redis->set($key, json_encode($info));
-        }
-    }
-
-    unset($redis);
-
-    return $info;
-}
-
-
-/**
  * 获取promise redis结果,参考Lkk\Phalwoo\Server\Component\Client\Redis
  * @param Promise $promise
  * @return bool
@@ -164,6 +133,38 @@ function promiseRedisResult(Promise $promise) {
 
 
 /**
+ * 获取站点信息
+ * @param int $siteId 站点ID
+ * @param bool|array $newInfo 新信息:false取缓存,true取数据库,array使用该信息作缓存
+ * @return array|bool|\Phalcon\Mvc\Model|\Phalcon\Mvc\ModelInterface
+ */
+function getSiteInfo($siteId=null, $newInfo=false) {
+    if(is_null($siteId)) $siteId = getConf('site')->siteId; //默认获取当前站点ID
+    if(empty($siteId) || !ValidateHelper::isInteger($siteId)) return false;
+
+    //获取同步redis
+    $redis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
+    $key = ConstService::CACHE_SITE_INFO . $siteId;
+
+    $info = promiseRedisResult($redis->get($key));
+    if($info) $info = (array)json_decode($info);
+
+    if($newInfo || empty($info)) {
+        $info = Site::getBaseInfo($siteId);
+        if($info) {
+            $info = $info->toArray();
+            if(is_array($newInfo)) $info = array_merge($info, $newInfo);
+            $redis->set($key, json_encode($info));
+        }
+    }
+
+    unset($redis);
+
+    return $info;
+}
+
+
+/**
  * 获取站点URL[以/结尾]
  * @param null $param 站点ID;或request->header数组;或$_SERVER数组;或URL地址
  * @param bool|string $newInfo 新信息:false取缓存,true取数据库,string使用该信息作缓存
@@ -174,12 +175,15 @@ function getSiteUrl($param=null, $newInfo=false) {
     $url = '';
     if(empty($param) || is_numeric($param)) { //根据siteID
         $siteId = intval($param);
-        if($siteId==0) $siteId = getConf('site')->siteId;
+        if($siteId<=0) $siteId = getConf('site')->siteId;
         $url = $siteUrls[$siteId] ?? '';
 
         if(empty($url) || $newInfo) {
-            $url = getSiteInfo($siteId)['site_url'] ?? '';
-            if($newInfo && ValidateHelper::isUrl($newInfo)) $url = $newInfo;
+            if($newInfo && ValidateHelper::isUrl($newInfo)) {
+                $url = $newInfo;
+            }else{
+                $url = getSiteInfo($siteId)['site_url'] ?? '';
+            }
 
             $siteUrls[$siteId] = $url = rtrim(strtolower($url), '/') . '/';
         }

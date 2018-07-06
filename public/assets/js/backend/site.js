@@ -74,8 +74,18 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
 
         //编辑页
         edit: function () {
-            Controller.api.bindevent();
+            //为表单绑定事件
+            /*Form.api.bindevent($("#edit-form"), function () {
+                var status = $('input[name="row[status]"]:checked').val();
+                var remark = $.trim($('#remark').val());
+                if(status!=1 && remark=='') {
+                    Toastr.error('请填写备注');
+                    return false;
+                }
+                return true;
+            });*/
 
+            Controller.api.bindevent();
         },
 
         api: {

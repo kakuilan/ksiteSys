@@ -35,6 +35,10 @@ class SiteController extends Controller {
     }
 
 
+    /**
+     * @title -站点管理首页
+     * @desc  -站点管理首页
+     */
     public function indexAction() {
         $statusArr = Site::getStatusArr();
 
@@ -53,6 +57,10 @@ class SiteController extends Controller {
     }
 
 
+    /**
+     * @title -站点列表JSON
+     * @desc  -站点列表JSON
+     */
     public function listAction() {
         list($pageNumber, $pageSize) = $this->getPageNumberNSize();
         $sortName = trim($this->getGet('sortName'));
@@ -122,7 +130,10 @@ class SiteController extends Controller {
     }
 
 
-
+    /**
+     * @title -配置站点页
+     * @desc  -配置站点页
+     */
     public function editAction() {
         $loginUid = $this->getLoginUid();
         $id = intval($this->getGet('ids'));
@@ -144,14 +155,58 @@ class SiteController extends Controller {
             'uploadUrl' => '',
             'id' => $id,
             'statusArr' => json_encode($statusArr),
+            'row' => $info ? Site::rowToObject($info) : $info,
         ]);
 
         return null;
     }
 
 
+    /**
+     * @title -保存站点信息
+     * @desc  -保存站点信息
+     */
     public function saveAction() {
+        $loginUid = $this->getLoginUid();
+        $row = $this->getPost('row');
 
+        $id = intval($row['site_id'] ?? 0);
+        unset($row['site_id']);
+
+        $info = Site::getBaseInfo($id);
+        if(empty($info)) {
+            return $this->fail('参数错误或该站点不存在');
+        }
+
+        $status = array_keys(Site::getStatusArr());
+        $now = time();
+
+        if(empty($row['site_name'])) {
+            return $this->fail('站点名称不能为空');
+        }elseif (empty($row['site_url'])) {
+            return $this->fail('站点网址不能为空');
+        }elseif (!ValidateHelper::isUrl($row['site_url'])) {
+            return $this->fail('站点网址无效');
+        }elseif (!in_array($row['status'], $status)) {
+            return $this->fail('站点状态无效');
+        }elseif ($row['status']!=1 && empty($row['remark'])) {
+            return $this->fail('站点维护或关闭时,需填写备注');
+        }elseif ($row['remark'] && mb_strlen($row['remark']) > Site::$remarkMaxLength) {
+            return $this->fail('备注不能超过'.Site::$remarkMaxLength.'个字');
+        }
+
+        $row['site_url'] = rtrim(strtolower($row['site_url']), '/') . '/';
+        $row['update_time'] = $now;
+        $row['update_by'] = $loginUid;
+
+        $res = Site::upData($row, ['site_id'=>$id]);
+        if($res) {
+            //更新站点缓存和url
+            getSiteInfo($id, true);
+            getSiteUrl($id, $row['site_url']);
+        }
+
+        return $this->success();
     }
 
 

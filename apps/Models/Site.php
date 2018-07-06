@@ -13,6 +13,8 @@ namespace Apps\Models;
 class Site extends  BaseModel {
 
 
+    public static $remarkMaxLength = 128; //备注最大长度
+
     /**
      * 默认字段
      * @var string
