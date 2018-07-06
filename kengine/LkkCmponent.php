@@ -139,7 +139,20 @@ class LkkCmponent {
         $conf = getConf('pool');
         $expireTime = $now - ($conf->mysql_master->args->wait_timeout ?? 3600);
 
+        getLogger('mysql')->info('syncDbMaster start:', [
+            'now' => $now,
+            'wait_timeout' => $conf->mysql_master->args->wait_timeout,
+            'connInfo' => $connInfo,
+            'expireTime' => $expireTime,
+        ]);
+
         if(empty($connInfo) || ($expireTime && $connInfo['first_connect_time']<$expireTime) ) {
+            getLogger('mysql')->info('syncDbMaster end:', [
+                'now' => $now,
+                'first_connect_time' => $connInfo['first_connect_time'],
+                'expireTime' => $expireTime,
+            ]);
+
             $db = new Mysql([
                 'host'      => $conf->mysql_master->args->host,
                 'port'      => $conf->mysql_master->args->port,
@@ -177,7 +190,20 @@ class LkkCmponent {
         $conf = getConf('pool');
         $expireTime = $now - ($conf->mysql_slave->args->wait_timeout ?? 3600);
 
+        getLogger('mysql')->info('syncDbSlave start:', [
+            'now' => $now,
+            'wait_timeout' => $conf->mysql_master->args->wait_timeout,
+            'connInfo' => $connInfo,
+            'expireTime' => $expireTime,
+        ]);
+
         if(empty($connInfo) || ($expireTime && $connInfo['first_connect_time']<$expireTime) ) {
+            getLogger('mysql')->info('syncDbSlave end:', [
+                'now' => $now,
+                'first_connect_time' => $connInfo['first_connect_time'],
+                'expireTime' => $expireTime,
+            ]);
+
             $db = new Mysql([
                 'host'      => $conf->mysql_slave->args->host,
                 'port'      => $conf->mysql_slave->args->port,
