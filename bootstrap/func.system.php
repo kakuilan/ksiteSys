@@ -14,7 +14,12 @@ use \Apps\Services\EmojiService;
 use \Kengine\LkkCmponent;
 use \Kengine\LkkConfig;
 use \Kengine\LkkLang;
+use \Kengine\Server\LkkServer;
+use \Lkk\Concurrent\Promise;
 use \Lkk\Helpers\CommonHelper;
+use \Lkk\Helpers\UrlHelper;
+use \Lkk\Helpers\ValidateHelper;
+use \Lkk\Phalwoo\Server\ServerConst;
 use \Lkk\Phalwoo\Server\SwooleServer;
 use \Monolog\Formatter\LineFormatter;
 use \Monolog\Handler\StreamHandler as MonoStreamHandler;
@@ -34,34 +39,159 @@ function getConf($file, $key = null, $default=null) {
 }
 
 
-function getSiteInfo($siteId=0) {
+/**
+ * 获取日志对象
+ * @param string $logname
+ * @param bool   $useServerLog 使用服务器异步日志
+ *
+ * @return mixed
+ */
+function getLogger($logname='', $useServerLog=false) {
+    static $monLoggers;
 
+    if($useServerLog && is_object(SwooleServer::getServer())) { //在swoole服务里面
+        return SwooleServer::getLogger();
+    }else{
+        $logname = trim($logname);
+        if($logname=='') $logname='commm';
+        if(!isset($monLoggers[$logname])) {
+            $file = LOGDIR . "{$logname}.log";
+            //设置日期格式
+            $dateFormat = "Y-m-d H:i:s.u";
+            $formatter = new LineFormatter(null, $dateFormat);
+            $logger = new Monologger($logname);
+            try {
+                $handler = new MonoStreamHandler($file, Monologger::INFO);
+            }catch (\Throwable $e) {
+            }
+            $handler->setFormatter($formatter);
+            $logger->pushHandler($handler);
+            $monLoggers[$logname] = $logger;
+        }
 
-
+        return $monLoggers[$logname];
+    }
 }
 
 
+/**
+ * 记录异常日志
+ * @param object|string $e \Exception或字符串
+ * @return bool
+ */
+function logException($e=null) {
+    if(empty($e)) {
+        return false;
+    }
+
+    $loger = getLogger('exception');
+    if(is_string($e)) {
+        $loger->error($e);
+    }else{
+        $msg = $e->getMessage() . ' ##code:' . $e->getCode() . ' ##file:' . $e->getFile() . ' ##line:' . $e->getLine();
+        $loger->error($msg, $e->getTrace());
+    }
+
+    return true;
+}
+
 
 /**
- * 获取当前站点URL [后面加/]
- * @param array $server
- * @return string
+ * 获取站点信息
+ * @param int $siteId 站点ID
+ * @param bool|array $newInfo 新信息:false取缓存,true取数据库,array使用该信息作缓存
+ * @return array|bool|\Phalcon\Mvc\Model|\Phalcon\Mvc\ModelInterface
  */
-function getSiteUrl($server=null) {
-    //TODO 修改读数据库记录
-    static $url;
-    if(is_null($url)) {
-        $siteConf = getConf('site');
-        if(empty($server)) $server = $_SERVER;
-        if(isset($siteConf['url']) && !empty($siteConf['url'])) {
-            $url = $siteConf['url'];
-        }elseif(isset($server['HTTP_HOST'])){
-            $url = parse_url(CommonHelper::getUrl($server));
-            $url = $url['scheme'] .'://' . $url['host'];
-        }else{
-            $url = '';
+function getSiteInfo($siteId=0, $newInfo=false) {
+    if(empty($siteId)) return false;
+
+    //获取同步redis
+    $redis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
+    $key = ConstService::CACHE_SITE_INFO . $siteId;
+
+    $info = promiseRedisResult($redis->get($key));
+    if($info) $info = (array)json_decode($info);
+
+    if($newInfo || empty($info)) {
+        $info = Site::getBaseInfo($siteId);
+        if($info) {
+            $info = $info->toArray();
+            if(is_array($newInfo)) $info = array_merge($info, $newInfo);
+            $redis->set($key, json_encode($info));
         }
-        $url = rtrim(strtolower($url), '/') . '/';
+    }
+
+    unset($redis);
+
+    return $info;
+}
+
+
+/**
+ * 获取promise redis结果,参考Lkk\Phalwoo\Server\Component\Client\Redis
+ * @param Promise $promise
+ * @return bool
+ */
+function promiseRedisResult(Promise $promise) {
+    $res = false;
+    $ret = $promise->getResult();
+
+    if(!isset($ret['code'])) {
+        logException(new Exception('redis promise result not valid:'. json_encode($ret)));
+    }
+
+    switch ($ret['code']) {
+        default :
+            logException(new Exception('redis promise unknow error:'. json_encode($ret)));
+            break;
+        case ServerConst::ERR_REDIS_CONNECT_FAILED :
+            logException(new Exception('redis connect fail:'. json_encode($ret)));
+            break;
+        case ServerConst::ERR_REDIS_TIMEOUT :
+            logException(new Exception('redis connect timeout:'. json_encode($ret)));
+            break;
+        case ServerConst::ERR_REDIS_ERROR :
+            $res = false;
+            break;
+        case ServerConst::ERR_SUCCESS :
+            $res = $ret['data'];
+            break;
+    }
+    unset($promise);
+
+    return $res;
+}
+
+
+/**
+ * 获取站点URL[以/结尾]
+ * @param null $param 站点ID;或request->header数组;或$_SERVER数组;或URL地址
+ * @param bool|string $newInfo 新信息:false取缓存,true取数据库,string使用该信息作缓存
+ * @return bool|mixed|string
+ */
+function getSiteUrl($param=null, $newInfo=false) {
+    static $siteUrls;
+    $url = '';
+    if(empty($param) || is_numeric($param)) { //根据siteID
+        $siteId = intval($param);
+        if($siteId==0) $siteId = getConf('site')->siteId;
+        $url = $siteUrls[$siteId] ?? '';
+
+        if(empty($url) || $newInfo) {
+            $url = getSiteInfo($siteId)['site_url'] ?? '';
+            if($newInfo && ValidateHelper::isUrl($newInfo)) $url = $newInfo;
+
+            $siteUrls[$siteId] = $url = rtrim(strtolower($url), '/') . '/';
+        }
+    }else{
+        //根据request->header数组 或者 $_SERVER数组 或者 URL地址
+        $param = $param['host'] ?? $param['HTTP_HOST'] ?? strval($param);
+        $param = UrlHelper::formatUrl($param);
+        if(ValidateHelper::isUrl($param)) {
+            $arr = parse_url($param);
+            $url = "{$arr['scheme']}://{$arr['host']}/";
+            $url = strtolower($url);
+        }
     }
 
     return $url;
@@ -217,60 +347,6 @@ function asyncCli($task, $action, $params=[]){
 
     $res = pclose(popen("{$cmd} &", 'r'));
     return $res;
-}
-
-
-/**
- * 获取日志对象
- * @param string $logname
- * @param bool   $useServerLog 使用服务器异步日志
- *
- * @return mixed
- */
-function getLogger($logname='', $useServerLog=false) {
-    static $monLoggers;
-
-    if($useServerLog && is_object(SwooleServer::getServer())) { //在swoole服务里面
-        return SwooleServer::getLogger();
-    }else{
-        $logname = trim($logname);
-        if($logname=='') $logname='commm';
-        if(!isset($monLoggers[$logname])) {
-            $file = LOGDIR . "{$logname}.log";
-            //设置日期格式
-            $dateFormat = "Y-m-d H:i:s.u";
-            $formatter = new LineFormatter(null, $dateFormat);
-            $logger = new Monologger($logname);
-            $handler = new MonoStreamHandler($file, Monologger::INFO);
-            $handler->setFormatter($formatter);
-            $logger->pushHandler($handler);
-            $monLoggers[$logname] = $logger;
-        }
-
-        return $monLoggers[$logname];
-    }
-}
-
-
-/**
- * 记录异常日志
- * @param object|string $e \Exception或字符串
- * @return bool
- */
-function logException($e=null) {
-    if(empty($e)) {
-        return false;
-    }
-
-    $loger = getLogger('exception');
-    if(is_string($e)) {
-        $loger->error($e);
-    }else{
-        $msg = $e->getMessage() . ' ##code:' . $e->getCode() . ' ##file:' . $e->getFile() . ' ##line:' . $e->getLine();
-        $loger->error($msg, $e->getTrace());
-    }
-
-    return true;
 }
 
 

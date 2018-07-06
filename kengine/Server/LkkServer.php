@@ -98,14 +98,15 @@ class LkkServer extends SwooleServer {
     public function startServer() {
         //TODO 自定义逻辑
 
-        //TODO 检查站点ID和网址是否存在
+        //检查站点ID和网址是否存在
         $siteId = getSiteId();
         $siteInfo = Site::findFirst($siteId);
-        if(empty($siteInfo)) {
-            $msg = "siteId is empty or siteInfo not exist\r\n";
+        if(empty($siteInfo) || empty($siteInfo->site_url)) {
+            $msg = "check config/site.php siteId is empty or siteInfo not exist\r\n";
             logException($msg);
             die($msg);
         }
+        unset($siteId, $siteInfo);
         
         parent::startServer();
 
@@ -178,7 +179,6 @@ class LkkServer extends SwooleServer {
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
         //当前模块名
         $curModName = strtolower(Engine::getModuleNameByUri($_uri));
-
         getLogger()->info('request:', [
             '$curModName' => $curModName,
             'header' => $request->header ?? '',
@@ -425,6 +425,7 @@ class LkkServer extends SwooleServer {
         if(is_object($redis) && ($redis instanceof Redis)) {
             $res = intval(yield $redis->incrBy($key, 1));
         }
+        unset($key, $redis);
 
         return $res;
     }
@@ -494,6 +495,15 @@ class LkkServer extends SwooleServer {
     }
 
 
+    /**
+     * 设置错误处理
+     * @param $errno
+     * @param $errstr
+     * @param $errfile
+     * @param $errline
+     * @param $errcontext
+     * @return bool
+     */
     public static function setErrorHandler($errno, $errstr, $errfile, $errline, $errcontext) {
         $displayErrors = ini_get("display_errors");
         $displayErrors = strtolower($displayErrors);
@@ -522,6 +532,11 @@ class LkkServer extends SwooleServer {
     }
 
 
+    /**
+     * 匹配错误码
+     * @param $code
+     * @return array
+     */
     public static function mapErrorCode($code) {
         $error = $log = null;
         switch ($code) {

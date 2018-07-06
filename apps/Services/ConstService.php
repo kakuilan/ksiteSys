@@ -34,6 +34,7 @@ class ConstService extends ServiceBase {
     const CACHE_CONFIG_ACTI_ALL                 = 'config_active_all'; //动态配置,数据表k_config,全部配置
     const CACHE_CONFIG_ACTI_SYS                 = 'config_active_sys'; //动态配置,数据表k_config,系统平台配置
     const CACHE_CONFIG_ACTI_SITE                = 'config_active_site'; //动态配置,数据表k_config,站点配置,后跟站点ID
+    const CACHE_SITE_INFO                       = 'site_info'; //站点信息,后跟站点ID
 
 
     //消息流类型定义,命名以 MESSAGE_ 开头,值小写

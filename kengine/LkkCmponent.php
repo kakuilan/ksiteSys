@@ -11,6 +11,7 @@
 namespace Kengine;
 
 use Lkk\Phalwoo\Phalcon\Cache\Backend\Redis as BackendRedis;
+use Overtrue\Pinyin\Pinyin;
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Crypt as PhCrypt;
 use Phalcon\Db\Adapter\Pdo\Mysql;
@@ -18,7 +19,6 @@ use Phalcon\Di\FactoryDefault\Cli as CliDi;
 use Phalcon\Events\Manager as EventsManager;
 use Phalcon\Mvc\Url;
 use voku\helper\AntiXSS;
-use Overtrue\Pinyin\Pinyin;
 
 class LkkCmponent {
 
@@ -62,12 +62,13 @@ class LkkCmponent {
      */
     public static function url() {
         if(!isset(self::$objects[__FUNCTION__]) ) {
-            $conf = getConf('site');
             $url = new Url();
-            $url->setBaseUri($conf->url);
+            $url->setBaseUri('/');
             $url->setBasePath('/');
 
             self::$objects[__FUNCTION__] = $url;
+
+            unset($conf, $siteInfo, $url);
         }
 
         return self::$objects[__FUNCTION__];
@@ -88,6 +89,8 @@ class LkkCmponent {
             ]);
 
             self::$objects[__FUNCTION__] = new BackendRedis($frontCache, $cacheConf->toArray());
+
+            unset($cacheConf);
         }
 
         return self::$objects[__FUNCTION__];
@@ -113,6 +116,7 @@ class LkkCmponent {
             ];
 
             self::$objects[__FUNCTION__] = new BackendRedis($frontCache, $initConf);
+            unset($cacheConf);
         }
 
         return self::$objects[__FUNCTION__];

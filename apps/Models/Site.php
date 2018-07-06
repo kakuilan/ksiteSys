@@ -12,6 +12,13 @@ namespace Apps\Models;
 
 class Site extends  BaseModel {
 
+
+    /**
+     * 默认字段
+     * @var string
+     */
+    public static $defaultFields = 'site_id,site_name,site_url,status,remark';
+
     public function initialize() {
         parent::initialize();
     }
@@ -30,7 +37,17 @@ class Site extends  BaseModel {
     }
 
 
+    /**
+     * 获取站点基本信息
+     * @param int $siteId
+     * @return array|\Phalcon\Mvc\Model|\Phalcon\Mvc\ModelInterface
+     */
+    public static function getBaseInfo($siteId=0) {
+        $where = ['site_id' => $siteId];
+        $res = self::getRow($where, self::$defaultFields);
 
+        return $res;
+    }
 
 
 

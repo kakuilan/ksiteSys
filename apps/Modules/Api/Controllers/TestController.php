@@ -58,13 +58,18 @@ class TestController extends Controller {
      */
     public function getSyncRedisAction() {
         $redis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
-        $res = yield $redis->set('test', date('Y-m-d H:i:s') .' hhe', 600);
+        $res = $redis->set('test', date('Y-m-d H:i:s') .' hhe', 600);
 
         return $this->success($res);
     }
 
 
-    public function sitecacheAction() {
+    /**
+     * @title -站点缓存异步
+     * @desc  -站点缓存异步
+     * @return array|string
+     */
+    public function sitecacheAsyncAction() {
         $rang = range(1, 99);
         $cache = LkkCmponent::siteCache();
 
@@ -79,6 +84,24 @@ class TestController extends Controller {
         return $this->success($res);
     }
 
+
+    /**
+     * @title -获取站点信息
+     * @desc  -获取站点信息
+     * @return array|string
+     */
+    public function siteInfoAction() {
+        $info = getSiteInfo($this->siteId);
+        $url1 = getSiteUrl();
+        $url2 = getSiteUrl('http://redisdoc.com/string/set.html');
+        $data = [
+            'site' => $info,
+            'url1' => $url1,
+            'url2' => $url2,
+        ];
+
+        return $this->success($data);
+    }
 
 
 
