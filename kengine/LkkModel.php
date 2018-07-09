@@ -15,6 +15,7 @@ use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\EncryptHelper;
 use Lkk\LkkMacAddress;
 use Lkk\Phalwoo\Phalcon\Paginator\Adapter\AsyncMysql as PaginatorAsyncMysql;
+use Lkk\Phalwoo\Server\ServerConst;
 use Lkk\Phalwoo\Server\SwooleServer;
 use Phalcon\Mvc\Model;
 use Phalcon\Mvc\Model\Query\Builder as QueryBuilder;
@@ -232,9 +233,13 @@ class LkkModel extends Model {
             $value = array_map('self::parseValue', $value);
         }elseif (is_string($value)) {
             $value = trim($value, '\'" ');
-            if($value=='') $value = '\'\'';
+            if($value=='') {
+                $value = '\'\'';
+            }else{
+                $value = "'{$value}'";
+            }
         }else{
-            $value = strval($value);
+            $value = "'".strval($value)."'";
         }
 
         return $value;
@@ -604,7 +609,11 @@ class LkkModel extends Model {
                     $str = $key . ' = ' . self::parseValue($val);
                 }
             }elseif (is_string($key) && is_array($val)) { //常规键值对,多值
-                $str = $key . ' IN (' . implode(', ', $val) . ')';
+                if(is_numeric(current($val)) && is_numeric(end($val))) { //值数组都是数字
+                    $str = $key . ' IN (' . implode(', ', $val) . ')';
+                }else{ //值数组是字符串
+                    $str = $key . ' IN (\'' . implode('\', \'', $val) . '\')';
+                }
             }elseif (is_numeric($key) && is_string($val)) { //字符串条件
                 $str = $val;
             }elseif (is_numeric($key) && is_array($val)) { //数组表达式
@@ -811,7 +820,7 @@ class LkkModel extends Model {
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==0) ? $res['insert_id'] : false;
+        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['insert_id'] : false;
     }
 
 
@@ -997,7 +1006,7 @@ class LkkModel extends Model {
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, true);
 
-        if($res['code']!=0 && isset($res['errno'])) {
+        if($res['code']!=ServerConst::ERR_SUCCESS && isset($res['errno'])) {
             $error = [
                 'errno' => $res['errno'],
                 'query' => $query,
@@ -1006,7 +1015,7 @@ class LkkModel extends Model {
             logException(json_encode($error));
         }
 
-        return ($res && $res['code']==0) ? $res['affected_rows'] : false;
+        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['affected_rows'] : false;
     }
 
 
@@ -1046,7 +1055,7 @@ class LkkModel extends Model {
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==0) ? $res['affected_rows'] : false;
+        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['affected_rows'] : false;
     }
 
 
@@ -1181,7 +1190,7 @@ class LkkModel extends Model {
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==0) ? $res['data'] : false;
+        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['data'] : false;
     }
 
 
@@ -1247,7 +1256,7 @@ class LkkModel extends Model {
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, false);
-        return ($res && $res['code']==0) ? $res['data'] : false;
+        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['data'] : false;
     }
 
 
@@ -1291,7 +1300,7 @@ class LkkModel extends Model {
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
         $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==0) ? ($res['data']['total']??0) : false;
+        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? ($res['data']['total']??0) : false;
     }
 
 
