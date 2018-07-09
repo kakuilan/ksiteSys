@@ -99,14 +99,18 @@ class LkkServer extends SwooleServer {
         //TODO 自定义逻辑
 
         //检查站点ID和网址是否存在
-        $siteId = getSiteId();
-        $siteInfo = Site::findFirst($siteId);
+        $siteConf = getConf('site');
+        $siteInfo = Site::findFirst($siteConf->siteId);
         if(empty($siteInfo) || empty($siteInfo->site_url)) {
-            $msg = "check config/site.php siteId is empty or siteInfo not exist\r\n";
+            //红色文字提醒
+            $msg = chr(27)."[0;31mCheck config/site.php siteId is empty or siteInfo not exist".chr(27)."[0m"."\r\n";
             logException($msg);
             die($msg);
+        }elseif ($siteConf->url !== $siteInfo->site_url) {
+            //黄色文字提醒
+            echo chr(27)."[1;33mCheck config site->url !== db row->site_url".chr(27)."[0m"."\r\n";
         }
-        unset($siteId, $siteInfo);
+        unset($siteConf, $siteInfo);
         
         parent::startServer();
 
