@@ -16,6 +16,10 @@ License
 - fileinfo 1.0.5  
 - phalcon 3.2.4/3.3.2   
 - swoole 1.10.5  
+- redis 4.0.2  
+- gd 2.1.0  
+- imagick 3.4.3  
+- inotify 2.0.0  
 
 ### 需打开函数:  
 - popen  
