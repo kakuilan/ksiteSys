@@ -180,7 +180,7 @@ class UploadController extends Controller {
 
         $newName = "";
         $savePath = UPLODIR . 'attach/';
-        $allowTypes = ['rar','zip','7z','txt','doc','docx','xls','xlsx','ppt','pptx','gif','jpg','jpeg','bmp','png'];
+        $allowTypes = ['rar','zip','gz','bz2','7z','txt','doc','docx','xls','xlsx','ppt','pptx','pdf','wps','gif','jpg','jpeg','bmp','png'];
 
         $serv = new UploadService();
         $serv->setOriginFiles($this->swooleRequest->files ?? [])

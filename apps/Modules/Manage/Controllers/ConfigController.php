@@ -117,11 +117,18 @@ class ConfigController extends Controller {
             $admList = UserBase::getList(['uid'=>$uids]);
             if($admList) $admList = $admList->toArray();
 
+            //站点
+            $sites = [
+                $this->siteId => '本站',
+                '0' => '系统平台',
+            ];
+
             foreach ($list as &$item) {
                 $usr = ArrayHelper::arraySearchItem($admList, ['uid'=>$item['update_by']]);
                 $item['username'] = $usr['username']??'';
                 $item['value'] = StringHelper::cutStr($item['value'], 10);
                 $item['extra'] = StringHelper::cutStr($item['extra'], 10);
+                $item['site_id'] = $sites[$item['site_id']] ?? '未知';
             }
         }
 
@@ -212,7 +219,10 @@ class ConfigController extends Controller {
             return $this->fail('配置键只能是小写英文、数字和下划线组成,英文开头,3~30个字符');
         }elseif (empty($row['site_id']) && stripos($row['key'], Config::$globalConfPrefix)!==0) {
             return $this->fail('系统全局配置只能以'.Config::$globalConfPrefix.'开头');
+        }elseif ($row['site_id']>0 && stripos($row['key'], Config::$globalConfPrefix)===0) {
+            return $this->fail('站点配置不能以'.Config::$globalConfPrefix.'开头');
         }
+
         $row['key'] = strtolower($row['key']);
 
         //配置值处理
@@ -332,6 +342,13 @@ class ConfigController extends Controller {
         $row['update_by'] = $loginUid;
 
         if($id) {
+            $info = Config::findFirst($id);
+            if(empty($info)) {
+                return $this->alert('该信息不存在或已删除');
+            }elseif ($info->key != $row['key']) {
+                return $this->alert('禁删除的配置键不能修改');
+            }
+
             $res = Config::upData($row, ['id'=>$id]);
         }else{
             $row['create_time'] = $now;
