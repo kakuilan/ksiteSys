@@ -98,12 +98,19 @@ function logException($e=null) {
 
 /**
  * 获取promise redis结果,参考Lkk\Phalwoo\Server\Component\Client\Redis
- * @param Promise $promise
+ * @param Promise|array $promise
  * @return bool
  */
-function promiseRedisResult(Promise $promise) {
+function promiseRedisResult($promise) {
     $res = false;
-    $ret = $promise->getResult();
+
+    if(is_bool($promise)) {
+        return $promise;
+    }elseif($promise instanceof Promise) {
+        $ret = $promise->getResult(); //同步redis结果
+    }else{
+        $ret = (array)$promise; //异步redis结果
+    }
 
     if(!isset($ret['code'])) {
         logException(new Exception('redis promise result not valid:'. json_encode($ret)));

@@ -17,6 +17,11 @@ use Emojione\Emojione;
 
 class EmojiService extends ServiceBase {
 
+
+    /**
+     * 获取客户端对象
+     * @return Client
+     */
     public static function getClient() {
         static $client;
         if(is_null($client)) {
@@ -75,7 +80,7 @@ class EmojiService extends ServiceBase {
      */
     public static function replaceShortname($string='', $new='') {
         if(empty($string)) return '';
-        $string = preg_replace('/:[a-z]+:/i', $new, $string);
+        $string = preg_replace('/:[a-z\-_]+:/i', $new, $string);
         return $string;
     }
 

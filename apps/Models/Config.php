@@ -12,7 +12,25 @@ namespace Apps\Models;
 
 class Config extends BaseModel {
 
+
+    /**
+     * 全局配置的key前缀
+     * @var string
+     */
     public static $globalConfPrefix = 'glo_';
+
+    /**
+     * 默认字段
+     * @var string
+     */
+    public static $defaultFields = 'site_id,disable_del,data_type,input_type,key,title,remark,value,extra';
+
+
+    /**
+     * 基本字段
+     * @var string
+     */
+    public static $baseFields = '`key`,`value`,extra,data_type';
 
 
     /**
@@ -52,8 +70,5 @@ class Config extends BaseModel {
     public function initialize() {
         parent::initialize();
     }
-
-
-
 
 }

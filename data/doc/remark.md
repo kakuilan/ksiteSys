@@ -61,6 +61,7 @@ web_site_keywords	站点关键词
 web_site_copyright	版权信息
 web_site_icp	备案信息
 web_site_statistics_js	站点统计脚本
+upload_site_url     上传站点URL,带http,小写,结尾/,为空时取当前站点url
 upload_file_size	文件上传大小限制,0为不限制大小,单位字节
 upload_file_ext	允许上传的文件后缀,rar,zip,gz,bz2,7z,txt,doc,docx,xls,xlsx,ppt,pptx,pdf,wps,gif,jpg,jpeg,bmp,png
 upload_image_size	图片上传大小限制,0为不限制大小,单位字节
@@ -72,6 +73,12 @@ smtp_username 邮件服务用户名
 smtp_password	邮件服务密码
 smtp_from	邮件服务发送者地址
 smtp_fromname	邮件服务发送者名称
+user_qps_limit 用户每秒访问次数限制,0为不限制
+user_pv_early_warning 用户每天访问次数预警,0为不限制,当大于N时,把该用户加入监控范围
+user_pv_day_limit 用户每天访问次数限制,0为不限制,当大于N时,返回错误信息
+
+
+
 
 
 

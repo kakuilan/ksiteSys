@@ -31,9 +31,10 @@ License
 - socket  
 - 404页面慢  
 - 上次cookie response检查   
-- 敏感词过滤  
+- 敏感词过滤功能  
 - 后台配置功能  
 - redis pool库错乱问题  
+- IP黑名单数据表和功能,包含时间限制范围 
 
 
 
