@@ -240,5 +240,36 @@ class ConfigService extends ServiceBase {
     }
 
 
+    /**
+     * 获取上传的相关配置数组
+     * 异步协程,使用yield
+     * @param int|null $siteId 站点ID
+     * @param bool $new 是否获取最新
+     *
+     * @return array
+     */
+    public static function getUploadConfigs($siteID=null, $new=false) {
+        $keys = [
+            'upload_site_url',
+            'upload_file_size',
+            'upload_file_ext',
+            'upload_image_size',
+            'upload_image_ext',
+        ];
+
+        $siteConf = yield self::getSiteConfigs($siteID, $new);
+        $res = [];
+        foreach ($keys as $key) {
+            $item = $siteConf[$key] ?? null;
+            $res[$key] = $item;
+        }
+
+        unset($keys, $siteConf, $key, $item);
+
+        return $res;
+    }
+
+
+
 
 }

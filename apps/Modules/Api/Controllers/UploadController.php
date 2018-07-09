@@ -9,13 +9,44 @@
 
 namespace Apps\Modules\Api\Controllers;
 
+use Apps\Models\Attach;
+use Apps\Models\UserInfo;
 use Apps\Modules\Api\Controller;
+use Apps\Services\ConfigService;
 use Apps\Services\UploadService;
 use Apps\Services\UserService;
 use Lkk\Helpers\ValidateHelper;
-use Lkk\LkkUpload;
+
 
 class UploadController extends Controller {
+
+    public $uploadSiteUrl;
+    public $uploadFileSize;
+    public $uploadFileExt;
+    public $uploadImageSize;
+    public $uploadImageExt;
+
+
+    public function initialize () {
+        parent::initialize();
+
+        //解析token获取UID
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $token = $this->getAccessToken();
+        $this->uid = UserService::parseAccessToken($token, $agUuid);
+
+        if($this->uid >0) {
+            //获取上传基本配置
+            $uploadConf = yield ConfigService::getUploadConfigs();
+            $this->uploadSiteUrl = $uploadConf['upload_site_url'] ?? getSiteUrl();
+            $this->uploadFileSize = $uploadConf['upload_file_size'] ?? UploadService::$defaultMaxSize;
+            $this->uploadFileExt = $uploadConf['upload_file_ext'] ?? UploadService::$defaultAllowType;
+            $this->uploadImageSize = $uploadConf['upload_image_size'] ?? UploadService::$defaultMaxSize;
+            $this->uploadImageExt = $uploadConf['upload_image_ext'] ?? UploadService::$defaultAllowType;
+        }
+
+        unset($agUuid, $token, $uploadConf);
+    }
 
 
     /**
@@ -24,8 +55,16 @@ class UploadController extends Controller {
      */
     public function indexAction(){
         $fileInfo = $this->swooleRequest->files['file'] ?? [];
+        $data = [
+            'uploadSiteUrl' => $this->uploadSiteUrl,
+            'uploadFileSize' => $this->uploadFileSize,
+            'uploadFileExt' => $this->uploadFileExt,
+            'uploadImageSize' => $this->uploadImageSize,
+            'uploadImageExt' => $this->uploadImageExt,
+            'fileInfo' => $fileInfo,
+        ];
 
-        return $this->success($fileInfo);
+        return $this->success($data);
     }
 
 

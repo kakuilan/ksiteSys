@@ -21,7 +21,7 @@ use Phalcon\Di;
 class UploadService extends ServiceBase {
 
     public static $defaultAllowType = ['rar','zip','7z','txt','doc','docx','xls','xlsx','ppt','pptx','gif','jpg','jpeg','bmp','png'];	//允许文件类型
-    public static $defaultMaxSize = 524288; //允许单个文件最大上传尺寸,单位字节
+    public static $defaultMaxSize = 524288; //允许单个文件最大上传尺寸,单位字节,默认512K
     public static $defaultMaxFile = 10; //每次最多允许上传N个文件
     public static $defaultResult   = [
         'status' => false, //上传结果
