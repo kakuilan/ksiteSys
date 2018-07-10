@@ -134,26 +134,26 @@ class LkkCmponent {
         $key = $requestUuid . __FUNCTION__;
 
         $connInfo = self::$objects[$key] ?? [];
+        $conf = getConf('pool');
 
         $now = time();
-        $conf = getConf('pool');
-        $expireTime = $now - ($conf->mysql_master->args->wait_timeout ?? 3600);
+        $waitTimeout = $conf->mysql_master->args->wait_timeout ?? 3600;
         $lastTime = $connInfo['first_connect_time'] ?? 0;
+        $maxTime = $lastTime + $waitTimeout;
 
         getLogger('mysql')->info('syncDbMaster start:', [
             'now' => $now,
-            'wait_timeout' => $conf->mysql_master->args->wait_timeout,
-            'connInfo' => $connInfo,
-            'expireTime' => $expireTime,
+            'waitTimeout' => $waitTimeout,
             'lastTime' => $lastTime,
+            'maxTime' => $maxTime,
         ]);
 
-        if(empty($connInfo) || ($lastTime>$expireTime) ) {
+        if(empty($connInfo) || !($now>=$lastTime && $now<$maxTime) ) {
             getLogger('mysql')->info('syncDbMaster end:', [
                 'now' => $now,
-                'first_connect_time' => $lastTime,
-                'expireTime' => $expireTime,
+                'waitTimeout' => $waitTimeout,
                 'lastTime' => $lastTime,
+                'maxTime' => $maxTime,
             ]);
 
             $db = new Mysql([
@@ -188,26 +188,26 @@ class LkkCmponent {
         $key = $requestUuid . __FUNCTION__;
 
         $connInfo = self::$objects[$key] ?? [];
+        $conf = getConf('pool');
 
         $now = time();
-        $conf = getConf('pool');
-        $expireTime = $now - ($conf->mysql_slave->args->wait_timeout ?? 3600);
+        $waitTimeout = $conf->mysql_master->args->wait_timeout ?? 3600;
         $lastTime = $connInfo['first_connect_time'] ?? 0;
+        $maxTime = $lastTime + $waitTimeout;
 
         getLogger('mysql')->info('syncDbSlave start:', [
             'now' => $now,
-            'wait_timeout' => $conf->mysql_master->args->wait_timeout,
-            'connInfo' => $connInfo,
-            'expireTime' => $expireTime,
+            'waitTimeout' => $waitTimeout,
             'lastTime' => $lastTime,
+            'maxTime' => $maxTime,
         ]);
 
-        if(empty($connInfo) || ($lastTime>$expireTime) ) {
+        if(empty($connInfo) || !($now>=$lastTime && $now<$maxTime) ) {
             getLogger('mysql')->info('syncDbSlave end:', [
                 'now' => $now,
-                'first_connect_time' => $lastTime,
-                'expireTime' => $expireTime,
+                'waitTimeout' => $waitTimeout,
                 'lastTime' => $lastTime,
+                'maxTime' => $maxTime,
             ]);
 
             $db = new Mysql([
