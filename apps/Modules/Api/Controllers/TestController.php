@@ -216,6 +216,60 @@ class TestController extends Controller {
     }
 
 
+    /**
+     * @title -获取用户基本信息
+     * @desc  -获取用户基本信息
+     * @return array|string
+     */
+    public function getUserInfoAction() {
+        $info1 = UserBase::getInfoByUsername('imlkk');
+        $info2 = UserBase::getInfoByUsername('imlkk', UserBase::$baseFields);
+        $info3 = UserBase::getInfoByEmail('lusizeng@163.com');
+        $info4 = UserBase::getInfoByKeyword('lusizeng@163.com');
+        $data = [
+            '$info1' => $info1->toArray(),
+            '$info2' => $info2->toArray(),
+            '$info3' => $info3->toArray(),
+            '$info4' => $info4->toArray(),
+        ];
+
+        return $this->success($data);
+    }
+
+
+    /**
+     * @title -获取管理员信息
+     * @desc  -获取管理员信息
+     * @return array|string
+     */
+    public function getInfoInAdmAction() {
+        $info1 = UserBase::getInfoInAdmByUsername('vip');
+        $info2 = UserBase::getInfoInAdmByUsername('admin', true);
+        $info3 = UserBase::getInfoInAdmByUid(5);
+        $info4 = UserBase::getInfoInAdmByUid(2, true);
+        $info5 = AdmUser::getInfoByUid(2);
+        $info6 = AdmUser::getInfoByUsername('test');
+        $info7 = AdmUser::getInfoByEmail('kakuilan@qq.com');
+        $info8 = AdmUser::getInfoByKeyword('kakuilan@qq.com');
+
+        $data = [
+            '$info1' => $info1->toArray(),
+            '$info2' => $info2->toArray(),
+            '$info3' => $info3->toArray(),
+            '$info4' => $info4->toArray(),
+            '$info5' => ($info5 ? $info5->toArray() : $info5),
+            '$info6' => ($info6 ? $info6->toArray() : $info6),
+            '$info7' => ($info7 ? $info7->toArray() : $info7),
+            '$info8' => ($info8 ? $info8->toArray() : $info8),
+        ];
+
+        return $this->success($data);
+    }
+
+
+
+
+
 
 
 }

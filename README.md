@@ -47,6 +47,10 @@ License
 
 
 
+### 注意:
+- 注意不能打印model记录信息,会出现内存超标,造成540错误 
+
+
 
 检查nginx配置: /usr/local/nginx/sbin/nginx -t  
 nginx配置  
