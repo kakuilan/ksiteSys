@@ -34,6 +34,11 @@ class UserService extends ServiceBase {
     //access_token有效期,30天
     const ACCESS_TOKEN_TTL = 2592000;
 
+    //超级管理员UID
+    const ROOT_UID = 1;
+    //超级管理员用户名
+    const ROOT_NAME = 'root';
+
     //保留用户名,禁止注册
     public static $holdNames = ['root','admin','test','manage','system','super','vip','guanli','guest'];
     //保留昵称,禁止使用
@@ -140,7 +145,7 @@ class UserService extends ServiceBase {
      * @return bool
      */
     public static function isAdminExist(string $str, $uid=0) {
-        $adm = UserBase::getAdmByUsername($str);
+        $adm = UserBase::getInfoInAdmByUsername($str, true);
         $res = $adm ? ($uid ? ($uid==$adm->adm_uid ? false : true) : true ) : false;
 
         return $res;
@@ -157,6 +162,50 @@ class UserService extends ServiceBase {
         $user = UserBase::getRow(['email'=>$str]);
         $res = $user ? ($uid ? ($uid==$user->uid ? false : true) : true ) : false;
 
+        return $res;
+    }
+
+
+    /**
+     * 检查用户是否超级管理员
+     * @param array|object $userInfo 用户信息
+     * @return bool
+     */
+    public static function isRoot($userInfo=null) {
+        $res = false;
+        if(is_array($userInfo)) $userInfo = ArrayHelper::arrayToObject($userInfo);
+
+        if(isset($userInfo->uid) && $userInfo->uid==self::ROOT_UID) {
+            $res = true;
+        }elseif(isset($userInfo->username) && $userInfo->username==self::ROOT_NAME) {
+            $res = true;
+        }
+
+        unset($userInfo);
+        return $res;
+    }
+
+
+    /**
+     * 检查用户是否后台管理员
+     * @param array|object $userInfo 用户信息
+     * @return bool
+     */
+    public static function isAdmin($userInfo=null) {
+        $res = false;
+        if(is_array($userInfo)) $userInfo = ArrayHelper::arrayToObject($userInfo);
+
+        if((isset($userInfo->adm_uid) && $userInfo->adm_uid>0) || (isset($userInfo->type) && $userInfo->type==UserBase::USER_TYPE_ADMNER)) {
+            if(isset($userInfo->adm_status) && $userInfo->adm_status==1) {
+                $res = true;
+            }
+        }elseif (isset($userInfo->user_type) && $userInfo->user_type==UserBase::USER_TYPE_ADMNER) {
+            if(isset($userInfo->status) && $userInfo->status==1) {
+                $res = true;
+            }
+        }
+
+        unset($userInfo);
         return $res;
     }
 
