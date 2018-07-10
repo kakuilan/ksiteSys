@@ -11,6 +11,7 @@
 namespace Kengine;
 
 use Kengine\LkkCmponent;
+use Kengine\Server\LkkServer;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\EncryptHelper;
 use Lkk\LkkMacAddress;
@@ -1344,6 +1345,54 @@ class LkkModel extends Model {
         $ret = yield $asyncMysql->execute($query, true);
         $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? ($ret['data']['total']??0) : false;
         unset($where, $table, $whereString, $countString, $query, $asyncMysql, $ret);
+
+        return $res;
+    }
+
+
+    /**
+     * 解析BuilderSql(createBuilder()->getQuery()->getSql()的返回数组)为字符串
+     * @param array $arr 带绑定参数的SQL数组
+     * @return mixed|string
+     */
+    public static function parseBuilderSql(array $arr=[]) {
+        if(empty($arr) || !isset($arr['sql'])) return '';
+
+        $sql = $arr['sql'];
+        $params = $arr['bind'] ?? [];
+
+        if($params) {
+            $searchs = array_keys($params);
+            $replaces = array_values($params);
+
+            array_walk($searchs, function(&$item) {
+                $item = ":{$item}";
+                return $item;
+            });
+
+            $sql = str_replace($searchs, $replaces, $sql);
+        }
+        unset($arr, $params, $searchs, $replaces);
+
+        return $sql;
+    }
+
+
+    /**
+     * 执行异步查询SQL
+     * 异步协程,使用yield
+     * @param string $sql SQL语句
+     * @param bool $getOne 是否只获取一条记录
+     * @param string $poolName 数据库连接池名称
+     * @return mixed
+     */
+    public static function queryAsync(string $sql='', bool $getOne = true, string $poolName='mysql_slave') {
+        if(empty($sql)) return false;
+
+        $mysql = $redis = LkkServer::getPoolManager()->get($poolName)->pop();
+        $ret = yield $mysql->execute($sql, $getOne);
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? $ret['data'] : false;
+        unset($sql, $mysql, $ret);
 
         return $res;
     }
