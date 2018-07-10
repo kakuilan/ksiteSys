@@ -11,6 +11,7 @@
 namespace Apps\Services;
 
 use Apps\Models\AdmUser;
+use Apps\Models\Attach;
 use Apps\Models\UserBase;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\EncryptHelper;
@@ -739,7 +740,47 @@ class UserService extends ServiceBase {
 
         $path = self::makeAvatarPath($uid);
         $res = $path . "{$uid}.{$ext}";
-        return $res;
+        return strtolower($res);
+    }
+
+
+
+    public function updateUserAvatar($data, $uid=0) {
+        if(empty($data) || empty($uid)) return false;
+
+        $makePath = UserService::getAvatarByUid(2);
+        $pathInfo = pathinfo($makePath);
+
+        $fileName = $pathInfo['basename'] ?? '';
+        if(!isset($data['file_name']) || empty($data['file_name'])) {
+            $this->setError('文件名不能为空');
+            return false;
+        }elseif ($data['file_name'] != $fileName) {
+            $this->setError('头像文件名不符合');
+            return false;
+        }
+
+        $where = [
+            'file_name' => $fileName,
+            'uid' => $uid,
+        ];
+        $info = yield Attach::getRowAsync($where, Attach::$baseFields);
+
+        $now = time();
+        $data['uid'] = $uid;
+        $data['update_time'] = $now;
+
+        if($info) {
+
+        }else{
+
+        }
+
+
+
+
+
+
     }
 
 

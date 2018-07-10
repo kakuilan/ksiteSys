@@ -1381,12 +1381,13 @@ class LkkModel extends Model {
     /**
      * 执行异步查询SQL
      * 异步协程,使用yield
-     * @param string $sql SQL语句
+     * @param string|array $sql SQL语句或BuilderSql数组
      * @param bool $getOne 是否只获取一条记录
      * @param string $poolName 数据库连接池名称
      * @return mixed
      */
-    public static function queryAsync(string $sql='', bool $getOne = true, string $poolName='mysql_slave') {
+    public static function queryAsync($sql='', bool $getOne = true, string $poolName='mysql_slave') {
+        if(is_array($sql)) $sql = self::parseBuilderSql($sql);
         if(empty($sql)) return false;
 
         $mysql = $redis = LkkServer::getPoolManager()->get($poolName)->pop();

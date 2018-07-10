@@ -9,7 +9,9 @@
 
 namespace Apps\Modules\Api\Controllers;
 
+use Apps\Models\AdmUser;
 use Apps\Models\Attach;
+use Apps\Models\UserBase;
 use Apps\Models\UserInfo;
 use Apps\Modules\Api\Controller;
 use Apps\Services\ConfigService;
@@ -134,27 +136,35 @@ class UploadController extends Controller {
     /**
      * @title -上传用户头像
      * @desc  -上传用户头像
+     * @api {post} /api/upload/avatar 上传用户头像
+     * @apiParam {string} type=file 上传类型,['file','base64'],默认文件file
+     * @apiParam {string} [input_name=file] 上传的文件域名称,默认file
+     * @apiParam {string} [name] 上传的文件名,如a.jpg
+     * @apiParam {int} uid 头像用户UID
+     *
      */
     public function avatarAction() {
-        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
-        $token = $this->getAccessToken();
-        $loginUid = UserService::parseAccessToken($token, $agUuid);
-        if(empty($loginUid) || $loginUid<=0) {
+        //未验证身份,无权操作
+        if(empty($this->uid) || $this->uid<=0) {
             return $this->fail(401);
         }
 
         $typeArr = ['file','base64'];
-        $name = $this->getRequest('name', 'file', false);
-        $type = $this->getRequest('type', 'file', false);
-        $uid = intval($this->getRequest('uid'));
+        $type = $this->getPost('type', 'file', false);
         if(!in_array($type, $typeArr)) {
             return $this->fail(20104, 'type类型错误');
         }
 
-        $isAdmin = false;
-        if($uid<=0) $uid = $loginUid;
+        $inputName = $this->getPost('input_name', 'file', false);
+        $name = $this->getPost('name', 'file', false);
+        $uid = intval($this->getRequest('uid'));
 
-        if($loginUid!=$uid && !$isAdmin) {
+        if($uid<=0) $uid = $this->uid;
+        $avatarUsr = yield UserBase::getInfoInAdmByUidAsync($uid);
+        $isAdmin = UserService::isAdmin($avatarUsr);
+
+        //不是会员本人,且不是管理员,无权修改头像
+        if($this->uid!=$uid && !$isAdmin) {
             return $this->fail(401);
         }
 

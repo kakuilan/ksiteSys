@@ -267,9 +267,36 @@ class TestController extends Controller {
     }
 
 
+    /**
+     * @title -数据库异步执行SQL
+     * @desc  -数据库异步执行SQL
+     * @return array|string
+     */
+    public function dbqueryAsyncAction() {
+        $sql = "SELECT `k_user_base`.`uid` AS `uid`, `k_user_base`.`site_id` AS `site_id`, `k_user_base`.`status` AS `status`, `k_user_base`.`mobile_status` AS `mobile_status`, `k_user_base`.`email_status` AS `email_status`, `k_user_base`.`type` AS `type`, `k_user_base`.`mobile` AS `mobile`, `k_user_base`.`email` AS `email`, `k_user_base`.`username` AS `username`, `k_user_base`.`password` AS `password`, `k_user_base`.`create_time` AS `create_time`, `k_user_base`.`update_time` AS `update_time`, `a`.`uid` AS `adm_uid`, `a`.`level` AS `adm_level`, `a`.`status` AS `adm_status`, `a`.`logins` AS `adm_logins`, `a`.`login_fails` AS `adm_login_fails`, `a`.`last_login_ip` AS `adm_last_login_ip`, `a`.`last_login_time` AS `adm_last_login_time` FROM `k_user_base`  LEFT JOIN `k_adm_user` AS `a` ON `a`.`uid` = `k_user_base`.`uid` WHERE `k_user_base`.`uid` = 2 AND `a`.`uid` > 0 LIMIT 1";
+
+        $res = yield UserBase::queryAsync($sql);
+
+        return $this->success($res);
+    }
 
 
+    public function avatarAction() {
+        $path = UserService::getAvatarByUid(2);
+        $info = pathinfo($path);
 
+        $user1 = UserBase::getInfoInAdmByUid(1);
+        $user2 = yield UserBase::getInfoInAdmByUidAsync(2);
+
+        $data = [
+            'path' => $path,
+            'info' => $info,
+            '$user1' => $user1,
+            '$user2' => $user2,
+        ];
+
+        return $this->success($data);
+    }
 
 
 }

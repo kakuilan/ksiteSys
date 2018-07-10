@@ -187,12 +187,13 @@ class UserBase extends BaseModel {
 
 
     /**
-     * 根据条件连表查询(管理员)用户信息
+     * 获取连表查询对象或SQL数组
      * @param string $where 条件
      * @param array $bindParam 绑定参数键值对
-     * @return bool|\Phalcon\Mvc\ModelInterface
+     * @param bool $returnSql 是否返回经解析的SQL数组
+     * @return bool|\Phalcon\Mvc\Model\Criteria|array
      */
-    public static function joinAdmInfoByWhere(string $where, array $bindParam=[]) {
+    public static function getJoinAdmQuery(string $where, array $bindParam=[], $returnSql=false) {
         if(empty($where)) return false;
 
         $usr = self::class;
@@ -203,8 +204,33 @@ class UserBase extends BaseModel {
             ->columns($fields)
             ->leftJoin($adm, "a.uid = {$usr}.uid", 'a');
 
-        $query->where($where, $bindParam);
-        $result = $query->limit(1)->execute();
+        $query->where($where, $bindParam)->limit(1);
+
+        if($returnSql) {
+            $builder = $query->createBuilder();
+            $res = $builder->getQuery()->getSql(); //返回数组['sql'=>'', 'bind'=>[], 'bindTypes'=>[] ]
+        }else{
+            $res = $query;
+        }
+
+        return $res;
+    }
+
+
+
+    /**
+     * 根据条件连表查询(管理员)用户信息
+     * @param string $where 条件
+     * @param array $bindParam 绑定参数键值对
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public static function joinAdmInfoByWhere(string $where, array $bindParam=[]) {
+        if(empty($where)) return false;
+
+        $query = self::getJoinAdmQuery($where, $bindParam, false);
+        if(!is_object($query)) return false;
+
+        $result = $query->execute();
 
         return ($result->count()>0) ? $result->getFirst() : false;
     }
@@ -258,6 +284,33 @@ class UserBase extends BaseModel {
     }
 
 
+    /**
+     * 根据uid连表获取用户管理信息,返回的用户记录未必是管理员
+     * 异步协程,使用yield
+     * @param int $uid 用户ID
+     * @param bool $strict 严格检查adm是否存在
+     * @return bool|mixed
+     */
+    public static function getInfoInAdmByUidAsync(int $uid=0, $strict=false) {
+        if(empty($uid)) return false;
+
+        $usr = self::class;
+        $adm = AdmUser::class;
+
+        if($strict) {
+            $where = "{$usr}.uid = :uid: AND a.uid>0 ";
+        }else{
+            $where = "{$usr}.uid = :uid: ";
+        }
+
+        $bindParam = ['uid'=>$uid];
+
+        $sqlArr = self::getJoinAdmQuery($where, $bindParam, true);
+        $res = yield self::queryAsync($sqlArr);
+        unset($where, $bindParam);
+
+        return $res;
+    }
 
 
 

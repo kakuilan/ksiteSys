@@ -12,6 +12,12 @@ namespace Apps\Models;
 
 class Attach extends BaseModel {
 
+    //默认字段
+    public static $defaultFields = 'id,site_id,is_del,is_img,is_auth,is_persistent,has_third,compress_enable,uid,img_width,img_height,quote_num,downl_num,file_size,tag,title,file_ext,file_name,file_path,qiniu_url,third_url';
+    //基本字段
+    public static $baseFields = 'id,uid,file_ext,file_name,file_path';
+
+
     public function initialize() {
         parent::initialize();
     }
@@ -30,5 +36,8 @@ class Attach extends BaseModel {
             'user' => '用户',
         ];
     }
+
+
+
 
 }
