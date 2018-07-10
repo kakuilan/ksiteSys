@@ -171,7 +171,7 @@ class LkkCmponent {
             ];
             self::$objects[$key] = $connInfo;
         }
-        unset($now, $conf);
+        unset($key, $conf, $now, $waitTimeout, $lastTime, $maxTime, $db);
 
         return $connInfo['db'] ?? null;
     }
@@ -225,7 +225,7 @@ class LkkCmponent {
             ];
             self::$objects[$key] = $connInfo;
         }
-        unset($now, $conf);
+        unset($key, $conf, $now, $waitTimeout, $lastTime, $maxTime, $db);
 
         return $connInfo['db'] ?? null;
     }
