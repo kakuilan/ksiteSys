@@ -77,7 +77,7 @@ class LkkModel extends Model {
         $this->setReadConnectionService('dbSlave');
         $this->setWriteConnectionService('dbMaster');
 
-        //统一设置模型对应的数据表名,表名小写,例如 模型类AbcEfg => lkk_abc_efg表i
+        //统一设置模型对应的数据表名,表名小写,例如 模型类AbcEfg => lkk_abc_efg表
         $table = self::getTableName();
         $this->setSource($table);
     }
@@ -109,7 +109,7 @@ class LkkModel extends Model {
      * @return mixed|string
      */
     public static function getTableName($table='') {
-        $prefix = getConf('pool','mysql_master')['table_prefix'];
+        $prefix = getConf('pool','mysql_slave')['table_prefix'];
         if(empty($table)) {
             $class = explode('\\', get_called_class());
             $table = end($class);
@@ -118,6 +118,7 @@ class LkkModel extends Model {
         $array = array_filter(preg_split("/(?=[A-Z])/",$table));
         $table = (count($array)==1) ? $table : implode('_', $array);
         $table = strtolower($prefix . $table);
+        unset($prefix, $class, $array);
 
         return $table;
     }
@@ -176,6 +177,8 @@ class LkkModel extends Model {
                     'pri'    => $pri,
                 ];
             }
+
+            unset($_conn, $res, $fields, $field);
         }
 
         $res = $hasPri ? static::$tableColumns[$table] : static::$tableColumns[$table]['all'];
@@ -378,6 +381,7 @@ class LkkModel extends Model {
             $whereStr = self::buildWhereArray($where);
             $res = $bind ? self::parseWhere($whereStr, true) : $whereStr;
         }
+        unset($where, $parseArr, $whereStr);
 
         return $res;
     }
@@ -559,6 +563,7 @@ class LkkModel extends Model {
             $lastStr = trim(substr($str, $lastEnd, (strlen($str)-$lastEnd)));
             if($lastStr) array_push($splitWhere, $lastStr);
         }
+        unset($str, $matchs);
 
         return $splitWhere;
     }
@@ -755,6 +760,7 @@ class LkkModel extends Model {
         } else {
             $whereStr .= $key . ' = ' . self::parseValue($val);
         }
+
         return $whereStr;
     }
 
@@ -779,6 +785,7 @@ class LkkModel extends Model {
         $lastId = $_conn->lastInsertId();
 
         if($res && $lastId>0) $res = $lastId;
+        unset($data, $table);
 
         return $res;
     }
@@ -819,8 +826,12 @@ class LkkModel extends Model {
         );
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
-        $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['insert_id'] : false;
+        $ret = yield $asyncMysql->execute($query, true);
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? $ret['insert_id'] : false;
+
+        unset($data, $table, $tabFields, $insertFields, $rowsString, $insertString, $valueArr, $valueString, $query, $asyncMysql, $ret);
+
+        return $res;
     }
 
 
@@ -885,6 +896,8 @@ class LkkModel extends Model {
             $affectedRows += $_conn->affectedRows();
         }//end for
 
+        unset($data, $table, $tabFields, $insertFields, $_conn, $rowsString, $insertString, $batchData, $placeholders, $bindString, $valueList, $valuesFlattened, $query);
+
         return $affectedRows;
     }
 
@@ -941,6 +954,8 @@ class LkkModel extends Model {
             if($insertRes['code']==0) $affectedRows += $insertRes['affected_rows'];
         }
 
+        unset($data, $table, $tabFields, $insertFields, $rowsString, $insertString, $slices, $slice, $row, $mulVals, $valuesString, $query, $asyncMysql);
+
         return $affectedRows;
     }
 
@@ -967,6 +982,8 @@ class LkkModel extends Model {
         if(!$res && is_array($err) && $err[0]!='00000') {
             logException(json_encode($err));
         }
+
+        unset($data, $where, $_conn);
 
         return $res;
     }
@@ -1004,18 +1021,22 @@ class LkkModel extends Model {
         );
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
-        $res = yield $asyncMysql->execute($query, true);
+        $ret = yield $asyncMysql->execute($query, true);
 
-        if($res['code']!=ServerConst::ERR_SUCCESS && isset($res['errno'])) {
+        if($ret['code']!=ServerConst::ERR_SUCCESS && isset($ret['errno'])) {
             $error = [
-                'errno' => $res['errno'],
+                'errno' => $ret['errno'],
                 'query' => $query,
             ];
 
             logException(json_encode($error));
         }
 
-        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['affected_rows'] : false;
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? $ret['affected_rows'] : false;
+
+        unset($data, $where, $whereString, $updateString, $valusArr, $valuesString, $query, $asyncMysql, $ret);
+
+        return $res;
     }
 
 
@@ -1030,7 +1051,11 @@ class LkkModel extends Model {
         if(empty($table)) $table = self::getTableName();
         $_conn = LkkCmponent::syncDbMaster('');
         $where = self::parseWhere2PDO($where);
-        return $_conn->delete($table, $where['conditions'], $where['bind']);
+        $res = $_conn->delete($table, $where['conditions'], $where['bind']);
+
+        unset($where, $table, $_conn);
+
+        return $res;
     }
 
 
@@ -1054,8 +1079,12 @@ class LkkModel extends Model {
         );
 
         $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
-        $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['affected_rows'] : false;
+        $ret = yield $asyncMysql->execute($query, true);
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? $ret['affected_rows'] : false;
+
+        unset($where, $table, $whereString, $deleteString, $query, $asyncMysql, $ret);
+
+        return $res;
     }
 
 
@@ -1084,14 +1113,16 @@ class LkkModel extends Model {
         ];
 
         $builder = new QueryBuilder($params);
-
-        return new PaginatorQueryBuilder(
+        $res = new PaginatorQueryBuilder(
             [
                 "builder" => $builder,
                 "limit"   => $limit,
                 "page"    => $page
             ]
         );
+        unset($columns, $where, $order, $tableColumns, $params, $builder);
+
+        return $res;
     }
 
 
@@ -1121,14 +1152,16 @@ class LkkModel extends Model {
         ];
 
         $builder = new QueryBuilder($params);
-
-        return new PaginatorAsyncMysql(
+        $res = new PaginatorAsyncMysql(
             [
                 "builder" => $builder,
                 "limit"   => $limit,
                 "page"    => $page
             ]
         );
+        unset($columns, $where, $order, $tableColumns, $params, $builder);
+
+        return $res;
     }
 
 
@@ -1159,6 +1192,7 @@ class LkkModel extends Model {
             $queryBuilder = new QueryBuilder($params);
             $res = $queryBuilder->getQuery()->getSingleResult();
         }
+        unset($where, $field, $params, $queryBuilder);
 
         return $res;
     }
@@ -1188,9 +1222,12 @@ class LkkModel extends Model {
         if($order) $query .= " ORDER BY {$order}";
         $query .= " LIMIT 1";
 
-        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
-        $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['data'] : false;
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_slave')->pop();
+        $ret = yield $asyncMysql->execute($query, true);
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? $ret['data'] : false;
+        unset($where, $field, $whereString, $selectString, $query, $asyncMysql, $ret);
+
+        return $res;
     }
 
 
@@ -1224,6 +1261,7 @@ class LkkModel extends Model {
             $queryBuilder = new QueryBuilder($params);
             $res = $queryBuilder->getQuery()->execute();
         }
+        unset($where, $field, $params, $queryBuilder);
 
         return $res;
     }
@@ -1254,9 +1292,12 @@ class LkkModel extends Model {
         if($order) $query .= " ORDER BY {$order}";
         if($limit) $query .= " LIMIT {$limit}";
 
-        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
-        $res = yield $asyncMysql->execute($query, false);
-        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? $res['data'] : false;
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_slave')->pop();
+        $ret = yield $asyncMysql->execute($query, false);
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? $ret['data'] : false;
+        unset($where, $field, $whereString, $selectString, $query, $asyncMysql, $ret);
+
+        return $res;
     }
 
 
@@ -1275,6 +1316,7 @@ class LkkModel extends Model {
         );
         $queryBuilder = new QueryBuilder($params);
         $res = $queryBuilder->getQuery()->getSingleResult();
+        unset($where, $params, $queryBuilder);
 
         return (int)$res->total;
     }
@@ -1298,9 +1340,12 @@ class LkkModel extends Model {
             $whereString
         );
 
-        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_master')->pop();
-        $res = yield $asyncMysql->execute($query, true);
-        return ($res && $res['code']==ServerConst::ERR_SUCCESS) ? ($res['data']['total']??0) : false;
+        $asyncMysql = SwooleServer::getPoolManager()->get('mysql_slave')->pop();
+        $ret = yield $asyncMysql->execute($query, true);
+        $res = ($ret && $ret['code']==ServerConst::ERR_SUCCESS) ? ($ret['data']['total']??0) : false;
+        unset($where, $table, $whereString, $countString, $query, $asyncMysql, $ret);
+
+        return $res;
     }
 
 
@@ -1359,6 +1404,7 @@ class LkkModel extends Model {
                 $new = array_merge($new, $tmp);
             }
         }
+        unset($obj, $tmp);
 
         return array_merge($new, $arr);
     }
@@ -1376,6 +1422,8 @@ class LkkModel extends Model {
 
         $arr = self::rowToArray($obj);
         $obj = ArrayHelper::arrayToObject($arr);
+        unset($arr);
+
         return $obj;
     }
 
