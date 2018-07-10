@@ -29,4 +29,13 @@ class IndexController extends Controller {
     }
 
 
+    /**
+     * @title -notfound页面
+     * @desc  -notfound页面
+     */
+    public function notfoundAction() {
+        return $this->fail(404);
+    }
+
+
 }

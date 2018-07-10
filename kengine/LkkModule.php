@@ -68,6 +68,13 @@ class LkkModule implements ModuleDefinitionInterface {
                                 'task' => 'main',
                                 'action' => 'notfound',
                             ]
+                            : ($moduleName=='apps\modules\api') ?
+                            [
+                                'namespace' => 'Apps\Modules\Api\Controllers',
+                                'module' => 'api',
+                                'controller' => 'index',
+                                'action' => 'notfound',
+                            ]
                             :
                             [
                                 'namespace' => 'Apps\Modules\Common\Controllers',
