@@ -86,7 +86,7 @@ class AdmUser extends BaseModel {
 
 
     /**
-     * 根据UID获取管理员信息(连表)
+     * 根据UID获取管理员信息(连表),返回的用户记录必定是管理员
      * @param int $uid
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
@@ -111,7 +111,7 @@ class AdmUser extends BaseModel {
 
 
     /**
-     * 根据Username获取管理员信息(连表)
+     * 根据Username获取管理员信息(连表),返回的用户记录必定是管理员
      * @param string $str
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
@@ -127,7 +127,7 @@ class AdmUser extends BaseModel {
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
-            ->where("u.username = :username: ", ['username'=>$str])
+            ->where("u.username = :username: AND {$adm}.uid>0", ['username'=>$str])
             ->limit(1)
             ->execute();
 
@@ -136,7 +136,7 @@ class AdmUser extends BaseModel {
 
 
     /**
-     * 根据Email获取管理员信息(连表)
+     * 根据Email获取管理员信息(连表),返回的用户记录必定是管理员
      * @param string $str
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
@@ -152,7 +152,7 @@ class AdmUser extends BaseModel {
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
-            ->where("u.email = :email: ", ['email'=>$str])
+            ->where("u.email = :email: AND {$adm}.uid>0", ['email'=>$str])
             ->limit(1)
             ->execute();
 
@@ -161,7 +161,7 @@ class AdmUser extends BaseModel {
 
 
     /**
-     * 根据关键词[用户名或邮箱]获取管理员信息(连表)
+     * 根据关键词[用户名或邮箱]获取管理员信息(连表),返回的用户记录必定是管理员
      * @param string $str
      *
      * @return bool|\Phalcon\Mvc\ModelInterface
@@ -178,7 +178,7 @@ class AdmUser extends BaseModel {
             ->columns($fields)
             ->leftJoin($usr, "u.uid = {$adm}.uid", 'u')
             ->leftJoin($info, "i.uid = {$adm}.uid", 'i')
-            ->where("u.username = :username:  OR u.email = :email: ", ['username'=>$str, 'email'=>$str])
+            ->where("(u.username = :username:  OR u.email = :email: ) AND {$adm}.uid>0", ['username'=>$str, 'email'=>$str])
             ->orderBy('u.uid asc')
             ->limit(1)
             ->execute();
@@ -218,6 +218,25 @@ class AdmUser extends BaseModel {
             ]
         );
     }
+
+
+    /**
+     * 根据uid检查是否正常的管理员
+     * @param int $uid
+     * @return bool
+     */
+    public static function checkNormalAdminByUid(int $uid=0) {
+        if(empty($uid)) return false;
+
+        $where = [
+            'status' => '1',
+            'uid' => $uid,
+        ];
+
+        $count = self::getCount($where);
+        return boolval($count);
+    }
+
 
 
 

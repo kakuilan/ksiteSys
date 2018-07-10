@@ -12,7 +12,7 @@ namespace Apps\Models;
 
 class AdmOperateAction extends BaseModel {
 
-    //一个动作至多有N个动作
+    //一个操作至多有N个动作
     const OPERATE_HAS_ACTION_MAXNUM = 20;
 
     public function initialize() {

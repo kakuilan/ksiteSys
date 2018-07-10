@@ -12,6 +12,9 @@ namespace Apps\Models;
 
 class Action extends BaseModel {
 
+    //默认字段
+    public static $defaultFields = 'ac_id,site_id,status,type,module,controller,action,title';
+
     public function initialize() {
         parent::initialize();
     }

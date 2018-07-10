@@ -19,6 +19,8 @@ class UserBase extends BaseModel {
 
     //默认字段
     public static $defaultFields = 'uid,site_id,status,mobile_status,email_status,type,mobile,email,username,password,create_time,update_time';
+    //基本字段
+    public static $baseFields = 'uid,site_id,status,mobile,email,username';
     //连表管理员字段
     public static $joinAdmnFields = 'uid AS adm_uid,level AS adm_level,status AS adm_status,logins AS adm_logins,login_fails AS adm_login_fails,last_login_ip AS adm_last_login_ip,last_login_time AS adm_last_login_time';
 
@@ -99,13 +101,16 @@ class UserBase extends BaseModel {
 
     /**
      * 根据Username获取用户基本信息
-     * @param string $str
+     * @param string $str 用户名
+     * @param string $fields 字段
      * @return \Phalcon\Mvc\Model|bool
      */
-    public static function getInfoByUsername(string $str='') {
+    public static function getInfoByUsername(string $str='', $fields='') {
         if(empty($str)) return false;
+        if(empty($fields)) $fields = self::$defaultFields;
+
         $res = self::findFirst([
-            'columns'    => '*',
+            'columns'    => $fields,
             'conditions' => 'username = ?1 ',
             'bind'       => [
                 1 => $str,
@@ -119,12 +124,15 @@ class UserBase extends BaseModel {
     /**
      * 根据Email获取用户基本信息
      * @param string $str
+     * @param string $fields 字段
      * @return \Phalcon\Mvc\Model|bool
      */
-    public static function getInfoByEmail(string $str='') {
+    public static function getInfoByEmail(string $str='', $fields='') {
         if(empty($str)) return false;
+        if(empty($fields)) $fields = self::$defaultFields;
+
         $res = self::findFirst([
-            'columns'    => '*',
+            'columns'    => $fields,
             'conditions' => 'email = ?1 ',
             'bind'       => [
                 1 => $str,
@@ -138,14 +146,16 @@ class UserBase extends BaseModel {
     /**
      * 根据关键词[用户名或邮箱]获取用户信息
      * @param string $str
+     * @param string $fields 字段
      *
      * @return bool|\Phalcon\Mvc\Model
      */
-    public static function getInfoByKeyword(string $str='') {
+    public static function getInfoByKeyword(string $str='', $fields='') {
         if(empty($str)) return false;
+        if(empty($fields)) $fields = self::$defaultFields;
 
         $res = self::findFirst([
-            'columns'    => '*',
+            'columns'    => $fields,
             'conditions' => 'username = ?1 OR email = ?2 ',
             'bind'       => [
                 1 => $str,
@@ -158,15 +168,32 @@ class UserBase extends BaseModel {
     }
 
 
+    /**
+     * 根据uid检查是否正常的会员
+     * @param int $uid
+     * @return bool
+     */
+    public static function checkNormalMemberByUid(int $uid=0) {
+        if(empty($uid)) return false;
+
+        $where = [
+            'status' => '10',
+            'uid' => $uid,
+        ];
+
+        $count = self::getCount($where);
+        return boolval($count);
+    }
+
 
     /**
-     * 根据username联合获取管理员信息
-     * @param string $str
-     * @param bool $check 严格检查adm是否存在
+     * 根据条件连表查询(管理员)用户信息
+     * @param string $where 条件
+     * @param array $bindParam 绑定参数键值对
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
-    public static function joinAdmInfoByUsername(string $str='', bool $check=false) {
-        if(empty($str)) return false;
+    public static function joinAdmInfoByWhere(string $where, array $bindParam=[]) {
+        if(empty($where)) return false;
 
         $usr = self::class;
         $adm = AdmUser::class;
@@ -176,12 +203,7 @@ class UserBase extends BaseModel {
             ->columns($fields)
             ->leftJoin($adm, "a.uid = {$usr}.uid", 'a');
 
-        if($check) {
-            $query->where("{$usr}.username = :username: AND a.uid>0 ", ['username'=>$str]);
-        }else{
-            $query->where("{$usr}.username = :username: ", ['username'=>$str]);
-        }
-
+        $query->where($where, $bindParam);
         $result = $query->limit(1)->execute();
 
         return ($result->count()>0) ? $result->getFirst() : false;
@@ -189,15 +211,52 @@ class UserBase extends BaseModel {
 
 
     /**
-     * 根据username获取管理员信息
-     * @param string $str
+     * 根据username连表获取用户管理信息,返回的用户记录未必是管理员
+     * @param string $str 用户名
+     * @param bool $strict 严格检查adm是否存在
      * @return bool|\Phalcon\Mvc\ModelInterface
      */
-    public static function getAdmByUsername(string $str='') {
+    public static function getInfoInAdmByUsername(string $str='', $strict=false) {
         if(empty($str)) return false;
 
-        return self::joinAdmInfoByUsername($str, true);
+        $usr = self::class;
+        $adm = AdmUser::class;
+
+        if($strict) {
+            $where = "{$usr}.username = :username: AND a.uid>0 ";
+        }else{
+            $where = "{$usr}.username = :username: ";
+        }
+
+        $bindParam = ['username'=>$str];
+
+        return self::joinAdmInfoByWhere($where, $bindParam);
     }
+
+
+    /**
+     * 根据uid连表获取用户管理信息,返回的用户记录未必是管理员
+     * @param int $uid 用户ID
+     * @param bool $strict 严格检查adm是否存在
+     * @return bool|\Phalcon\Mvc\ModelInterface
+     */
+    public static function getInfoInAdmByUid(int $uid=0, $strict=false) {
+        if(empty($uid)) return false;
+
+        $usr = self::class;
+        $adm = AdmUser::class;
+
+        if($strict) {
+            $where = "{$usr}.uid = :uid: AND a.uid>0 ";
+        }else{
+            $where = "{$usr}.uid = :uid: ";
+        }
+
+        $bindParam = ['uid'=>$uid];
+
+        return self::joinAdmInfoByWhere($where, $bindParam);
+    }
+
 
 
 
