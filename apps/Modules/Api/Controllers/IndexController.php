@@ -38,4 +38,14 @@ class IndexController extends Controller {
     }
 
 
+    /**
+     * @title -error页面
+     * @desc  -error页面
+     */
+    public function errorAction() {
+        return $this->fail();
+    }
+
+
+
 }

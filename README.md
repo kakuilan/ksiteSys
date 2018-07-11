@@ -50,6 +50,7 @@ License
 
 ### 注意:
 - 注意不能打印model记录信息,会出现内存超标,造成540错误 
+- 注意使用控制器的initialize()返回拦截 
 
 
 
@@ -79,9 +80,11 @@ server {
     proxy_http_version 1.1;
     proxy_pass_header Server;
     proxy_set_header Connection "keep-alive";
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-PORT $remote_port;
     proxy_set_header X-Real-IP  $remote_addr;
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    proxy_set_header Host $host;
 
     location / {
         try_files $uri $uri/ /index.php?_url=$uri&$args;

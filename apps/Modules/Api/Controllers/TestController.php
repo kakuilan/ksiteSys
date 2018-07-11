@@ -50,7 +50,9 @@ use Apps\Services\RedisQueueService;
 use Apps\Services\UploadService;
 use Apps\Services\UserService;
 use Kengine\LkkCmponent;
+use Kengine\LkkRoutes;
 use Kengine\Server\LkkServer;
+use Lkk\Helpers\CommonHelper;
 use Redis;
 
 class TestController extends Controller {
@@ -279,6 +281,36 @@ class TestController extends Controller {
         $res = yield UserBase::queryAsync($sql);
 
         return $this->success($res);
+    }
+
+
+    /**
+     * @title -动作转发
+     * @desc  -动作转发
+     * @return array|string
+     */
+    public function forwardAction() {
+        return $this->dispatcher->forward([
+            'module' => 'api',
+            'controller' => 'index',
+            'action' => 'error',
+        ]);
+
+        return $this->success();
+    }
+
+
+    public function getRouteByUrlAction() {
+        $url = $this->getRequest('url');
+        if(empty($url)) $url = $this->request->getURL();
+        $res = LkkRoutes::getRouteInfoByUrl($url);
+
+        $data = [
+            '$url' => $url,
+            '$res' => $res,
+        ];
+
+        return $this->success($data);
     }
 
 

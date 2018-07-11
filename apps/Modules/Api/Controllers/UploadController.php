@@ -48,6 +48,8 @@ class UploadController extends Controller {
             $this->uploadImageExt = $uploadConf['upload_image_ext'] ?? UploadService::$defaultAllowType;
 
             if(empty($this->uploadSiteUrl)) $this->uploadSiteUrl = getSiteUrl();
+        }else{
+            return $this->fail(401);
         }
 
         unset($agUuid, $token, $uploadConf);
@@ -68,68 +70,6 @@ class UploadController extends Controller {
             'uploadImageExt' => $this->uploadImageExt,
             'fileInfo' => $fileInfo,
         ];
-
-        return $this->success($data);
-    }
-
-
-    /**
-     * @title -上传图片
-     * @desc  -上传图片
-     * @return array|string
-     */
-    public function imageAction() {
-        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
-        $token = $this->getAccessToken();
-        $loginUid = UserService::parseAccessToken($token, $agUuid);
-        if(empty($loginUid) || $loginUid<=0) {
-            return $this->fail(401);
-        }
-
-        $typeArr = ['file','base64'];
-        $name = $this->getRequest('name', 'file', false);
-        $type = $this->getRequest('type', 'file', false);
-        if(!in_array($type, $typeArr)) {
-            return $this->fail(20104, 'type类型错误');
-        }
-
-        $newName = "";
-        $savePath = UPLODIR . 'picture/';
-        $allowTypes = ['gif','jpg','jpeg','bmp','png'];
-        if($type=='file') {
-            $serv = new UploadService();
-            $serv->setOriginFiles($this->swooleRequest->files ?? [])
-                ->setSavePath($savePath)
-                ->setWebDir(WWWDIR)
-                ->setWebUrl(getSiteUrl())
-                ->setAllowSubDir(false)
-                ->setOverwrite(true)
-                ->setAllowType($allowTypes);
-
-            $ret = $serv->uploadSingle('file', $newName);
-            if(!$ret) {
-                return $this->fail($serv->getError());
-            }
-
-            $data = $serv->getSingleResult();
-        }else{
-            $serv = new UploadService();
-            $serv->setSavePath($savePath)
-                ->setWebDir(WWWDIR)
-                ->setWebUrl(getSiteUrl())
-                ->setAllowSubDir(false)
-                ->setOverwrite(true)
-                ->setAllowType($allowTypes);
-
-            $content = $this->getRequest($name, '', false);
-            $ret = $serv->uploadBase64Img($content, $newName);
-            if(!$ret) {
-                return $this->fail($serv->getError());
-            }
-
-            $data = $serv->getSingleResult();
-        }
-        unset($data['absolute_path'], $data['tmp_name']);
 
         return $this->success($data);
     }
@@ -199,7 +139,7 @@ class UploadController extends Controller {
                 ->setOverwrite(false)
                 ->setAllowType($allowTypes);
 
-            $content = $this->getRequest($inputName, '', false);
+            $content = $this->getPost($inputName, '', false);
             $ret = $serv->uploadBase64Img($content, $newName);
             if(!$ret) {
                 return $this->fail($serv->getError());
@@ -236,6 +176,68 @@ class UploadController extends Controller {
 
         //屏蔽绝对路径,防止泄露服务器信息
         unset($data['absolute_path'], $data['tmp_name']);
+        return $this->success($data);
+    }
+
+
+    /**
+     * @title -上传图片
+     * @desc  -上传图片
+     * @return array|string
+     */
+    public function imageAction() {
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $token = $this->getAccessToken();
+        $loginUid = UserService::parseAccessToken($token, $agUuid);
+        if(empty($loginUid) || $loginUid<=0) {
+            return $this->fail(401);
+        }
+
+        $typeArr = ['file','base64'];
+        $name = $this->getRequest('name', 'file', false);
+        $type = $this->getRequest('type', 'file', false);
+        if(!in_array($type, $typeArr)) {
+            return $this->fail(20104, 'type类型错误');
+        }
+
+        $newName = "";
+        $savePath = UPLODIR . 'picture/';
+        $allowTypes = ['gif','jpg','jpeg','bmp','png'];
+        if($type=='file') {
+            $serv = new UploadService();
+            $serv->setOriginFiles($this->swooleRequest->files ?? [])
+                ->setSavePath($savePath)
+                ->setWebDir(WWWDIR)
+                ->setWebUrl(getSiteUrl())
+                ->setAllowSubDir(false)
+                ->setOverwrite(true)
+                ->setAllowType($allowTypes);
+
+            $ret = $serv->uploadSingle('file', $newName);
+            if(!$ret) {
+                return $this->fail($serv->getError());
+            }
+
+            $data = $serv->getSingleResult();
+        }else{
+            $serv = new UploadService();
+            $serv->setSavePath($savePath)
+                ->setWebDir(WWWDIR)
+                ->setWebUrl(getSiteUrl())
+                ->setAllowSubDir(false)
+                ->setOverwrite(true)
+                ->setAllowType($allowTypes);
+
+            $content = $this->getRequest($name, '', false);
+            $ret = $serv->uploadBase64Img($content, $newName);
+            if(!$ret) {
+                return $this->fail($serv->getError());
+            }
+
+            $data = $serv->getSingleResult();
+        }
+        unset($data['absolute_path'], $data['tmp_name']);
+
         return $this->success($data);
     }
 
