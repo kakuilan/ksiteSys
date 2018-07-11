@@ -29,7 +29,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 {field: 'disable_del', title: '禁止删除', searchList: {'1': '是', '0': '否'}, formatter: Controller.api.formatter.isnot },
                 {field: 'data_type', title: '数据类型', searchList: dataTypes },
                 {field: 'key', title: '配置键'},
-                {field: 'title', title: '配置名称', operate: false},
+                {field: 'title', title: '配置名称'},
                 {field: 'value', title: '配置值', operate: false},
                 {field: 'extra', title: '扩展值', operate: false},
                 {field: 'sort', title: '排序', operate: false, sortable:true},

@@ -99,8 +99,8 @@ class ConfigController extends Controller {
             foreach ($ops as $field=>$op) {
                 $value = trim($filters[$field]);
                 if($value!=='') {
-                    if($field=='key') {
-                        array_push($where, ['like','key',"%{$value}%"]);
+                    if(in_array($field, ['key', 'title'])) {
+                        array_push($where, ['like',$field,"%{$value}%"]);
                     }else{
                         array_push($where, [$field=>$value]);
                     }
