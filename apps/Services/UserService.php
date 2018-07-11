@@ -710,7 +710,7 @@ class UserService extends ServiceBase {
 
 
     /**
-     * 生成用户头像路径
+     * 生成用户默认头像路径
      * @param int $uid
      *
      * @return string
@@ -729,7 +729,7 @@ class UserService extends ServiceBase {
 
 
     /**
-     * 根据UID获取用户头像
+     * 根据UID获取用户默认头像
      * @param int    $uid
      * @param string $ext
      *
@@ -742,48 +742,6 @@ class UserService extends ServiceBase {
         $res = $path . "{$uid}.{$ext}";
         return strtolower($res);
     }
-
-
-
-    public function updateUserAvatar($data, $uid=0) {
-        if(empty($data) || empty($uid)) return false;
-
-        $makePath = UserService::getAvatarByUid(2);
-        $pathInfo = pathinfo($makePath);
-
-        $fileName = $pathInfo['basename'] ?? '';
-        if(!isset($data['file_name']) || empty($data['file_name'])) {
-            $this->setError('文件名不能为空');
-            return false;
-        }elseif ($data['file_name'] != $fileName) {
-            $this->setError('头像文件名不符合');
-            return false;
-        }
-
-        $where = [
-            'file_name' => $fileName,
-            'uid' => $uid,
-        ];
-        $info = yield Attach::getRowAsync($where, Attach::$baseFields);
-
-        $now = time();
-        $data['uid'] = $uid;
-        $data['update_time'] = $now;
-
-        if($info) {
-
-        }else{
-
-        }
-
-
-
-
-
-
-    }
-
-
 
 
 

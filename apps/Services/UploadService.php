@@ -23,6 +23,10 @@ class UploadService extends ServiceBase {
     public static $defaultAllowType = ['rar','zip','7z','txt','doc','docx','xls','xlsx','ppt','pptx','gif','jpg','jpeg','bmp','png'];	//允许文件类型
     public static $defaultMaxSize = 524288; //允许单个文件最大上传尺寸,单位字节,默认512K
     public static $defaultMaxFile = 10; //每次最多允许上传N个文件
+
+    public static $savePathTemp = UPLODIR . 'temp/'; //临时保存目录
+    public static $savePathLong = UPLODIR . 'attach/'; //永久保存目录
+
     public static $defaultResult   = [
         'status' => false, //上传结果
         'name' => '', //保存的文件名
@@ -507,14 +511,14 @@ class UploadService extends ServiceBase {
      */
     public static function makeRandName($file='', $ext='') {
         if(!empty($file)) {
-            $uniq = file_exists($file) ? md5_file($file) : md5($file);
+            $uniq = strlen($file)>255 ? md5($file) : (file_exists($file) ? md5_file($file) : md5($file));
         }else{
             $uniq = md5(uniqid(mt_rand(),true));
         }
 
         $res = date('ymd'). substr($uniq, 8, 16);
 
-        return $ext ? ($res . ".{$ext}") : $res;
+        return strtolower($ext ? ($res . ".{$ext}") : $res);
     }
 
 

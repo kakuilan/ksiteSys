@@ -38,6 +38,7 @@ use Apps\Models\UserInfo;
 use Apps\Models\UserLoginLog;
 use Apps\Modules\Api\Controller;
 use Apps\Services\ActionService;
+use Apps\Services\AttachService;
 use Apps\Services\CaptchaService;
 use Apps\Services\ConfigService;
 use Apps\Services\ConstService;

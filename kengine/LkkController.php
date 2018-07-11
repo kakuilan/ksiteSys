@@ -323,7 +323,7 @@ abstract class LkkController extends Controller {
      */
     public function getGet($name='', $default=null, $xssClean = true) {
         if($name=='') {
-            $data = self::recursionTrim($this->request->getQuery(''));
+            $data = self::recursionTrim($this->request->getQuery());
             if($xssClean && $data) {
                 return LkkCmponent::xssClean()->xss_clean($data);
             }
@@ -351,7 +351,7 @@ abstract class LkkController extends Controller {
      */
     public function getPost($name='', $default=null, $xssClean = true) {
         if($name=='') {
-            $data = self::recursionTrim($this->request->getPost(''));
+            $data = self::recursionTrim($this->request->getPost());
             if($xssClean && $data) {
                 return LkkCmponent::xssClean()->xss_clean($data);
             }
