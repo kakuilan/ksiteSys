@@ -38,6 +38,7 @@ class Attach extends BaseModel {
             'album' => '相册',
             'blog' => '博客',
             'draft' => '投稿',
+            'question' => '问答',
             'user' => '用户',
         ];
     }
