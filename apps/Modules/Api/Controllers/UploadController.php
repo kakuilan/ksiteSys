@@ -18,6 +18,9 @@ use Apps\Services\AttachService;
 use Apps\Services\ConfigService;
 use Apps\Services\UploadService;
 use Apps\Services\UserService;
+use Kengine\LkkRoutes;
+use Lkk\Helpers\CommonHelper;
+use Lkk\Helpers\StringHelper;
 use Lkk\Helpers\ValidateHelper;
 
 
@@ -48,7 +51,7 @@ class UploadController extends Controller {
             $this->uploadImageExt = $uploadConf['upload_image_ext'] ?? UploadService::$defaultAllowType;
 
             if(empty($this->uploadSiteUrl)) $this->uploadSiteUrl = getSiteUrl();
-        }else{
+        }else{ //未验证身份,无权操作
             return $this->fail(401);
         }
 
@@ -85,11 +88,6 @@ class UploadController extends Controller {
      *
      */
     public function avatarAction() {
-        //未验证身份,无权操作
-        if(empty($this->uid) || $this->uid<=0) {
-            return $this->fail(401);
-        }
-
         $typeArr = ['file','base64'];
         $type = $this->getPost('type', 'file', false);
         if(!in_array($type, $typeArr)) {
@@ -120,7 +118,7 @@ class UploadController extends Controller {
                 ->setSavePath($savePath)
                 ->setWebDir(WWWDIR)
                 ->setWebUrl($this->uploadSiteUrl)
-                ->setAllowSubDir(false)
+                ->setAllowSubDir(true)
                 ->setOverwrite(false)
                 ->setAllowType($allowTypes);
 
@@ -135,7 +133,7 @@ class UploadController extends Controller {
             $serv->setSavePath($savePath)
                 ->setWebDir(WWWDIR)
                 ->setWebUrl($this->uploadSiteUrl)
-                ->setAllowSubDir(false)
+                ->setAllowSubDir(true)
                 ->setOverwrite(false)
                 ->setAllowType($allowTypes);
 
@@ -183,37 +181,70 @@ class UploadController extends Controller {
     /**
      * @title -上传图片
      * @desc  -上传图片
-     * @return array|string
+     * @api {post} /api/upload/avatar 上传图片,支持base64
+     * @apiParam {string} [type=file] 上传类型,['file','base64'],默认是文件file
+     * @apiParam {string} [input_name=file] 上传的文件域名称,默认file;或base64字符串的参数名,如input_name=file&file=xxx
+     * @apiParam {string} [tag=user] 附件标识,默认user
+     *
      */
     public function imageAction() {
-        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
-        $token = $this->getAccessToken();
-        $loginUid = UserService::parseAccessToken($token, $agUuid);
-        if(empty($loginUid) || $loginUid<=0) {
-            return $this->fail(401);
-        }
-
         $typeArr = ['file','base64'];
-        $name = $this->getRequest('name', 'file', false);
-        $type = $this->getRequest('type', 'file', false);
+        $type = $this->getPost('type', 'file', false);
         if(!in_array($type, $typeArr)) {
             return $this->fail(20104, 'type类型错误');
         }
 
-        $newName = "";
-        $savePath = UPLODIR . 'picture/';
+        $tag = $this->getPost('tag', '', false);
+        $tagArr = array_keys(Attach::getTagArr());
+        if(!empty($tag) && !in_array($tag, $tagArr)) {
+            return $this->fail(20104, 'tag标识错误');
+        }
+
+        $userInfo = yield UserInfo::getJoinInfoByUidAsync($this->uid, UserInfo::$baseFields);
+        if(empty($userInfo)) {
+            return $this->fail(401);
+        }
+
+        $inputName = $this->getPost('input_name', 'file', false);
+        $content = $this->getPost($inputName, '', false);
+
+        $isAdmin = UserService::isAdmin($userInfo);
+        $isRoot = UserService::isRoot($userInfo);
+        $referer = $this->request->getHTTPReferer();
+        $fromRou = LkkRoutes::getRouteInfoByUrl($referer);
+
+        //无需审核,是管理员且来源后台,或者是超管
+        $noneedAuth = (($isAdmin && $fromRou['module']=='manage') || $isRoot);
+        if($noneedAuth) {
+
+
+            //不检查用户剩余空间
+        }else{
+            $tag = 'user';
+
+            //检查用户是否有剩余空间上传
+            $fileSize = $type==='file' ? UploadService::getUploadFilesSize($this->swooleRequest->files, $inputName) : StringHelper::countBase64Byte($content);
+            $fileSize = ceil($fileSize/1024);
+            if($fileSize && $fileSize > $userInfo['free_file_size']) {
+                return $this->fail("剩余空间KB:{$userInfo['free_file_size']},不足上传:{$fileSize}");
+            }
+        }
+
+        $newName = '';
+        $savePath = $noneedAuth ? UploadService::$savePathLongPictur : UploadService::$savePathTemp;
         $allowTypes = ['gif','jpg','jpeg','bmp','png'];
-        if($type=='file') {
+
+        if($type==='file') {
             $serv = new UploadService();
             $serv->setOriginFiles($this->swooleRequest->files ?? [])
                 ->setSavePath($savePath)
                 ->setWebDir(WWWDIR)
-                ->setWebUrl(getSiteUrl())
-                ->setAllowSubDir(false)
-                ->setOverwrite(true)
+                ->setWebUrl($this->uploadSiteUrl)
+                ->setAllowSubDir(true)
+                ->setOverwrite(false)
                 ->setAllowType($allowTypes);
 
-            $ret = $serv->uploadSingle('file', $newName);
+            $ret = $serv->uploadSingle($inputName, $newName);
             if(!$ret) {
                 return $this->fail($serv->getError());
             }
@@ -223,12 +254,11 @@ class UploadController extends Controller {
             $serv = new UploadService();
             $serv->setSavePath($savePath)
                 ->setWebDir(WWWDIR)
-                ->setWebUrl(getSiteUrl())
-                ->setAllowSubDir(false)
-                ->setOverwrite(true)
+                ->setWebUrl($this->uploadSiteUrl)
+                ->setAllowSubDir(true)
+                ->setOverwrite(false)
                 ->setAllowType($allowTypes);
 
-            $content = $this->getRequest($name, '', false);
             $ret = $serv->uploadBase64Img($content, $newName);
             if(!$ret) {
                 return $this->fail($serv->getError());
@@ -236,7 +266,8 @@ class UploadController extends Controller {
 
             $data = $serv->getSingleResult();
         }
-        unset($data['absolute_path'], $data['tmp_name']);
+
+
 
         return $this->success($data);
     }

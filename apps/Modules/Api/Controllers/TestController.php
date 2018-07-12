@@ -241,6 +241,28 @@ class TestController extends Controller {
 
 
     /**
+     * @title -获取用户连表信息
+     * @desc  -获取用户连表信息
+     * @return array|string
+     */
+    public function getUserJoinInfoAction() {
+        $info1 = UserInfo::getJoinInfoByUid(1);
+        $info2 = UserInfo::getJoinInfoByUid(1, UserInfo::$baseFields);
+        $info3 = yield UserInfo::getJoinInfoByUidAsync(2);
+        $info4 = yield UserInfo::getJoinInfoByUidAsync(2, UserInfo::$baseFields);
+
+        $data = [
+            '$info1' => $info1->toArray(),
+            '$info2' => $info2->toArray(),
+            '$info3' => $info3,
+            '$info4' => $info4,
+        ];
+
+        return $this->success($data);
+    }
+
+
+    /**
      * @title -获取管理员信息
      * @desc  -获取管理员信息
      * @return array|string
@@ -312,6 +334,9 @@ class TestController extends Controller {
 
         return $this->success($data);
     }
+
+
+
 
 
     public function avatarAction() {

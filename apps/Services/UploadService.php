@@ -24,8 +24,10 @@ class UploadService extends ServiceBase {
     public static $defaultMaxSize = 524288; //允许单个文件最大上传尺寸,单位字节,默认512K
     public static $defaultMaxFile = 10; //每次最多允许上传N个文件
 
-    public static $savePathTemp = UPLODIR . 'temp/'; //临时保存目录
-    public static $savePathLong = UPLODIR . 'attach/'; //永久保存目录
+    public static $savePathTemp = UPLODIR . 'temp/'; //临时保存目录,微博/论坛图片只保存2个月;2个月后精选内容挪到永久目录,其他过期的删除
+    public static $savePathLongAttach = UPLODIR . 'attach/'; //永久保存目录,附件
+    public static $savePathLongAvatar = UPLODIR . 'avatar/'; //永久保存目录,头像
+    public static $savePathLongPictur = UPLODIR . 'picture/'; //永久保存目录,图片
 
     public static $defaultResult   = [
         'status' => false, //上传结果
@@ -661,12 +663,16 @@ class UploadService extends ServiceBase {
 
         $size = 0;
         foreach ($inputNames as $inputName) {
-            $values = (array)$files[$inputName];
-            foreach ($values as $value) {
-                $size += ($value['size'] ?? 0);
+            $fileInfos = $files[$inputName] ?? [];
+            if(empty($fileInfos)) continue;
+
+            //处理同名文件域数组,如file[],file[]
+            $fileInfos = isset($fileInfos[0]) ? $fileInfos : [0=>$fileInfos];
+            foreach ($fileInfos as $fileInfo) {
+                $size += ($fileInfo['size'] ?? 0);
             }
         }
-        unset($files, $inputNames, $values);
+        unset($files, $inputNames, $fileInfos);
 
         return $size;
     }

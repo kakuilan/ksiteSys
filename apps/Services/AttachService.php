@@ -21,7 +21,7 @@ class AttachService extends ServiceBase {
      * 根据上传结果生成附件记录数据
      * @param array $uploadRes 上传结果
      * @param array|object $user 用户信息
-     * @param array $other 其他附加信息,['tag','compress_enable','title','create_time','update_time','update_by']
+     * @param array $other 其他附加信息,['is_auth','tag','compress_enable','title','create_time','update_time','update_by']
      * @return array|bool
      */
     public static function makeAttachDataByUploadResult($uploadRes=[], $user=null, $other=[]) {
@@ -40,7 +40,7 @@ class AttachService extends ServiceBase {
             'site_id' => $user->site_id,
             'is_del' => '0',
             'is_img' => intval($isImg),
-            'is_auth' => '0',
+            'is_auth' => intval($other['is_auth'] ?? 0),
             'is_persistent' => '0',
             'has_third' => '0',
             'compress_enable' => $compressEnable,

@@ -27,7 +27,7 @@ return [
             'database'  => 'test_ksys',     // 数据库名称
             'open_log'  => true,
             'slow_query' => 0,              //慢查询20毫秒
-            'wait_timeout' => 14400,       //连接超时,4小时
+            'wait_timeout' => 3600,       //连接超时,1小时
         ]
     ],
 
@@ -49,7 +49,7 @@ return [
             'database'  => 'test_ksys',     // 数据库名称
             'open_log'  => true,
             'slow_query' => 0,              //慢查询20毫秒
-            'wait_timeout' => 14400,       //连接超时,4小时
+            'wait_timeout' => 3600,       //连接超时,1小时
         ]
     ],
 

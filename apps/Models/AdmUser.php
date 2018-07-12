@@ -20,8 +20,10 @@ class AdmUser extends BaseModel {
     public static $defaultFields = 'uid,site_id,level,status,password,logins,login_fails,last_login_ip,last_login_time';
     //分页字段
     public static $pageFields = 'uid,site_id,level,status,logins,login_fails,last_login_ip,last_login_time,create_time,update_time';
+
     //连表用户基础字段
     public static $joinUserBaseFields = 'status AS user_status,mobile_status,email_status,type AS user_type,mobile,email,username';
+    //连表用户信息字段
     public static $joinUserInfoFields = 'nickname,sign,avatar';
 
 

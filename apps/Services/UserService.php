@@ -38,12 +38,12 @@ class UserService extends ServiceBase {
     //超级管理员UID
     const ROOT_UID = 1;
     //超级管理员用户名
-    const ROOT_NAME = 'root';
+    const ROOT_NAME = 'myroot';
 
     //保留用户名,禁止注册
-    public static $holdNames = ['root','admin','test','manage','system','super','vip','guanli','guest'];
+    public static $holdNames = ['root','admin','test','manage','system','super','vip','guanli','guest','api'];
     //保留昵称,禁止使用
-    public static $holdNicks = ['管理','测试','系统','游客','后台'];
+    public static $holdNicks = ['管理','测试','系统','游客','后台','接口'];
 
     //登录配置-login
     protected $conf;
@@ -476,7 +476,7 @@ class UserService extends ServiceBase {
 
         $admn = AdmUser::getInfoByKeyword($username);
         if(empty($admn)) {
-            $this->setError('该用户不存在');
+            $this->setError('账号或密码错误');
             return false;
         }
 
@@ -499,7 +499,7 @@ class UserService extends ServiceBase {
         if(!password_verify($password, $admn->password)) {
             //登录失败事件
             $this->fireEvent('afterManagerLoginFail', $admn);
-            $this->setError('登录名或密码错误');
+            $this->setError('账号或密码错误');
             return false;
         }
 
