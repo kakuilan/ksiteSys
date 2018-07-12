@@ -365,16 +365,24 @@ class UploadService extends ServiceBase {
         }
 
         $this->inputNames = $this->fileInfos = $this->results = [];
+        $j = 0;
         foreach ($inputNames as $k=>$inputName) {
             if(empty($inputName)) continue;
 
-            $fileInfo = $this->originFiles[$inputName] ?? [];
-            if($fileInfo) {
-                $fileInfo['new_name'] = $newNames[$k] ?? '';
-            }
+            $fileInfos = $this->originFiles[$inputName] ?? [];
+            if(empty($fileInfos)) continue;
 
-            array_push($this->inputNames, $inputName);
-            $this->fileInfos[$inputName] = $fileInfo;
+            //处理同名文件域数组,如file[],file[]
+            $fileInfos = isset($fileInfos[0]) ? $fileInfos : [0=>$fileInfos];
+            $num = isset($fileInfos[0]) ? count($fileInfos) : 1;
+            foreach ($fileInfos as $i=>$fileInfo) {
+                $fileInfo['new_name'] = $newNames[$j] ?? '';
+                $j++;
+
+                $newInputName = $num==1 ? $inputName : "{$inputName}_{$i}";
+                array_push($this->inputNames, $newInputName);
+                $this->fileInfos[$newInputName] = $fileInfo;
+            }
         }
         unset($inputNames, $newNames);
 
@@ -618,7 +626,6 @@ class UploadService extends ServiceBase {
     }
 
 
-
     /**
      * 保存文件
      * @param string $tmpFilePath 旧文件路径/文件内容
@@ -640,6 +647,30 @@ class UploadService extends ServiceBase {
 
         return $res;
     }
+
+
+    /**
+     * 获取上传文件总大小
+     * @param array $files 上传的文件数组-swooleRequest->files
+     * @param array $inputNames 要统计的文本域,为空则统计全部
+     * @return int 字节
+     */
+    public static function getUploadFilesSize($files=[], $inputNames=[]) {
+        if(empty($files)) return 0;
+        $inputNames = empty($inputNames) ? array_keys($files) : (array)$inputNames;
+
+        $size = 0;
+        foreach ($inputNames as $inputName) {
+            $values = (array)$files[$inputName];
+            foreach ($values as $value) {
+                $size += ($value['size'] ?? 0);
+            }
+        }
+        unset($files, $inputNames, $values);
+
+        return $size;
+    }
+
 
 
 }
