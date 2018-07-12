@@ -31,8 +31,13 @@ class Attach extends BaseModel {
         return [
             'system' => '系统',
             'backend' => '后台',
-            'avatar' => '头像',
             'ad' => '广告',
+            'avatar' => '头像',
+            'tweet' => '微博',
+            'bbs' => '论坛',
+            'album' => '相册',
+            'blog' => '博客',
+            'draft' => '投稿',
             'user' => '用户',
         ];
     }
