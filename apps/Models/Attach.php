@@ -13,13 +13,63 @@ namespace Apps\Models;
 class Attach extends BaseModel {
 
     //默认字段
-    public static $defaultFields = 'id,site_id,is_del,is_img,is_auth,is_persistent,has_third,compress_enable,uid,img_width,img_height,quote_num,downl_num,file_size,tag,title,file_ext,file_name,file_path,qiniu_url,third_url';
+    public static $defaultFields = 'id,site_id,is_del,is_auth,is_persistent,has_third,compress_enable,belong_type,file_type,uid,img_width,img_height,quote_num,downl_num,file_size,tag,title,file_ext,file_name,file_path,qiniu_url,third_url';
     //基本字段
     public static $baseFields = 'id,uid,file_ext,file_name,file_path';
 
 
-    public function initialize() {
-        parent::initialize();
+    /**
+     * 获取审核状态数组
+     * @return array
+     */
+    public static function getAuthStatusArr() {
+        return [
+            '-1' => '不通过',
+            '0' => '待审核',
+            '1' => '已通过',
+        ];
+    }
+
+
+    /**
+     * 获取持久化状态数组
+     * @return array
+     */
+    public static function getPersistentStatusArr() {
+        return [
+            '0' => '非持久化',
+            '1' => '待持久化',
+            '2' => '已持久化',
+        ];
+    }
+
+
+    /**
+     * 获取归属类型数组
+     * @return array
+     */
+    public static function getBelongTypeArr() {
+        return [
+            '0' => '系统',
+            '1' => '后台',
+            '2' => '用户',
+        ];
+    }
+
+
+    /**
+     * 获取文件类型数组
+     * @return array
+     */
+    public static function getFileTypeArr() {
+        return [
+            '0' => '其他',
+            '1' => '压缩包',
+            '2' => '文档',
+            '3' => '图片',
+            '4' => '音频',
+            '5' => '视频',
+        ];
     }
 
 
@@ -42,6 +92,15 @@ class Attach extends BaseModel {
             'user' => '用户',
         ];
     }
+
+
+
+    public function initialize() {
+        parent::initialize();
+    }
+
+
+
 
 
 

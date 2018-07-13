@@ -18,4 +18,7 @@ use Lkk\Helpers\ValidateHelper;
 class ThumbService extends ServiceBase {
 
 
+    public static $savePathLongThumb = UPLODIR . 'thumb/'; //永久保存目录,缩略图
+
+
 }

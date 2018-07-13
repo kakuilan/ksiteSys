@@ -112,68 +112,60 @@ class UploadController extends Controller {
         $savePath = UploadService::$savePathTemp; //先存放临时目录,审核后转到永久目录
         $allowTypes = ['gif','jpg','jpeg','bmp','png'];
         $inputName = $this->getPost('input_name', 'file', false);
+        $tag = 'avatar';
+
+        $serv = new UploadService();
+        $serv->setSavePath($savePath)
+            ->setWebDir(WWWDIR)
+            ->setWebUrl($this->uploadSiteUrl)
+            ->setAllowSubDir(true)
+            ->setOverwrite(false)
+            ->setRename(false)
+            ->setRandNameSeed($tag)
+            ->setAllowType($allowTypes);
+
         if($type==='file') {
-            $serv = new UploadService();
-            $serv->setOriginFiles($this->swooleRequest->files ?? [])
-                ->setSavePath($savePath)
-                ->setWebDir(WWWDIR)
-                ->setWebUrl($this->uploadSiteUrl)
-                ->setAllowSubDir(true)
-                ->setOverwrite(false)
-                ->setAllowType($allowTypes);
-
-            $ret = $serv->uploadSingle($inputName, $newName);
-            if(!$ret) {
-                return $this->fail($serv->getError());
-            }
-
-            $data = $serv->getSingleResult();
+            $ret = $serv->setOriginFiles($this->swooleRequest->files ?? [])->uploadSingle($inputName, $newName);
         }else{
-            $serv = new UploadService();
-            $serv->setSavePath($savePath)
-                ->setWebDir(WWWDIR)
-                ->setWebUrl($this->uploadSiteUrl)
-                ->setAllowSubDir(true)
-                ->setOverwrite(false)
-                ->setAllowType($allowTypes);
-
             $content = $this->getPost($inputName, '', false);
             $ret = $serv->uploadBase64Img($content, $newName);
-            if(!$ret) {
-                return $this->fail($serv->getError());
-            }
+        }
 
-            $data = $serv->getSingleResult();
+        $data = $serv->getSingleResult();
+        if(!$ret) {
+            return $this->fail($serv->getError());
+        }elseif (!$data['status']) {
+            return $this->fail($data['info']);
         }
 
         //新增附件记录
-        if($data['status']) {
-            $now = time();
-            $row = false;
-            if($data['is_exists']) { //文件已存在
-                //检查该文件是否有记录
-                $where = [
-                    'file_name' => $data['new_name'],
-                ];
-                $row = yield Attach::getRowAsync($where);
-            }
+        $now = time();
+        $row = false;
+        if($data['is_exists']) { //文件已存在
+            //检查该文件是否有记录
+            $where = [
+                'file_name' => $data['new_name'],
+            ];
+            $row = yield Attach::getRowAsync($where);
+        }
 
-            if($row) {
-                yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$uid], ['id'=>$row['id']]);
-            }else{
-                $other = [
-                    'tag' => 'avatar',
-                    'update_by' => $uid,
-                ];
-                $avatarData = AttachService::makeAttachDataByUploadResult($data, $avatarUsr, $other);
+        if($row) {
+            yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$uid], ['id'=>$row['id']]);
+        }else{
+            $other = [
+                'belong_type' => 2,
+                'tag' => $tag,
+                'update_by' => $uid,
+            ];
+            $avatarData = AttachService::makeAttachDataByUploadResult($data, $avatarUsr, $other);
 
-                yield Attach::addDataAsync($avatarData);
-            }
+            yield Attach::addDataAsync($avatarData);
         }
         unset($typeArr, $allowTypes, $avatarUsr, $serv, $content, $where, $row, $other, $avatarData);
 
         //屏蔽绝对路径,防止泄露服务器信息
         unset($data['absolute_path'], $data['tmp_name']);
+
         return $this->success($data);
     }
 
@@ -215,13 +207,11 @@ class UploadController extends Controller {
 
         //无需审核,是管理员且来源后台,或者是超管
         $noneedAuth = (($isAdmin && $fromRou['module']=='manage') || $isRoot);
+        if(empty($tag)) $tag = $noneedAuth ? 'backend' : 'user';
         if($noneedAuth) {
-
 
             //不检查用户剩余空间
         }else{
-            $tag = 'user';
-
             //检查用户是否有剩余空间上传
             $fileSize = $type==='file' ? UploadService::getUploadFilesSize($this->swooleRequest->files, $inputName) : StringHelper::countBase64Byte($content);
             $fileSize = ceil($fileSize/1024);
@@ -267,7 +257,12 @@ class UploadController extends Controller {
             $data = $serv->getSingleResult();
         }
 
+        //新增附件记录
+        if($data['status']) {
 
+
+
+        }
 
         return $this->success($data);
     }

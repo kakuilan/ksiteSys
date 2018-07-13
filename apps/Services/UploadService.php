@@ -20,7 +20,14 @@ use Phalcon\Di;
 
 class UploadService extends ServiceBase {
 
-    public static $defaultAllowType = ['rar','zip','7z','txt','doc','docx','xls','xlsx','ppt','pptx','gif','jpg','jpeg','bmp','png'];	//允许文件类型
+    //允许文件类型
+    public static $defaultAllowType = [
+        'gz','rar','zip','7z', //压缩包
+        'txt','chm','pdf','doc','docx','xls','xlsx','ppt','pptx', //文档
+        'gif','jpg','jpeg','bmp','png', //图片
+        'mp3','wma','wav', //音频
+        'mp4','avi','mov','flv' //视频
+        ];
     public static $defaultMaxSize = 524288; //允许单个文件最大上传尺寸,单位字节,默认512K
     public static $defaultMaxFile = 10; //每次最多允许上传N个文件
 
@@ -90,6 +97,7 @@ class UploadService extends ServiceBase {
     protected $maxSize      = 0; //允许单个文件最大上传尺寸,单位字节
     protected $maxFile      = 0; //每次最多允许上传N个文件
     protected $allowSubDir  = true; //允许自动创建目录
+    protected $randNameSeed = ''; //随机名称种子
 
     public function __construct(array $vars = []) {
         parent::__construct($vars);
@@ -106,8 +114,15 @@ class UploadService extends ServiceBase {
      * @param int $errorCode
      * @return int|mixed
      */
-    public static function getErrorInfoByCode($errorCode=-1) {
-        return self::$defaultErrorInfo[$errorCode] ?? $errorCode;
+    public function getErrorInfoByCode($errorCode=-1) {
+        $info = self::$defaultErrorInfo[$errorCode] ?? $errorCode;
+        if($errorCode==-3) {
+            $info .= intval($this->maxSize/1024) . 'kb';
+        }elseif ($errorCode==-4) {
+            $info .= implode(',', $this->allowType);
+        }
+
+        return $info;
     }
 
 
@@ -186,6 +201,18 @@ class UploadService extends ServiceBase {
         $this->isRename = boolval($val);
         return $this;
     }
+
+
+    /**
+     * 设置随机名称种子
+     * @param string $val
+     * @return $this
+     */
+    public function setRandNameSeed($val='') {
+        $this->randNameSeed = strval($val);
+        return $this;
+    }
+
 
 
     /**
@@ -296,11 +323,11 @@ class UploadService extends ServiceBase {
 
         $cont = base64_decode(str_replace($chkInfo[1], '', $cont));
         $error = -1;
-        if(empty($newName) || !preg_match("/^[a-z0-9\-_.]+$/i", $newName)) $newName = self::makeRandName($cont, $exte);
+        if(empty($newName) || !preg_match("/^[a-z0-9\-_.]+$/i", $newName)) $newName = self::makeRandName($cont, $exte, $this->randNameSeed);
         $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
 
         if(file_exists($newFilePath) && !$this->isOverwrite && $this->isRename) {
-            $newName = self::makeRandName($cont, $exte);
+            $newName = self::makeRandName(null, $exte, $this->randNameSeed);
             $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
         }
 
@@ -330,7 +357,7 @@ class UploadService extends ServiceBase {
         $result = array_merge($result, $imgInfo);
         $result['error'] = $error;
         $result['status'] = ($error==99);
-        $result['info'] = self::getErrorInfoByCode($error);
+        $result['info'] = $this->getErrorInfoByCode($error);
 
         $this->results[$inputName] = $result;
 
@@ -450,11 +477,12 @@ class UploadService extends ServiceBase {
                 }elseif (!file_exists($fileInfo['tmp_name'])) {
                     $error = -8;
                 }else{
-                    if(empty($newName) || !preg_match("/^[a-z0-9\-_.]+$/i", $newName)) $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
+                    if(empty($newName) || !preg_match("/^[a-z0-9\-_.]+$/i", $newName)) $newName = self::makeRandName($fileInfo['tmp_name'], $exte, $this->randNameSeed);
                     $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
 
+                    //重命名
                     if(file_exists($newFilePath) && !$this->isOverwrite && $this->isRename) {
-                        $newName = self::makeRandName($fileInfo['tmp_name'], $exte);
+                        $newName = self::makeRandName(null, $exte, $this->randNameSeed);
                         $newFilePath = $this->savePath . ($this->allowSubDir ? self::getSubpathByFilename($newName) : $newName);
                     }
 
@@ -486,7 +514,7 @@ class UploadService extends ServiceBase {
             $result = array_merge(self::$defaultResult, $fileInfo);
             $result['error'] = $error;
             $result['status'] = ($error==99);
-            $result['info'] = self::getErrorInfoByCode($error);
+            $result['info'] = $this->getErrorInfoByCode($error);
 
             $this->results[$inputName] = $result;
         }
@@ -517,13 +545,15 @@ class UploadService extends ServiceBase {
      * 生成随机文件名
      * @param string $file 文件路径
      * @param string $ext 扩展名
+     * @param string $randSeed 随机种子
      * @return string
      */
-    public static function makeRandName($file='', $ext='') {
+    public static function makeRandName($file='', $ext='', $randSeed='') {
         if(!empty($file)) {
             $uniq = strlen($file)>255 ? md5($file) : (file_exists($file) ? md5_file($file) : md5($file));
+            $uniq = $randSeed ? md5($uniq . $randSeed) : $uniq;
         }else{
-            $uniq = md5(uniqid(mt_rand(),true));
+            $uniq = md5(uniqid(mt_rand(),true) . $randSeed);
         }
 
         $res = date('ymd'). substr($uniq, 8, 16);
@@ -677,6 +707,14 @@ class UploadService extends ServiceBase {
         return $size;
     }
 
+
+
+    public static function moveAttach($oldFilePath='', $newDir='', $returnRelative=true) {
+        if(empty($oldFilePath)) return false;
+
+
+
+    }
 
 
 }
