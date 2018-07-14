@@ -22,8 +22,8 @@ class UploadService extends ServiceBase {
 
     //允许文件类型
     public static $defaultAllowType = [
-        'gz','rar','zip','7z', //压缩包
-        'txt','chm','pdf','doc','docx','xls','xlsx','ppt','pptx', //文档
+        'gz','bz2','rar','zip','7z', //压缩包
+        'txt','chm','pdf','doc','docx','xls','xlsx','ppt','pptx','wps', //文档
         'gif','jpg','jpeg','bmp','png', //图片
         'mp3','wma','wav', //音频
         'mp4','avi','mov','flv' //视频

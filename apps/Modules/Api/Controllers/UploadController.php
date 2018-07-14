@@ -110,7 +110,6 @@ class UploadController extends Controller {
         //自己传头像 or 管理员修改他人头像
         $newName = '';
         $savePath = UploadService::$savePathTemp; //先存放临时目录,审核后转到永久目录
-        $allowTypes = ['gif','jpg','jpeg','bmp','png'];
         $inputName = $this->getPost('input_name', 'file', false);
         $tag = 'avatar';
 
@@ -122,7 +121,8 @@ class UploadController extends Controller {
             ->setOverwrite(false)
             ->setRename(false)
             ->setRandNameSeed($tag)
-            ->setAllowType($allowTypes);
+            ->setMaxSize($this->uploadImageSize)
+            ->setAllowType($this->uploadImageExt);
 
         if($type==='file') {
             $ret = $serv->setOriginFiles($this->swooleRequest->files ?? [])->uploadSingle($inputName, $newName);
@@ -200,8 +200,8 @@ class UploadController extends Controller {
         $inputName = $this->getPost('input_name', 'file', false);
         $content = $this->getPost($inputName, '', false);
 
-        $isAdmin = UserService::isAdmin($userInfo);
         $isRoot = UserService::isRoot($userInfo);
+        $isAdmin = UserService::isAdmin($userInfo);
         $referer = $this->request->getHTTPReferer();
         $fromRou = LkkRoutes::getRouteInfoByUrl($referer);
 
