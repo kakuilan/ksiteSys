@@ -127,14 +127,14 @@
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="title">配置名称</label>
                                 <div class="col-sm-8 col-xs-7">
-                                    <input type="text" class="form-control" name="row[title]" id="title" value="{% if row %}{{row.title}}{% endif %}" maxlength="25" data-rule="required;length(1~50)">
+                                    <input type="text" class="form-control" name="row[title]" id="title" value="{% if row %}{{row.title}}{% endif %}" maxlength="50" data-rule="required;length(1~50)">
                                 </div>
                             </div>
 
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="key">配置键</label>
                                 <div class="col-sm-8 col-xs-7">
-                                    <input type="text" class="form-control" name="row[key]" id="key" value="{% if row %}{{row.key}}{% endif %}" maxlength="25" data-rule="required;isWord;length(1~30)" placeholder="系统全局配置以{{globalConfPrefix}}开头" {% if row and row.disable_del==1 %} readonly {% endif %}>
+                                    <input type="text" class="form-control" name="row[key]" id="key" value="{% if row %}{{row.key}}{% endif %}" maxlength="30" data-rule="required;isWord;length(1~30)" placeholder="系统全局配置以{{globalConfPrefix}}开头" {% if row and row.disable_del==1 %} readonly {% endif %}>
                                 </div>
                             </div>
 

@@ -19,6 +19,7 @@ use Apps\Services\ConfigService;
 use Apps\Services\UploadService;
 use Apps\Services\UserService;
 use Kengine\LkkRoutes;
+use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 use Lkk\Helpers\StringHelper;
 use Lkk\Helpers\ValidateHelper;
@@ -31,6 +32,7 @@ class UploadController extends Controller {
     public $uploadFileExt;
     public $uploadImageSize;
     public $uploadImageExt;
+    public $userFreeFilesizeLimitOpen;
 
 
     public function initialize () {
@@ -49,6 +51,7 @@ class UploadController extends Controller {
             $this->uploadFileExt = $uploadConf['upload_file_ext'] ?? UploadService::$defaultAllowType;
             $this->uploadImageSize = $uploadConf['upload_image_size'] ?? UploadService::$defaultMaxSize;
             $this->uploadImageExt = $uploadConf['upload_image_ext'] ?? UploadService::$defaultAllowType;
+            $this->userFreeFilesizeLimitOpen = $uploadConf['user_free_filesize_limit_open'] ?? 0;
 
             if(empty($this->uploadSiteUrl)) $this->uploadSiteUrl = getSiteUrl();
         }else{ //未验证身份,无权操作
@@ -146,7 +149,7 @@ class UploadController extends Controller {
             $where = [
                 'file_name' => $data['new_name'],
             ];
-            $row = yield Attach::getRowAsync($where);
+            $row = yield Attach::getRowAsync($where, Attach::$baseFields);
         }
 
         if($row) {
@@ -157,11 +160,11 @@ class UploadController extends Controller {
                 'tag' => $tag,
                 'update_by' => $uid,
             ];
-            $avatarData = AttachService::makeAttachDataByUploadResult($data, $avatarUsr, $other);
+            $attData = AttachService::makeAttachDataByUploadResult($data, $avatarUsr, $other);
 
-            yield Attach::addDataAsync($avatarData);
+            yield Attach::addDataAsync($attData);
         }
-        unset($typeArr, $allowTypes, $avatarUsr, $serv, $content, $where, $row, $other, $avatarData);
+        unset($typeArr, $avatarUsr, $serv, $content, $row, $other, $attData);
 
         //屏蔽绝对路径,防止泄露服务器信息
         unset($data['absolute_path'], $data['tmp_name']);
@@ -173,7 +176,7 @@ class UploadController extends Controller {
     /**
      * @title -上传图片
      * @desc  -上传图片
-     * @api {post} /api/upload/avatar 上传图片,支持base64
+     * @api {post} /api/upload/image 上传图片,支持base64
      * @apiParam {string} [type=file] 上传类型,['file','base64'],默认是文件file
      * @apiParam {string} [input_name=file] 上传的文件域名称,默认file;或base64字符串的参数名,如input_name=file&file=xxx
      * @apiParam {string} [tag=user] 附件标识,默认user
@@ -211,7 +214,7 @@ class UploadController extends Controller {
         if($noneedAuth) {
 
             //不检查用户剩余空间
-        }else{
+        }elseif($this->userFreeFilesizeLimitOpen){
             //检查用户是否有剩余空间上传
             $fileSize = $type==='file' ? UploadService::getUploadFilesSize($this->swooleRequest->files, $inputName) : StringHelper::countBase64Byte($content);
             $fileSize = ceil($fileSize/1024);
@@ -229,7 +232,7 @@ class UploadController extends Controller {
             ->setWebUrl($this->uploadSiteUrl)
             ->setAllowSubDir(true)
             ->setOverwrite(false)
-            ->setRename(true)
+            ->setRename(false)
             ->setRandNameSeed($tag)
             ->setMaxSize($this->uploadImageSize)
             ->setAllowType($this->uploadImageExt);
@@ -255,24 +258,24 @@ class UploadController extends Controller {
             $where = [
                 'file_name' => $data['new_name'],
             ];
-            $row = yield Attach::getRowAsync($where);
+            $row = yield Attach::getRowAsync($where, Attach::$baseFields);
         }
 
         if($row) {
             $ret = yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>$row['id']]);
         }else{
             $other = [
-                'belong_type' => 2,
+                'belong_type' => ($tag=='system' ? 0 : (in_array($tag, ['backend','ad']) ? 1: 2) ),
                 'tag' => $tag,
                 'update_by' => $this->uid,
             ];
-            $avatarData = AttachService::makeAttachDataByUploadResult($data, $userInfo, $other);
+            $attData = AttachService::makeAttachDataByUploadResult($data, $userInfo, $other);
 
-            $ret = yield Attach::addDataAsync($avatarData);
+            $ret = yield Attach::addDataAsync($attData);
         }
 
         //减去可用空间
-        if(isset($fileSize) && $fileSize && $ret) {
+        if($this->userFreeFilesizeLimitOpen && isset($fileSize) && $fileSize && $ret) {
             $userData = [
                 'free_file_size' => abs(intval($userInfo['free_file_size'] - $fileSize)),
                 'update_time' => $now,
@@ -281,7 +284,7 @@ class UploadController extends Controller {
             yield UserInfo::upDataAsync($userData, ['uid'=> $this->uid]);
         }
 
-        unset($typeArr, $allowTypes, $avatarUsr, $serv, $content, $where, $row, $other, $avatarData);
+        unset($typeArr, $allowTypes, $avatarUsr, $serv, $content, $where, $row, $other, $attData, $userData);
 
         //屏蔽绝对路径,防止泄露服务器信息
         unset($data['absolute_path'], $data['tmp_name']);
@@ -290,83 +293,240 @@ class UploadController extends Controller {
     }
 
 
+
     /**
-     * @title -文件上传
-     * @desc  -文件上传
-     * @return array|string
+     * @title -单文件上传
+     * @desc  -单文件上传
+     * @api {post} /api/upload/single 单文件上传
+     * @apiParam {string} [input_name=file] 上传的文件域名称,默认file
+     * @apiParam {string} [tag=user] 附件标识,默认user
+     *
      */
-    public function fileAction() {
-        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
-        $token = $this->getAccessToken();
-        $loginUid = UserService::parseAccessToken($token, $agUuid);
-        if(empty($loginUid) || $loginUid<=0) {
+    public function singleAction() {
+        $tag = $this->getPost('tag', '', false);
+        $tagArr = array_keys(Attach::getTagArr());
+        if(!empty($tag) && !in_array($tag, $tagArr)) {
+            return $this->fail(20104, 'tag标识错误');
+        }
+
+        $userInfo = yield UserInfo::getJoinInfoByUidAsync($this->uid, UserInfo::$baseFields);
+        if(empty($userInfo)) {
             return $this->fail(401);
         }
 
-        $name = $this->getRequest('name', 'file', false);
+        $inputName = $this->getPost('input_name', 'file', false);
 
-        $newName = "";
-        $savePath = UPLODIR . 'attach/';
-        $allowTypes = ['rar','zip','gz','bz2','7z','txt','doc','docx','xls','xlsx','ppt','pptx','pdf','wps','gif','jpg','jpeg','bmp','png'];
+        $isRoot = UserService::isRoot($userInfo);
+        $isAdmin = UserService::isAdmin($userInfo);
+        $referer = $this->request->getHTTPReferer();
+        $fromRou = LkkRoutes::getRouteInfoByUrl($referer);
 
-        $serv = new UploadService();
-        $serv->setOriginFiles($this->swooleRequest->files ?? [])
-            ->setSavePath($savePath)
-            ->setWebDir(WWWDIR)
-            ->setWebUrl(getSiteUrl())
-            ->setAllowSubDir(false)
-            ->setOverwrite(true)
-            ->setAllowType($allowTypes);
+        //无需审核,是管理员且来源后台,或者是超管
+        $noneedAuth = (($isAdmin && $fromRou['module']=='manage') || $isRoot);
+        if(empty($tag)) $tag = $noneedAuth ? 'backend' : 'user';
+        if($noneedAuth) {
 
-        $ret = $serv->uploadSingle('file', $newName);
-        if(!$ret) {
-            return $this->fail($serv->getError());
+            //不检查用户剩余空间
+        }elseif($this->userFreeFilesizeLimitOpen){
+            //检查用户是否有剩余空间上传
+            $fileSize = UploadService::getUploadFilesSize($this->swooleRequest->files, $inputName);
+            $fileSize = ceil($fileSize/1024);
+            if($fileSize && $fileSize > $userInfo['free_file_size']) {
+                return $this->fail("剩余空间KB:{$userInfo['free_file_size']},不足上传:{$fileSize}");
+            }
         }
 
+        $newName = '';
+        $savePath = $noneedAuth ? UploadService::$savePathLongAttach : UploadService::$savePathTemp;
+
+        $serv = new UploadService();
+        $serv->setSavePath($savePath)
+            ->setWebDir(WWWDIR)
+            ->setWebUrl($this->uploadSiteUrl)
+            ->setAllowSubDir(true)
+            ->setOverwrite(false)
+            ->setRename(false)
+            ->setRandNameSeed($tag)
+            ->setMaxSize($this->uploadFileSize)
+            ->setAllowType($this->uploadFileExt);
+
+        $ret = $serv->setOriginFiles($this->swooleRequest->files ?? [])->uploadSingle($inputName, $newName);
         $data = $serv->getSingleResult();
+        if(!$ret) {
+            return $this->fail($serv->getError());
+        }elseif (!$data['status']) {
+            return $this->fail($data['info']);
+        }
+
+        //新增附件记录
+        $now = time();
+        $row = false;
+        if($data['is_exists']) { //文件已存在
+            //检查该文件是否有记录
+            $where = [
+                'file_name' => $data['new_name'],
+            ];
+            $row = yield Attach::getRowAsync($where, Attach::$baseFields);
+        }
+
+        if($row) {
+            $ret = yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>$row['id']]);
+        }else{
+            $other = [
+                'belong_type' => ($tag=='system' ? 0 : (in_array($tag, ['backend','ad']) ? 1: 2) ),
+                'tag' => $tag,
+                'update_by' => $this->uid,
+            ];
+            $attData = AttachService::makeAttachDataByUploadResult($data, $userInfo, $other);
+
+            $ret = yield Attach::addDataAsync($attData);
+        }
+
+
+        //减去可用空间
+        if($this->userFreeFilesizeLimitOpen && isset($fileSize) && $fileSize && $ret) {
+            $userData = [
+                'free_file_size' => abs(intval($userInfo['free_file_size'] - $fileSize)),
+                'update_time' => $now,
+                'last_activ_time' => $now,
+            ];
+            yield UserInfo::upDataAsync($userData, ['uid'=> $this->uid]);
+        }
+
+        unset($tagArr, $userInfo, $fromRou, $serv, $ret, $where, $other, $attData, $userData);
+
+        //屏蔽绝对路径,防止泄露服务器信息
         unset($data['absolute_path'], $data['tmp_name']);
 
         return $this->success($data);
     }
 
 
-    /**
-     * 单文件上传
-     * @return array|string
-     */
-    public function singleAction() {
-        $serv = new UploadService();
-        $serv->setOriginFiles($this->swooleRequest->files)
-            ->setSavePath(UPLODIR)->setWebDir(WWWDIR)->setWebUrl(getSiteUrl());
-
-        $ret = $serv->uploadSingle('file');
-        if(!$ret) {
-            return $this->fail($serv->getError());
-        }
-
-        $arr = $serv->getSingleResult();
-        unset($arr['absolute_path'], $arr['tmp_name']);
-
-        return $this->success($arr);
-    }
-
 
     /**
-     * 多文件上传
-     * @return array|string
+     * @title -多文件上传
+     * @desc  -多文件上传
+     * @api {post} /api/upload/multi 多文件上传
+     * @apiParam {string} [input_name=file] 上传的文件域名称,数组,如input_name[]=file&input_name[]=doc
+     * @apiParam {string} [tag=user] 附件标识,默认user
+     *
      */
     public function multiAction() {
-        $serv = new UploadService();
-        $serv->setOriginFiles($this->swooleRequest->files)
-            ->setSavePath(UPLODIR)->setWebDir(WWWDIR)->setWebUrl(getSiteUrl());
+        $tag = $this->getPost('tag', '', false);
+        $tagArr = array_keys(Attach::getTagArr());
+        if(!empty($tag) && !in_array($tag, $tagArr)) {
+            return $this->fail(20104, 'tag标识错误');
+        }
 
-        $ret = $serv->uploadMulti(['img','doc','ppt','file','logo','desc']);
-        if(!$ret) {
+        $userInfo = yield UserInfo::getJoinInfoByUidAsync($this->uid, UserInfo::$baseFields);
+        if(empty($userInfo)) {
+            return $this->fail(401);
+        }
+
+        $defaultInputs = ['file', 'img', 'image', 'attach', 'doc'];
+        $inputNameArr = (array)$this->getPost('input_name', null, false);
+        if(empty($inputNameArr)) $inputNameArr = $defaultInputs;
+
+        $isRoot = UserService::isRoot($userInfo);
+        $isAdmin = UserService::isAdmin($userInfo);
+        $referer = $this->request->getHTTPReferer();
+        $fromRou = LkkRoutes::getRouteInfoByUrl($referer);
+
+        //无需审核,是管理员且来源后台,或者是超管
+        $noneedAuth = (($isAdmin && $fromRou['module']=='manage') || $isRoot);
+        if(empty($tag)) $tag = $noneedAuth ? 'backend' : 'user';
+        if($noneedAuth) {
+
+            //不检查用户剩余空间
+        }elseif($this->userFreeFilesizeLimitOpen){
+            //检查用户是否有剩余空间上传
+            $fileSize = UploadService::getUploadFilesSize($this->swooleRequest->files, $inputNameArr);
+            $fileSize = ceil($fileSize/1024);
+            if($fileSize && $fileSize > $userInfo['free_file_size']) {
+                return $this->fail("剩余空间KB:{$userInfo['free_file_size']},不足上传:{$fileSize}");
+            }
+        }
+
+        $newNames = [];
+        $savePath = $noneedAuth ? UploadService::$savePathLongAttach : UploadService::$savePathTemp;
+
+        $serv = new UploadService();
+        $serv->setSavePath($savePath)
+            ->setWebDir(WWWDIR)
+            ->setWebUrl($this->uploadSiteUrl)
+            ->setAllowSubDir(true)
+            ->setOverwrite(false)
+            ->setRename(false)
+            ->setRandNameSeed($tag)
+            ->setMaxSize($this->uploadFileSize)
+            ->setAllowType($this->uploadFileExt);
+
+        $ret = $serv->setOriginFiles($this->swooleRequest->files ?? [])->uploadMulti($inputNameArr, $newNames);
+        $data = $serv->getMultiResult();
+
+        $succNum = 0;
+        if($ret) {
+            foreach ($data as &$item) {
+                if($item['status']) $succNum++;
+
+                //屏蔽绝对路径,防止泄露服务器信息
+                unset($item['absolute_path'], $item['tmp_name']);
+            }
+            unset($item);
+        }
+
+        if(!$ret || $succNum==0) {
             return $this->fail($serv->getError());
         }
 
-        $arr = $serv->getMultiResult();
-        return $this->success($arr);
+        //新增附件记录
+        if($succNum) {
+            $now = time();
+            $fileSize = 0;
+            $attDatas = [];
+            $fileKeys = [];
+
+            $rows = yield Attach::getListAsync(['file_name' => array_column($data, 'new_name')], Attach::$baseFields);
+            $other = [
+                'belong_type' => ($tag=='system' ? 0 : (in_array($tag, ['backend','ad']) ? 1: 2) ),
+                'tag' => $tag,
+                'update_by' => $this->uid,
+            ];
+
+            foreach ($data as $item) {
+                if(!$item['status']) continue;
+
+                $chkExis = ArrayHelper::arraySearchItem($rows, ['file_name'=>$item['new_name']]);
+                if($chkExis) continue;
+
+                $attData = AttachService::makeAttachDataByUploadResult($item, $userInfo, $other);
+                array_push($attDatas, $attData);
+
+                $fileSize += ($item['size'] ?? 0);
+            }
+
+
+            //更新旧记录
+            if($rows) yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>array_column($rows, 'id') ]);
+
+            //插入新记录
+            $ret = yield Attach::addMultiDataAsync($attDatas);
+
+            //减去可用空间
+            if($this->userFreeFilesizeLimitOpen && isset($fileSize) && $fileSize && $ret) {
+                $userData = [
+                    'free_file_size' => abs(intval($userInfo['free_file_size'] - $fileSize)),
+                    'update_time' => $now,
+                    'last_activ_time' => $now,
+                ];
+                yield UserInfo::upDataAsync($userData, ['uid'=> $this->uid]);
+            }
+
+        }
+
+        unset($tagArr, $userInfo, $defaultInputs, $inputNameArr, $fromRou, $serv, $rows, $other, $attData, $attDatas, $userData);
+
+        return $this->success($data);
     }
 
 

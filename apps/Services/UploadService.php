@@ -374,12 +374,6 @@ class UploadService extends ServiceBase {
      * @return bool
      */
     protected function attachInputs($inputNames = [], $newNames = []) {
-        $count = count($inputNames);
-        if($count > $this->maxFile) {
-            $this->setError("每次最多同时上传{$this->maxFile}个文件", -13);
-            return false;
-        }
-
         $inputNames = array_unique(array_filter($inputNames));
         $newNames = array_unique(array_filter($newNames));
 
@@ -413,6 +407,14 @@ class UploadService extends ServiceBase {
                 $this->fileInfos[$newInputName] = $fileInfo;
             }
         }
+
+        $count = count($this->fileInfos);
+        if($count > $this->maxFile) {
+            $this->setError("每次最多同时上传{$this->maxFile}个文件", -13);
+            return false;
+        }
+
+
         unset($inputNames, $newNames);
 
         return true;

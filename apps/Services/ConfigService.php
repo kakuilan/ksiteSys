@@ -255,6 +255,7 @@ class ConfigService extends ServiceBase {
             'upload_file_ext',
             'upload_image_size',
             'upload_image_ext',
+            'user_free_filesize_limit_open',
         ];
 
         $siteConf = yield self::getSiteConfigs($siteID, $new);
