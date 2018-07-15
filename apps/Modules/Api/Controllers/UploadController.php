@@ -222,47 +222,69 @@ class UploadController extends Controller {
 
         $newName = '';
         $savePath = $noneedAuth ? UploadService::$savePathLongPictur : UploadService::$savePathTemp;
-        $allowTypes = ['gif','jpg','jpeg','bmp','png'];
+
+        $serv = new UploadService();
+        $serv->setSavePath($savePath)
+            ->setWebDir(WWWDIR)
+            ->setWebUrl($this->uploadSiteUrl)
+            ->setAllowSubDir(true)
+            ->setOverwrite(false)
+            ->setRename(true)
+            ->setRandNameSeed($tag)
+            ->setMaxSize($this->uploadImageSize)
+            ->setAllowType($this->uploadImageExt);
 
         if($type==='file') {
-            $serv = new UploadService();
-            $serv->setOriginFiles($this->swooleRequest->files ?? [])
-                ->setSavePath($savePath)
-                ->setWebDir(WWWDIR)
-                ->setWebUrl($this->uploadSiteUrl)
-                ->setAllowSubDir(true)
-                ->setOverwrite(false)
-                ->setAllowType($allowTypes);
-
-            $ret = $serv->uploadSingle($inputName, $newName);
-            if(!$ret) {
-                return $this->fail($serv->getError());
-            }
-
-            $data = $serv->getSingleResult();
+            $ret = $serv->setOriginFiles($this->swooleRequest->files ?? [])->uploadSingle($inputName, $newName);
         }else{
-            $serv = new UploadService();
-            $serv->setSavePath($savePath)
-                ->setWebDir(WWWDIR)
-                ->setWebUrl($this->uploadSiteUrl)
-                ->setAllowSubDir(true)
-                ->setOverwrite(false)
-                ->setAllowType($allowTypes);
-
             $ret = $serv->uploadBase64Img($content, $newName);
-            if(!$ret) {
-                return $this->fail($serv->getError());
-            }
+        }
 
-            $data = $serv->getSingleResult();
+        $data = $serv->getSingleResult();
+        if(!$ret) {
+            return $this->fail($serv->getError());
+        }elseif (!$data['status']) {
+            return $this->fail($data['info']);
         }
 
         //新增附件记录
-        if($data['status']) {
-
-
-
+        $now = time();
+        $row = false;
+        if($data['is_exists']) { //文件已存在
+            //检查该文件是否有记录
+            $where = [
+                'file_name' => $data['new_name'],
+            ];
+            $row = yield Attach::getRowAsync($where);
         }
+
+        if($row) {
+            $ret = yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>$row['id']]);
+        }else{
+            $other = [
+                'belong_type' => 2,
+                'tag' => $tag,
+                'update_by' => $this->uid,
+            ];
+            $avatarData = AttachService::makeAttachDataByUploadResult($data, $userInfo, $other);
+
+            $ret = yield Attach::addDataAsync($avatarData);
+        }
+
+        //减去可用空间
+        if(isset($fileSize) && $fileSize && $ret) {
+            $userData = [
+                'free_file_size' => abs(intval($userInfo['free_file_size'] - $fileSize)),
+                'update_time' => $now,
+                'last_activ_time' => $now,
+            ];
+            yield UserInfo::upDataAsync($userData, ['uid'=> $this->uid]);
+        }
+
+        unset($typeArr, $allowTypes, $avatarUsr, $serv, $content, $where, $row, $other, $avatarData);
+
+        //屏蔽绝对路径,防止泄露服务器信息
+        unset($data['absolute_path'], $data['tmp_name']);
 
         return $this->success($data);
     }
