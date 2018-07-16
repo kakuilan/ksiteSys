@@ -18,6 +18,19 @@ use Apps\Modules\Manage\Controller;
  */
 class CacheController extends Controller {
 
+    public function initialize () {
+        yield parent::initialize();
+
+        $this->setHeaderSeo('管理后台', '关键词', '描述');
+
+        //视图变量
+        $this->view->setVars([
+            'headerSeo' => $this->headerSeo,
+        ]);
+
+    }
+
+
     /**
      * @title -清除缓存
      * @desc  -清除缓存

@@ -45,6 +45,20 @@ class Attach extends BaseModel {
 
 
     /**
+     * 获取第三方状态数组
+     * @return array
+     */
+    public static function getHasThirdArr() {
+        return [
+            '0' => '无',
+            '1' => '仅七牛',
+            '2' => '仅第三方',
+            '3' => '七牛和第三方',
+        ];
+    }
+
+
+    /**
      * 获取归属类型数组
      * @return array
      */

@@ -31,7 +31,7 @@ class IndexController extends Controller {
 
 
     public function initialize () {
-        parent::initialize();
+        yield parent::initialize();
 
         $this->setHeaderSeo('管理后台', '关键词', '描述');
 

@@ -13,6 +13,7 @@ use Apps\Models\Attach;
 use Apps\Models\UserBase;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\FileHelper;
+use Lkk\Helpers\UrlHelper;
 use Lkk\Helpers\ValidateHelper;
 
 class AttachService extends ServiceBase {
@@ -100,6 +101,27 @@ class AttachService extends ServiceBase {
         unset($uploadRes, $user, $other);
         return $avatarData;
     }
+
+
+    /**
+     * 格式化附件URL
+     * @param string $path 附件路径
+     * @param null $siteId 站点ID
+     * @return mixed|string
+     */
+    public static function formatAttachUrl($path='', $siteId=null) {
+        if(empty($path)) return '';
+
+        $siteConf = yield ConfigService::getSiteConfigs($siteId);
+        $uploadSiteUrl = empty($siteConf['upload_site_url']) ? getSiteUrl($siteId) : $siteConf['upload_site_url'];
+        $url = "{$uploadSiteUrl}{$path}";
+        unset($siteConf);
+
+        return UrlHelper::formatUrl($url);
+    }
+
+
+
 
 
 }

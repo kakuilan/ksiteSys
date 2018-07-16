@@ -18,7 +18,11 @@ class BaseController extends LkkController {
     //客户端是否有加密数据
     protected $clientHasEncry = null;
 
+    //是否有accessToken
     protected $hasAccessToken = null;
+
+    //当前登录的用户(object)
+    protected $user = null;
 
 
     /**

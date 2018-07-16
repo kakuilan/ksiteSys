@@ -42,8 +42,9 @@ class UploadController extends Controller {
         $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
         $token = $this->getAccessToken();
         $this->uid = UserService::parseAccessToken($token, $agUuid);
+        getLogger('token')->info('authToken', ['userAgent'=>$agUuid, 'token'=>$token]);
 
-        if($this->uid >0) {
+        if($this->uid > 0) {
             //获取上传基本配置
             $uploadConf = yield ConfigService::getUploadConfigs();
             $this->uploadSiteUrl = $uploadConf['upload_site_url'] ?? '';

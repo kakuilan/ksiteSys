@@ -11,13 +11,18 @@
 namespace Apps\Modules\Manage;
 
 use Apps\Models\Action;
-use Apps\Modules\BaseController;
 use Apps\Models\AdmOperateLog;
+use Apps\Models\Site;
+use Apps\Models\UserInfo;
+use Apps\Modules\BaseController;
 use Apps\Services\ConstService;
+use Apps\Services\UserService;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
 
 class Controller extends  BaseController {
+
+    protected $sites = [];
 
     //不记访问日志的动作
     public static $nologActions = [
@@ -44,6 +49,13 @@ class Controller extends  BaseController {
         $this->uid = $uid;
         $this->siteId = getSiteId();
         $this->getActionId();
+
+        if($this->uid >0) {
+            $user = yield UserInfo::getJoinInfoByUidAsync($this->uid, UserInfo::$baseFields);
+            $this->user = $user ? (object)$user : null;
+        }
+
+        //yield $this->getAllowSites();
 
         if(!in_array($action, self::$nologActions)) {
             $this->addAccessLog();
@@ -170,6 +182,37 @@ class Controller extends  BaseController {
         return $detail ? ['pageNumber'=>$pageNumber, 'pageSize'=>$pageSize] : [$pageNumber, $pageSize];
     }
 
+
+    /**
+     * 获取当前登录用户允许操作的站点数组
+     * @return array
+     */
+    protected function getAllowSites() {
+        if(empty($this->sites)) {
+            $sites = [
+                $this->siteId => '本站',
+            ];
+
+            $isRoot = UserService::isRoot($this->user);
+            if($isRoot) {
+                $sites[0] = '系统平台';
+
+                $rows = yield Site::getListAsync([], Site::$defaultFields, 'sort ASC,id ASC');
+                if($rows) {
+                    foreach ($rows as $row) {
+                        $key = $row['site_id'];
+                        if(isset($sites[$key])) continue;
+                        $sites[$key] = $row['site_name'];
+                    }
+                }
+            }
+
+            unset($userInfo, $rows);
+            $this->sites = $sites;
+        }
+
+        return $this->sites;
+    }
 
 
 

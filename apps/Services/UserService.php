@@ -174,6 +174,7 @@ class UserService extends ServiceBase {
      */
     public static function isRoot($userInfo=null) {
         $res = false;
+        if(empty($userInfo)) return $res;
         if(is_array($userInfo)) $userInfo = ArrayHelper::arrayToObject($userInfo);
 
         if(isset($userInfo->uid) && $userInfo->uid==self::ROOT_UID) {
@@ -194,6 +195,7 @@ class UserService extends ServiceBase {
      */
     public static function isAdmin($userInfo=null) {
         $res = false;
+        if(empty($userInfo)) return $res;
         if(is_array($userInfo)) $userInfo = ArrayHelper::arrayToObject($userInfo);
 
         if((isset($userInfo->adm_uid) && $userInfo->adm_uid>0) || (isset($userInfo->type) && $userInfo->type==UserBase::USER_TYPE_ADMNER)) {

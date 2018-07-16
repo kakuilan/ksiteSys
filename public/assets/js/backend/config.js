@@ -97,7 +97,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                 dtype = oriRow.data_type;
                 itype = oriRow.input_type;
             }
-            console.log('oriRow:', oriRow, hasVue, dtype, itype);
 
             //绑定数组元素拖拽排序
             var bindDragsort = function (form) {
@@ -167,7 +166,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             $inputType.change(function () {
                 itype = $(this).val();
                 mesg = '请选择控件类型';
-                console.log('log 111:', oriRow, dtype, itype, mesg);
 
                 $valueDiv.html('');
                 $uploadDiv.hide();
@@ -192,7 +190,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                     mesg = '数据类型[长文本、JSON]只能选择控件[文本域]';
                 }
 
-                console.log('log 222:', oriRow, dtype, itype, mesg);
                 if(itype==='') {
                     $(this).val(itype);
                     Toastr.error(mesg);
@@ -205,7 +202,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
             var makeVueFun = function (dtype, itype, row) {
                 var html = [];
                 var defVue = hasVue ? row.value : '';
-                console.log('row:', row, row.length, hasVue, defVue, dtype, itype);
 
                 if(itype==='radio') {
                     html.push('<div class="radio">');
@@ -224,7 +220,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                     //defVue = hasVue ? row.extra : [];
                     defVue = hasVue ? (oriRow.data_type!=='array' ? [] : $.parseJSON(row.extra)) : '';
                     var arrLen = defVue==='' ? 0 : getLength(defVue);
-                    console.log('arr', defVue, arrLen);
                     html.push('<dl class="fieldlist" data-name="row[value]" rel="'+arrLen+'"><dd><ins>键名</ins><ins>键值</ins></dd>');
 
                     //原数组或对象
@@ -295,7 +290,6 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload', 'bootstrap-
                     return value;
                 },
                 operate:function (value, row, index) {
-                    console.log('opp', value, row, index);
                     var defOpr = Table.api.formatter.operate(value, row, index, $("#table"));
                     var extOpr = '';
                     return defOpr + extOpr;
