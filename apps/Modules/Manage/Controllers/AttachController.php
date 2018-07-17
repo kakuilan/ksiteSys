@@ -56,7 +56,7 @@ class AttachController extends Controller {
 
         $loginUid = $this->getLoginUid();
         $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
-        $accToken = UserService::makeAccessToken($loginUid, $agUuid, 1800);
+        $accToken = UserService::makeAccessToken($loginUid, $agUuid, 7200);
         $tokenName = getConf('login', 'tokenName');
 
         //视图变量
@@ -66,7 +66,7 @@ class AttachController extends Controller {
             'editUrl' => makeUrl('manage/attach/edit'),
             'delUrl' => makeUrl('manage/attach/del'),
             'multiUrl' => makeUrl('manage/attach/multi'),
-            'uploadUrl' => makeUrl('api/upload/single', [$tokenName=>$accToken]),
+            'uploadUrl' => makeUrl('api/upload/single', [$tokenName=>$accToken, 'use_title'=>1]),
             'sites' => json_encode($sites),
             'authStatusArr' => json_encode($authStatusArr),
             'persistentStatusArr' => json_encode($persistentStatusArr),
@@ -174,12 +174,55 @@ class AttachController extends Controller {
     public function editAction() {
         $loginUid = $this->getLoginUid();
         $id = intval($this->getGet('ids'));
-        $info = [];
+        $info = Attach::findFirst($id);
+
+        if(empty($id) || empty($info)) {
+            return $this->alert('该信息不存在');
+        }
+
+        $lock = getlockBackendOperate('editAttach', $id, $loginUid);
+        if(empty($lock) || $lock<=0) {
+            return $this->alert("该信息已被其他后台用户[".abs($lock)."]锁定，您不能操作！");
+        }
+
+        $sites = yield $this->getAllowSites();
+        $authStatusArr = Attach::getAuthStatusArr();
+        $persistentStatusArr = Attach::getPersistentStatusArr();
+        $hasThirdArr = Attach::getHasThirdArr();
+        $belongTypeArr = Attach::getBelongTypeArr();
+        $fileTypeArr = Attach::getFileTypeArr();
+        $tagArr = Attach::getTagArr();
+
+        $info = Attach::rowToObject($info);
+        $info->is_del = $info->is_del ? '已删' : '正常';
+        $info->compress_enable = $info->compress_enable ? '是' : '否';
+        $info->site_id = $sites[$info->site_id] ?? '';
+        $info->is_auth = $authStatusArr[$info->is_auth] ?? '';
+        $info->is_persistent = $persistentStatusArr[$info->is_persistent] ?? '';
+        $info->has_third = $hasThirdArr[$info->has_third] ?? '';
+        $info->belong_type = $belongTypeArr[$info->belong_type] ?? '';
+        $info->file_type = $fileTypeArr[$info->file_type] ?? '';
+        $info->tag = $tagArr[$info->tag] ?? '';
+
+        $this->view->setVars([
+            'siteUrl' => getSiteUrl(),
+            'saveUrl' => makeUrl('manage/attach/save'),
+            'uploadUrl' => '',
+            'id' => $id,
+            'row' => $info,
+        ]);
+
+        return null;
+    }
 
 
+    /**
+     * @title -保存附件信息
+     * @desc  -保存附件信息
+     */
+    public function saveAction() {
 
-
-
+        return $this->success();
     }
 
 

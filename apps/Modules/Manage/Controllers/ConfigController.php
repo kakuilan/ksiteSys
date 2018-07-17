@@ -155,7 +155,7 @@ class ConfigController extends Controller {
         if($id) {
             $lock = getlockBackendOperate('editConfig', $id, $loginUid);
             if(empty($lock) || $lock<=0) {
-                return $this->alert("该信息已被其他后台用户[".abs($lock)."]锁定操作，您不能操作！");
+                return $this->alert("该信息已被其他后台用户[".abs($lock)."]锁定，您不能操作！");
             }
 
             $info = Config::findFirst($id);
