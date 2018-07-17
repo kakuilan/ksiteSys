@@ -145,13 +145,10 @@ class UploadController extends Controller {
         //新增附件记录
         $now = time();
         $row = false;
-        if($data['is_exists']) { //文件已存在
-            //检查该文件是否有记录
-            $where = [
-                'file_name' => $data['new_name'],
-            ];
-            $row = yield Attach::getRowAsync($where, Attach::$baseFields);
-        }
+
+        //检查该文件是否有记录
+        $where = ['file_name' => $data['new_name'] ];
+        $row = yield Attach::getRowAsync($where, 'id,file_name');
 
         if($row) {
             yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$uid], ['id'=>$row['id']]);
@@ -254,13 +251,10 @@ class UploadController extends Controller {
         //新增附件记录
         $now = time();
         $row = false;
-        if($data['is_exists']) { //文件已存在
-            //检查该文件是否有记录
-            $where = [
-                'file_name' => $data['new_name'],
-            ];
-            $row = yield Attach::getRowAsync($where, Attach::$baseFields);
-        }
+
+        //检查该文件是否有记录
+        $where = ['file_name' => $data['new_name'] ];
+        $row = yield Attach::getRowAsync($where, 'id,file_name');
 
         if($row) {
             $ret = yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>$row['id']]);
@@ -362,13 +356,10 @@ class UploadController extends Controller {
         //新增附件记录
         $now = time();
         $row = false;
-        if($data['is_exists']) { //文件已存在
-            //检查该文件是否有记录
-            $where = [
-                'file_name' => $data['new_name'],
-            ];
-            $row = yield Attach::getRowAsync($where, Attach::$baseFields);
-        }
+
+        //检查该文件是否有记录
+        $where = ['file_name' => $data['new_name'] ];
+        $row = yield Attach::getRowAsync($where, 'id,file_name');
 
         if($row) {
             $ret = yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>$row['id']]);
@@ -382,7 +373,6 @@ class UploadController extends Controller {
 
             $ret = yield Attach::addDataAsync($attData);
         }
-
 
         //减去可用空间
         if($this->userFreeFilesizeLimitOpen && isset($fileSize) && $fileSize && $ret) {
@@ -505,7 +495,6 @@ class UploadController extends Controller {
 
                 $fileSize += ($item['size'] ?? 0);
             }
-
 
             //更新旧记录
             if($rows) yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>array_column($rows, 'id') ]);

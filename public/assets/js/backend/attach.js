@@ -22,7 +22,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
             var belongTypeArr = $.parseJSON(Config.extparam.belongTypeArr);
             var fileTypeArr = $.parseJSON(Config.extparam.fileTypeArr);
             var tagArr = $.parseJSON(Config.extparam.tagArr);
-            
+
             //表格
             var columns = [
                 //该列为复选框字段,如果后台的返回state值将会默认选中
@@ -49,7 +49,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
                 {field: 'file_name', title: '文件名'},
 
                 {field: 'create_time', title: __('create_time'), operate: false, formatter: Table.api.formatter.datetime },
-                {field: 'update_time', title: __('update_time'), operate: false, formatter: Table.api.formatter.datetime },
+                {field: 'update_time', title: __('update_time'), operate: false, formatter: Table.api.formatter.datetime, sortable:true },
                 {field: 'username', title: '更新者', operate: false},
 
                 {field: 'operate', title: __('Operate'),operate: false, events: Controller.api.events.operate, formatter: Controller.api.formatter.operate}
@@ -59,7 +59,7 @@ define(['jquery', 'bootstrap', 'backend', 'table', 'form', 'upload'], function (
             table.bootstrapTable({
                 url: $.fn.bootstrapTable.defaults.extend.index_url,
                 pk: 'id',
-                sortName: 'id',
+                sortName: 'update_time',
                 sortOrder: 'desc',
                 showExport: false,
                 exportDataType: "base", //basic' 导出当前页的数据, 'all' 导出所有满足条件的数据, 'selected' 导出勾选中的数据.

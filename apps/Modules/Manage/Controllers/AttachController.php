@@ -91,7 +91,7 @@ class AttachController extends Controller {
         if($sortName && $sortOrder) {
             $order = "{$sortName} {$sortOrder}";
         }else{
-            $order = 'id desc';
+            $order = 'update_timedesc,id desc';
         }
 
         //基本条件
