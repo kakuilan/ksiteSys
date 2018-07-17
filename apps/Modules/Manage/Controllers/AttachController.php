@@ -40,8 +40,8 @@ class AttachController extends Controller {
 
 
     /**
-     * @title -配置管理首页
-     * @desc  -配置管理首页
+     * @title -附件管理首页
+     * @desc  -附件管理首页
      */
     public function indexAction() {
         //站点
@@ -54,6 +54,11 @@ class AttachController extends Controller {
         $fileTypeArr = Attach::getFileTypeArr();
         $tagArr = Attach::getTagArr();
 
+        $loginUid = $this->getLoginUid();
+        $agUuid = $this->di->getShared('userAgent')->getAgentUuidSimp();
+        $accToken = UserService::makeAccessToken($loginUid, $agUuid, 1800);
+        $tokenName = getConf('login', 'tokenName');
+
         //视图变量
         $this->view->setVars([
             'siteUrl' => getSiteUrl(),
@@ -61,7 +66,7 @@ class AttachController extends Controller {
             'editUrl' => makeUrl('manage/attach/edit'),
             'delUrl' => makeUrl('manage/attach/del'),
             'multiUrl' => makeUrl('manage/attach/multi'),
-            'uploadUrl' => '',
+            'uploadUrl' => makeUrl('api/upload/single', [$tokenName=>$accToken]),
             'sites' => json_encode($sites),
             'authStatusArr' => json_encode($authStatusArr),
             'persistentStatusArr' => json_encode($persistentStatusArr),
@@ -75,6 +80,10 @@ class AttachController extends Controller {
     }
 
 
+    /**
+     * @title -附件列表JSON
+     * @desc  -附件列表JSON
+     */
     public function listAction() {
         list($pageNumber, $pageSize) = $this->getPageNumberNSize();
         $sortName = trim($this->getGet('sortName'));
@@ -155,6 +164,22 @@ class AttachController extends Controller {
         ];
 
         return $this->success($res);
+    }
+
+
+    /**
+     * @title -附件编辑页
+     * @desc  -附件编辑页
+     */
+    public function editAction() {
+        $loginUid = $this->getLoginUid();
+        $id = intval($this->getGet('ids'));
+        $info = [];
+
+
+
+
+
     }
 
 

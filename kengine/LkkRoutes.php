@@ -33,7 +33,7 @@ abstract class LkkRoutes extends LkkObject {
             'action' => $conf->defaultAction,
         ];
 
-        $url = trim($url);
+        $url = trim(strtolower($url));
         if($url) {
             $url = UrlHelper::formatUrl($url);
             $arr = parse_url($url);
@@ -41,11 +41,14 @@ abstract class LkkRoutes extends LkkObject {
             $url = $arr['path'];
             $url = trim($url, '/');
             $arr = explode('/', $url);
-            var_dump($arr);
+
+            if(isset($arr[0])) $res['module'] = $arr[0];
+            if(isset($arr[1])) $res['controller'] = $arr[1];
+            if(isset($arr[2])) $res['action'] = $arr[2];
 
         }
 
-        unset($conf);
+        unset($conf, $arr);
         return $res;
     }
 

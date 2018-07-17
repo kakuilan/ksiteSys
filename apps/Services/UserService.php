@@ -701,6 +701,7 @@ class UserService extends ServiceBase {
         $key = getConf('crypt', 'key');
         $code = strval(EncryptHelper::base64urlDecode($token));
         $code = EncryptHelper::ucAuthcode($code, 'DECODE', $key);
+        getLogger('token')->info('parseAccessToken', ['$token'=>$token, '$veriCode'=>$veriCode, '$key'=>$key, '$code'=>$code]);
         if(!empty($code)) {
             $arr = explode('|', $code);
             if(!empty($veriCode) && (!isset($arr[1]) || $arr[1]!=$veriCode)) return false;
