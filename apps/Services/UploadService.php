@@ -38,7 +38,7 @@ class UploadService extends ServiceBase {
 
     public static $defaultResult   = [
         'status' => false, //上传结果
-        'name' => '', //保存的文件名
+        'name' => '', //保存的文件名(源上传的文件名)
         'type' => '', //文件类型
         'exte' => '', //文件扩展名
         'size' => 0, //文件大小,单位bit
@@ -49,6 +49,7 @@ class UploadService extends ServiceBase {
         'absolute_path' => '', //绝对路径
         'relative_path' => '', //相对WEB目录路径
         'url'   => '', //文件URL地址
+        'new_name' => '', //新文件名
         'is_exists' => false, //根据文件md5检查是否已存在(之前已上传有相同的文件)
     ];
 

@@ -14,6 +14,7 @@ use Apps\Models\UserBase;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\FileHelper;
 use Lkk\Helpers\UrlHelper;
+use Lkk\Helpers\StringHelper;
 use Lkk\Helpers\ValidateHelper;
 
 class AttachService extends ServiceBase {
@@ -55,7 +56,7 @@ class AttachService extends ServiceBase {
      * 根据上传结果生成附件记录数据
      * @param array $uploadRes 上传结果
      * @param array|object $user 用户信息
-     * @param array $other 其他附加信息,['is_auth','tag','compress_enable','belong_type','title','create_time','update_time','update_by']
+     * @param array $other 其他附加信息,['is_auth','tag','compress_enable','belong_type','title','use_title','create_time','update_time','update_by']
      * @return array|bool
      */
     public static function makeAttachDataByUploadResult($uploadRes=[], $user=null, $other=[]) {
@@ -69,6 +70,13 @@ class AttachService extends ServiceBase {
         $compressEnable = 0;
         if($isImg) {
             $compressEnable = intval($other['compress_enable'] ?? 0);
+        }
+
+        //标题
+        $title = $other['title'] ?? ($uploadRes['new_name'] ?? '');
+        if(isset($other['use_title']) && $other['use_title']) {
+            $title = $uploadRes['name'];
+            if(mb_strlen($title) > 15) $title = StringHelper::cutStr($title, 20, 0, '');
         }
 
         $avatarData = [
@@ -87,7 +95,7 @@ class AttachService extends ServiceBase {
             'downl_num' => '0',
             'file_size' => ($uploadRes['size'] ?? 0),
             'tag' => ($other['tag'] ?? ''),
-            'title' => ($other['title'] ?? ($uploadRes['new_name'] ?? '')),
+            'title' => $title,
             'file_ext' => ($uploadRes['exte'] ?? ''),
             'file_name' => ($uploadRes['new_name'] ?? ''),
             'file_path' => ($uploadRes['relative_path'] ?? ''),

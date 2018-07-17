@@ -295,6 +295,7 @@ class UploadController extends Controller {
      * @api {post} /api/upload/single 单文件上传
      * @apiParam {string} [input_name=file] 上传的文件域名称,默认file
      * @apiParam {string} [tag=user] 附件标识,默认user
+     * @apiParam {int} [use_title=0] 是否使用文件名作为title
      *
      */
     public function singleAction() {
@@ -364,9 +365,11 @@ class UploadController extends Controller {
         if($row) {
             $ret = yield Attach::upDataAsync(['is_del'=>0,'update_time'=>$now,'update_by'=>$this->uid], ['id'=>$row['id']]);
         }else{
+            $useTitle = intval($this->getRequest('use_title', 0, false));
             $other = [
                 'belong_type' => ($tag=='system' ? 0 : (in_array($tag, ['backend','ad']) ? 1: 2) ),
                 'tag' => $tag,
+                'use_title' => $useTitle,
                 'update_by' => $this->uid,
             ];
             $attData = AttachService::makeAttachDataByUploadResult($data, $userInfo, $other);
@@ -400,6 +403,7 @@ class UploadController extends Controller {
      * @api {post} /api/upload/multi 多文件上传
      * @apiParam {string} [input_name=file] 上传的文件域名称,数组,如input_name[]=file&input_name[]=doc
      * @apiParam {string} [tag=user] 附件标识,默认user
+     * @apiParam {int} [use_title=0] 是否使用文件名作为title
      *
      */
     public function multiAction() {
@@ -478,9 +482,11 @@ class UploadController extends Controller {
             $fileKeys = [];
 
             $rows = yield Attach::getListAsync(['file_name' => array_column($data, 'new_name')], Attach::$baseFields);
+            $useTitle = intval($this->getRequest('use_title', 0, false));
             $other = [
                 'belong_type' => ($tag=='system' ? 0 : (in_array($tag, ['backend','ad']) ? 1: 2) ),
                 'tag' => $tag,
+                'use_title' => $useTitle,
                 'update_by' => $this->uid,
             ];
 
