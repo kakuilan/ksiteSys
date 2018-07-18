@@ -221,6 +221,37 @@ class AttachController extends Controller {
      * @desc  -保存附件信息
      */
     public function saveAction() {
+        $loginUid = $this->getLoginUid();
+        $id = intval($this->getRequest('id'));
+        $title = $this->getPost('title');
+
+        if(empty($id)) {
+            return $this->fail(20104, '参数错误');
+        }elseif (empty($title)) {
+            return $this->fail('标题不能为空');
+        }
+
+        $info = Attach::findFirst($id);
+        if(empty($info)) {
+            return $this->fail('该信息不存在');
+        }
+
+        if($info->title != $title) {
+            $now = time();
+            if(ValidateHelper::isEnglish($title)) {
+                $title = substr($title, 0, 30);
+            }else{
+                $title = StringHelper::cutStr($title, 20, 0, '');
+            }
+
+            $data = [
+                'title' => $title,
+                'update_time' => $now,
+                'update_by' => $loginUid,
+            ];
+            $res = Attach::upData($data, ['id'=>$id]);
+            if(!$res) return $this->fail('操作失败,请稍后再试');
+        }
 
         return $this->success();
     }

@@ -74,7 +74,7 @@
                 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
                     <div class="content">
                         <form id="edit-form" class="form-horizontal form-ajax" role="form" data-toggle="validator" method="POST" action="{{saveUrl}}">
-                            <input type="hidden" name="row[site_id]" id="id" value="{{id}}">
+                            <input type="hidden" name="id" id="id" value="{{id}}">
 
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right">站点</label>
@@ -87,6 +87,13 @@
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right">是否已删</label>
                                 <div class="col-sm-8 col-xs-7">
                                     <input type="text" class="form-control" value="{% if row %}{{row.is_del}}{% endif %}" disabled readonly>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right">文件名</label>
+                                <div class="col-sm-8 col-xs-7">
+                                    <input type="text" class="form-control" value="{% if row %}{{row.file_name}}{% endif %}" disabled readonly>
                                 </div>
                             </div>
 
@@ -170,14 +177,7 @@
                             <div class="form-group">
                                 <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right" for="title">文件标题</label>
                                 <div class="col-sm-8 col-xs-7">
-                                    <input type="text" class="form-control" name="row[title]" id="title" value="{% if row %}{{row.title}}{% endif %}" maxlength="30" data-rule="required;length(1~30)">
-                                </div>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="col-sm-2 col-xs-3 control-label no-padding-right text-right">文件名</label>
-                                <div class="col-sm-8 col-xs-7">
-                                    <input type="text" class="form-control" value="{% if row %}{{row.file_name}}{% endif %}" disabled readonly>
+                                    <input type="text" class="form-control" name="title" id="title" value="{% if row %}{{row.title}}{% endif %}" maxlength="30" data-rule="required;length(1~30)">
                                 </div>
                             </div>
 

@@ -10,6 +10,7 @@
 namespace Apps\Modules\Manage\Controllers;
 
 use Apps\Modules\Manage\Controller;
+use Lkk\Helpers\DirectoryHelper;
 
 
 /**
@@ -36,6 +37,14 @@ class CacheController extends Controller {
      * @desc  -清除缓存
      */
     public function clearCacheAction() {
+        //清空视图模板缓存
+        $viewConf = getConf('view');
+        if(is_dir($viewConf->compiledPath)) {
+            DirectoryHelper::emptyDir($viewConf->compiledPath);
+        }
+
+        unset($viewConf);
+
         return $this->success();
     }
 
