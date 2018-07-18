@@ -168,6 +168,13 @@ class LkkServer extends SwooleServer {
     }
 
 
+    /**
+     * 执行swoole请求
+     * @param $request
+     * @param $response
+     * @return bool|\Generator
+     * @throws \Phalcon\Session\Exception
+     */
     public static function doSwooleRequest($request, $response) {
         //xhprof
         if(self::isXhprofEnable()) {

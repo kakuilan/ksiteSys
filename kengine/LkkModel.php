@@ -1212,6 +1212,7 @@ class LkkModel extends Model {
         if(empty($table)) $table = self::getTableName();
         if(empty($where)) $where ='1=1';
         $whereString = self::parseWhere($where, false);
+        if(empty($whereString)) $whereString = '1=1';
 
         $selectString = "SELECT %s FROM `%s` WHERE %s";
         $query = sprintf($selectString,
@@ -1276,12 +1277,13 @@ class LkkModel extends Model {
      * @param int    $limit
      * @param string $table
      *
-     * @return bool
+     * @return mixed
      */
     public static function getListAsync($where='', $field='*', $order='', $limit=0, $table='') {
         if(empty($table)) $table = self::getTableName();
         if(empty($where)) $where ='1=1';
         $whereString = self::parseWhere($where, false);
+        if(empty($whereString)) $whereString = '1=1';
 
         $selectString = "SELECT %s FROM `%s` WHERE %s";
         $query = sprintf($selectString,

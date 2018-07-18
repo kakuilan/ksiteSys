@@ -257,5 +257,15 @@ class AttachController extends Controller {
     }
 
 
+    /**
+     * @title -批量操作附件
+     * @desc  -批量操作附件
+     */
+    public function multiAction() {
+        //TODO
+        return $this->success();
+    }
+
+
 
 }

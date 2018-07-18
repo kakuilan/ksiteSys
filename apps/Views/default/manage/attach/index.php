@@ -91,7 +91,7 @@
                                                 <a href="javascript:;" class="btn btn-primary btn-refresh" ><i class="fa fa-refresh"></i></a>
                                                 <a href="javascript:;" class="btn btn-success btn-edit btn-disabled disabled" ><i class="fa fa-pencil"></i> 编辑</a>
                                                 <a href="javascript:;" class="btn btn-danger btn-del btn-disabled disabled" ><i class="fa fa-trash"></i> 删除</a>
-                                                <a href="javascript:;" class="btn btn-success btn-import" title="上传" id="btn-import-file" data-url="{{uploadUrl}}" data-mimetype="*" data-multiple="false"><i class="fa fa-upload"></i> 上传</a>
+                                                <a href="javascript:;" class="btn btn-success btn-import" title="上传" id="btn-import-file" data-url="{{uploadUrl}}" data-mimetype="*" data-multiple="true"><i class="fa fa-upload"></i> 上传</a>
                                                 <div class="dropdown btn-group">
                                                     <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown"><i class="fa fa-cog"></i> 更多</a>
                                                     <ul class="dropdown-menu text-left" role="menu">
