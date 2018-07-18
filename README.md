@@ -54,6 +54,7 @@ License
 ### 注意:
 - 注意不能打印model记录信息,会出现内存超标,造成540错误 
 - 注意使用控制器的initialize()返回拦截 
+- 文件上传限制配置server.package_max_length 
 
 
 

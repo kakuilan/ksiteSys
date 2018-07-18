@@ -97,8 +97,8 @@ return [
         'open_length_check' => true,
         //包长度值的类型
         'package_length_type' => 'N',
-        //最大数据包尺寸
-        'package_max_length' => 2097152, //2M
+        //最大数据包尺寸,也是文件上传限制
+        'package_max_length' => 10485760, //10M
         'package_length_offset' => 0,
         'package_body_offset' => 4,
         //管道通信的内存缓存区长度
