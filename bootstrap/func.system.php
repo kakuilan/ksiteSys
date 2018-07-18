@@ -49,7 +49,9 @@ function getConf($file, $key = null, $default=null) {
 function getLogger($logname='', $useServerLog=false) {
     static $monLoggers;
 
-    if($useServerLog && is_object(SwooleServer::getServer())) { //在swoole服务里面
+    //在swoole服务里面,且在worker进程里面
+    //因为SwooleServer绑定的日志对象使用了异步,但task不允许[can't use async-io in task process]
+    if($useServerLog && is_object(SwooleServer::getServer()) && SwooleServer::isWorker()) {
         return SwooleServer::getLogger();
     }else{
         $logname = trim($logname);
