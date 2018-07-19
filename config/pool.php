@@ -25,9 +25,11 @@ return [
             'user'      => 'root',          // 用户名
             'password'  => 'root',          // 密码
             'database'  => 'test_ksys',     // 数据库名称
-            'open_log'  => true,
+            'open_log'  => false,
             'slow_query' => 0,              //慢查询20毫秒
-            'wait_timeout' => 3600,       //连接超时,1小时
+            'wait_timeout' => 3600,       //保持连接超时,秒
+            'conn_timeout' => 3,           //建立连接时超时,秒
+            'exec_timeout' => 2,           //查询时超时,秒
         ]
     ],
 
@@ -47,9 +49,11 @@ return [
             'user'      => 'root',          // 用户名
             'password'  => 'root',          // 密码
             'database'  => 'test_ksys',     // 数据库名称
-            'open_log'  => true,
+            'open_log'  => false,
             'slow_query' => 0,              //慢查询20毫秒
-            'wait_timeout' => 3600,       //连接超时,1小时
+            'wait_timeout' => 3600,       //保持连接超时,秒
+            'conn_timeout' => 3,           //建立连接时超时,秒
+            'exec_timeout' => 2,           //查询时超时,秒
         ]
     ],
 
@@ -67,6 +71,9 @@ return [
             'auth'      => '123456',        // 口令
             'select'    => 0,               // 库编号
             'prefix'    => 'sys:',          // 前缀
+            'wait_timeout' => 120,          //保持连接超时,秒
+            'conn_timeout' => 2.5,           //建立连接时超时,秒
+            'exec_timeout' => 2.5,           //查询时超时,秒
         ]
     ],
 
@@ -84,6 +91,9 @@ return [
             'auth'      => '123456',        // 口令
             'select'    => 0,               // 库编号
             'prefix'    => 'sit:',          // 前缀
+            'wait_timeout' => 120,          //保持连接超时,秒
+            'conn_timeout' => 2.5,           //建立连接时超时,秒
+            'exec_timeout' => 2.5,           //查询时超时,秒
         ]
     ],
 
@@ -101,6 +111,9 @@ return [
             'auth'      => '123456',        // 口令
             'select'    => REDIS_SESSION_DB, // 库编号
             'prefix'    => '',          // 前缀,具体前缀放在session配置
+            'wait_timeout' => 120,          //保持连接超时,秒
+            'conn_timeout' => 2.5,           //建立连接时超时,秒
+            'exec_timeout' => 2.5,           //查询时超时,秒
         ]
     ],
 
@@ -118,6 +131,9 @@ return [
             'auth'      => '123456',        // 口令
             'select'    => REDIS_QUEUE_DB, // 库编号
             'prefix'    => '',          // 前缀,具体前缀放在session配置
+            'wait_timeout' => 120,          //保持连接超时,秒
+            'conn_timeout' => 2.5,           //建立连接时超时,秒
+            'exec_timeout' => 2.5,           //查询时超时,秒
         ]
     ],
 

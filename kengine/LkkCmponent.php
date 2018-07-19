@@ -140,22 +140,8 @@ class LkkCmponent {
         $waitTimeout = $conf->mysql_master->args->wait_timeout ?? 3600;
         $lastTime = $connInfo['first_connect_time'] ?? 0;
         $maxTime = $lastTime + $waitTimeout;
-
-        getLogger('mysql')->info('syncDbMaster start:', [
-            'now' => $now,
-            'waitTimeout' => $waitTimeout,
-            'lastTime' => $lastTime,
-            'maxTime' => $maxTime,
-        ]);
-
+        
         if(empty($connInfo) || !($now>=$lastTime && $now<$maxTime) ) {
-            getLogger('mysql')->info('syncDbMaster end:', [
-                'now' => $now,
-                'waitTimeout' => $waitTimeout,
-                'lastTime' => $lastTime,
-                'maxTime' => $maxTime,
-            ]);
-
             $db = new Mysql([
                 'host'      => $conf->mysql_master->args->host,
                 'port'      => $conf->mysql_master->args->port,
@@ -195,21 +181,7 @@ class LkkCmponent {
         $lastTime = $connInfo['first_connect_time'] ?? 0;
         $maxTime = $lastTime + $waitTimeout;
 
-        getLogger('mysql')->info('syncDbSlave start:', [
-            'now' => $now,
-            'waitTimeout' => $waitTimeout,
-            'lastTime' => $lastTime,
-            'maxTime' => $maxTime,
-        ]);
-
         if(empty($connInfo) || !($now>=$lastTime && $now<$maxTime) ) {
-            getLogger('mysql')->info('syncDbSlave end:', [
-                'now' => $now,
-                'waitTimeout' => $waitTimeout,
-                'lastTime' => $lastTime,
-                'maxTime' => $maxTime,
-            ]);
-
             $db = new Mysql([
                 'host'      => $conf->mysql_slave->args->host,
                 'port'      => $conf->mysql_slave->args->port,
