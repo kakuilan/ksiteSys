@@ -11,6 +11,7 @@
 namespace Apps\Timers;
 
 use Kengine\Server\LkkServer;
+use Lkk\Phalwoo\Server\SwooleServer;
 
 class Server extends BaseTimer {
 
@@ -38,7 +39,10 @@ class Server extends BaseTimer {
     public function writeSession() {
         $sessionWork = SessionWork::getInstance();
         if($sessionWork->chkDoing('writeSession')) {
-            echo "writeSession work is doing... \r\n";
+            if(SwooleServer::isOpenDebug()) {
+                $mesg = "writeSession work is doing... \r\n";
+                echo $mesg;
+            }
         }else{
             $sessionWork->writeSession();
         }
@@ -51,7 +55,10 @@ class Server extends BaseTimer {
     public function sessionGc() {
         $sessionWork = SessionWork::getInstance();
         if($sessionWork->chkDoing('gc')) {
-            echo "session gc work is doing... \r\n";
+            if(SwooleServer::isOpenDebug()) {
+                $mesg = "session gc work is doing... \r\n";
+                echo $mesg;
+            }
         }else{
             $sessionWork->gc();
         }

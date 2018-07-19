@@ -138,7 +138,10 @@ class SessionWork extends WorkFlow {
             $this->redis->exec();
         }
 
-        echo "session write to redis done! succNum:[{$succNum}] \r\n";
+        if(SwooleServer::isOpenDebug()) {
+            $mesg = "session write to redis done! succNum:[{$succNum}] \r\n";
+            echo $mesg;
+        }
 
         return true;
     }
