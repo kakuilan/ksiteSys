@@ -90,7 +90,8 @@ class LkkModel extends Model {
      * @return \Phalcon\Db\AdapterInterface
      */
     public function getReadConnection() {
-        return LkkCmponent::syncDbSlave();
+        $wid = SwooleServer::getSwooleWorkerId();
+        return LkkCmponent::syncDbSlave($wid);
     }
 
 
@@ -100,7 +101,8 @@ class LkkModel extends Model {
      * @return \Phalcon\Db\AdapterInterface
      */
     public function getWriteConnection() {
-        return LkkCmponent::syncDbMaster();
+        $wid = SwooleServer::getSwooleWorkerId();
+        return LkkCmponent::syncDbMaster($wid);
     }
 
 
