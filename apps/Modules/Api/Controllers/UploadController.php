@@ -21,6 +21,7 @@ use Apps\Services\UserService;
 use Kengine\LkkRoutes;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\CommonHelper;
+use Lkk\Helpers\FileHelper;
 use Lkk\Helpers\StringHelper;
 use Lkk\Helpers\ValidateHelper;
 
@@ -311,6 +312,8 @@ class UploadController extends Controller {
         }
 
         $inputName = $this->getPost('input_name', 'file', false);
+        $originName = $this->swooleRequest->files[$inputName]['name'] ?? '';
+        $isImage = ValidateHelper::isImage($originName);
 
         $isRoot = UserService::isRoot($userInfo);
         $isAdmin = UserService::isAdmin($userInfo);
@@ -333,7 +336,7 @@ class UploadController extends Controller {
         }
 
         $newName = '';
-        $savePath = $noneedAuth ? UploadService::$savePathLongAttach : UploadService::$savePathTemp;
+        $savePath = $noneedAuth ? ($isImage ? UploadService::$savePathLongPictur : UploadService::$savePathLongAttach) : UploadService::$savePathTemp;
 
         $serv = new UploadService();
         $serv->setSavePath($savePath)
