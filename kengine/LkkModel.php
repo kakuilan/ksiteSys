@@ -774,7 +774,7 @@ class LkkModel extends Model {
      * @param array  $data 数据(键值对)
      * @param string $table 表名
      *
-     * @return bool
+     * @return bool|int
      */
     public static function addData(array $data =[], $table='') {
         if(!is_array($data) || empty($data) ) return false;
@@ -967,11 +967,12 @@ class LkkModel extends Model {
      * 更新数据(同步)
      * @param array  $data
      * @param string $where
+     * @param bool $affected 返回受影响行数
      * @param null   $table
      *
-     * @return bool
+     * @return bool|int
      */
-    public static function upData(array $data=[], $where='', $table=null) {
+    public static function upData(array $data=[], $where='', $affected=true, $table=null) {
         if(!is_array($data) || empty($data) ) return false;
         if(empty($table)) $table = self::getTableName();
         $data = self::filterColumnsData($data, $table);
@@ -982,6 +983,7 @@ class LkkModel extends Model {
         $res = $_conn->update($table, array_keys($data), array_values($data), $where);
         $err = $_conn->getErrorInfo();
 
+        if($affected) $res = $_conn->affectedRows();
         if(!$res && is_array($err) && $err[0]!='00000') {
             logException(json_encode($err));
         }
@@ -1047,14 +1049,16 @@ class LkkModel extends Model {
     /**
      * 删除数据(同步)
      * @param $where
+     * @param bool $affected 返回受影响行数
      * @param null $table
-     * @return bool
+     * @return bool|int
      */
-    public static function delData($where, $table=null) {
+    public static function delData($where, $affected=true, $table=null) {
         if(empty($table)) $table = self::getTableName();
         $_conn = LkkCmponent::syncDbMaster('');
         $where = self::parseWhere2PDO($where);
         $res = $_conn->delete($table, $where['conditions'], $where['bind']);
+        if($affected) $res = $_conn->affectedRows();
 
         unset($where, $table, $_conn);
 
