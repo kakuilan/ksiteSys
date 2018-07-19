@@ -190,7 +190,7 @@ return [
                 'callback' => ['\Apps\Timers\Test','dynamicTest'],
                 'params' => [],
             ],
-            'run_interval_time' => 0.3, //循环时间,秒,精确到0.1
+            'run_interval_time' => 0.2, //循环时间,秒,精确到0.1
             'run_max_exec' => 101,//最大执行次数,为0不限制
             'run_endtime' => 0, //定时器结束时间戳,为0不限制
         ],

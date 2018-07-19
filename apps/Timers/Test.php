@@ -26,24 +26,37 @@ class Test extends BaseTimer {
         $date = new \DateTime();
         $time = $date->format('Y-m-d H:i:s.u');
         $mesg = "timer task call static method [$time].\r\n";
-        echo $mesg;
+        $rows = UserLoginLog::getList([], '*', '', 50);
+
+        $syncRedis = LkkServer::getPoolManager()->get('redis_site')->pop(true);
+        $syncRedis->set('staticTest', $time, 600);
+
+        //echo $mesg;
         //getLogger('timer')->info($mesg);
     }
 
 
+    /**
+     * 测试动态方法
+     * @return \Generator
+     */
     public function dynamicTest() {
         $num = 0;
-        for ($i=0;$i<=100;$i++) {
-            $rows = yield UserLoginLog::getListAsync(50);
-            //$rows = UserLoginLog::getList(50);
+        for ($i=0;$i<=10;$i++) {
+            //$rows = yield UserLoginLog::getListAsync([], '*', '', 50);
+            $rows = UserLoginLog::getList([], '*', '', 50);
             $num += count($rows);
         }
 
         $date = new \DateTime();
         $time = $date->format('Y-m-d H:i:s.u');
         $mesg = "timer task call dynamic method. [$time]-[{$num}] \r\n";
-        echo $mesg;
-        getLogger('timer')->info($mesg);
+
+        $asyncRedis = LkkServer::getPoolManager()->get('redis_site')->pop();
+        yield $asyncRedis->set('dynamicTest', $time, 600);
+
+        //echo $mesg;
+        //getLogger('timer')->info($mesg);
     }
 
 
