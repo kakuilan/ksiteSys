@@ -267,5 +267,49 @@ class AttachController extends Controller {
     }
 
 
+    /**
+     * @title -批量删除附件
+     * @desc  -批量删除附件
+     */
+    public function delAction() {
+        $loginUid = $this->getLoginUid();
+        $ids = (array)$this->getPost('ids');
+        $ids = array_filter($ids, function ($v) {
+            if(!is_numeric($v) || $v<=0) return false;
+            return true;
+        });
+
+        $now = time();
+        $idsNum = count($ids);
+        $sucNum = 0;
+
+        if($idsNum==0) {
+            return $this->fail('id不能为空');
+        }elseif ($idsNum>10) {
+            return $this->fail('每批最多只能删10个');
+        }
+
+        $rows = Attach::getList(['id' => $ids], Attach::$defaultFields);
+        foreach ($rows as $row) {
+            $data = [
+                'is_del' => '1',
+                'update_time' => $now,
+                'update_by' => $loginUid,
+            ];
+            $ret = Attach::upData($data, ['id'=>$row->id, 'is_del'=>0]);
+            if($ret) {
+                $sucNum++;
+
+                //删除附件
+                $filePath = UPLODIR. ltrim($row->file_path, '/');
+                if(file_exists($filePath)) @unlink($filePath);
+            }
+        }
+
+        $faiNum = $idsNum - $sucNum;
+        return $this->success(null, "删除附件,成功{$sucNum}个,失败{$faiNum}个");
+    }
+
+
 
 }

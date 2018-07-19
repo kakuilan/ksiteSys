@@ -143,3 +143,7 @@ phpunit ./
 phpunit JustTest.php  
 phpunit JustTest.php  --repeat 100 
 
+AB压测:  
+ab -k -n10000 -c50 "http://ksys.loc/api/index/index"  
+abs -k -n10000 -c50 "https://ksys.loc/api/index/index"  
+
