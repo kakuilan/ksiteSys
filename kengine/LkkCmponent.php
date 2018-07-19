@@ -11,6 +11,7 @@
 namespace Kengine;
 
 use Lkk\Phalwoo\Phalcon\Cache\Backend\Redis as BackendRedis;
+use Lkk\Phalwoo\Server\SwooleServer;
 use Overtrue\Pinyin\Pinyin;
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Crypt as PhCrypt;
@@ -81,19 +82,22 @@ class LkkCmponent {
      * @return mixed
      */
     public static function siteCache() {
-        if(!isset(self::$objects[__FUNCTION__]) ) {
+        $wid = SwooleServer::getSwooleWorkerId();
+        $key = strval($wid) . __FUNCTION__;
+
+        if(!isset(self::$objects[$key]) ) {
             $cacheConf = getConf('cache');
 
             $frontCache = new FrontendData([
                 'lifetime' => $cacheConf->lifetime,
             ]);
 
-            self::$objects[__FUNCTION__] = new BackendRedis($frontCache, $cacheConf->toArray());
+            self::$objects[$key] = new BackendRedis($frontCache, $cacheConf->toArray());
 
             unset($cacheConf);
         }
 
-        return self::$objects[__FUNCTION__];
+        return self::$objects[$key];
     }
 
 
@@ -104,7 +108,10 @@ class LkkCmponent {
      * @return mixed
      */
     public static function sysCache() {
-        if(!isset(self::$objects[__FUNCTION__]) ) {
+        $wid = SwooleServer::getSwooleWorkerId();
+        $key = strval($wid) . __FUNCTION__;
+
+        if(!isset(self::$objects[$key]) ) {
             $cacheConf = getConf('cache');
 
             $frontCache = new FrontendData([
@@ -115,11 +122,11 @@ class LkkCmponent {
                 'redis'     => 'redis_system', //redis连接池名称,参考pool配置
             ];
 
-            self::$objects[__FUNCTION__] = new BackendRedis($frontCache, $initConf);
+            self::$objects[$key] = new BackendRedis($frontCache, $initConf);
             unset($cacheConf);
         }
 
-        return self::$objects[__FUNCTION__];
+        return self::$objects[$key];
     }
 
 
@@ -140,7 +147,7 @@ class LkkCmponent {
         $waitTimeout = $conf->mysql_master->args->wait_timeout ?? 3600;
         $lastTime = $connInfo['first_connect_time'] ?? 0;
         $maxTime = $lastTime + $waitTimeout;
-        
+
         if(empty($connInfo) || !($now>=$lastTime && $now<$maxTime) ) {
             $db = new Mysql([
                 'host'      => $conf->mysql_master->args->host,
