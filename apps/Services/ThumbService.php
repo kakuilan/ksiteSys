@@ -1,7 +1,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: doubo
+ * User: kakuilan@163.com
  * Date: 2018/7/13
  * Time: 9:57
  * Desc: 缩略图服务类
