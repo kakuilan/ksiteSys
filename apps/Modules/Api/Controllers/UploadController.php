@@ -143,6 +143,14 @@ class UploadController extends Controller {
             return $this->fail($data['info']);
         }
 
+        //检查图片mime
+        $imgInfo = getimagesize($data['absolute_path']);
+        $mimeType = FileHelper::getFileMime($data['absolute_path']);
+        if($mimeType !== $imgInfo['mime']) {
+            @unlink($data['absolute_path']);
+            return $this->fail('文件类型错误');
+        }
+        
         //新增附件记录
         $now = time();
         $row = false;
@@ -247,6 +255,14 @@ class UploadController extends Controller {
             return $this->fail($serv->getError());
         }elseif (!$data['status']) {
             return $this->fail($data['info']);
+        }
+
+        //检查图片mime
+        $imgInfo = getimagesize($data['absolute_path']);
+        $mimeType = FileHelper::getFileMime($data['absolute_path']);
+        if($mimeType !== $imgInfo['mime']) {
+            @unlink($data['absolute_path']);
+            return $this->fail('文件类型错误');
         }
 
         //新增附件记录
@@ -355,6 +371,16 @@ class UploadController extends Controller {
             return $this->fail($serv->getError());
         }elseif (!$data['status']) {
             return $this->fail($data['info']);
+        }
+
+        //检查图片mime
+        if($isImage) {
+            $imgInfo = getimagesize($data['absolute_path']);
+            $mimeType = FileHelper::getFileMime($data['absolute_path']);
+            if($mimeType !== $imgInfo['mime']) {
+                @unlink($data['absolute_path']);
+                return $this->fail('文件类型错误');
+            }
         }
 
         //新增附件记录

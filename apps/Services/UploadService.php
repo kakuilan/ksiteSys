@@ -355,6 +355,9 @@ class UploadService extends ServiceBase {
             }
         }
 
+        //发生错误,删除文件
+        if($error != 99) @unlink($newFilePath);
+
         $result = array_merge($result, $imgInfo);
         $result['error'] = $error;
         $result['status'] = ($error==99);
@@ -513,6 +516,9 @@ class UploadService extends ServiceBase {
                     }
                 }
             }
+
+            //发生错误,删除文件
+            if($error != 99) @unlink($newFilePath);
 
             $result = array_merge(self::$defaultResult, $fileInfo);
             $result['error'] = $error;
