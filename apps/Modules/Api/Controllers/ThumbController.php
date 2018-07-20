@@ -28,7 +28,7 @@ use Lkk\Helpers\StringHelper;
 use Lkk\Helpers\ValidateHelper;
 
 
-class UploadController extends Controller {
+class ThumbController extends Controller {
 
     public function initialize () {
         parent::initialize();
@@ -43,6 +43,17 @@ class UploadController extends Controller {
     public function indexAction(){
         return $this->success();
     }
+
+
+    /**
+     * @title -生成缩略图
+     * @desc  -生成缩略图
+     */
+    public function makeAction() {
+        getLogger('thumb')->info('make', ['swooleRequest'=>$this->swooleRequest]);
+        return $this->success($this->swooleRequest);
+    }
+
 
 
 

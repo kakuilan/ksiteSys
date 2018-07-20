@@ -31,7 +31,7 @@ class AttachService extends ServiceBase {
         switch ($ext) {
             case '' :default:
                 break;
-            case in_array($ext, ['gz','rar','zip','7z']) :
+            case in_array($ext, ['gz','bz2','tar','tgz','rar','zip','7z']) :
                 $res = 1;
                 break;
             case in_array($ext, ['txt','chm','pdf','doc','docx','xls','xlsx','ppt','pptx']) :
