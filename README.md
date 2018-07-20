@@ -48,6 +48,15 @@ License
 
 
 
+## 截图参数  
+- width/w 宽度
+- height/h 高度
+- format 图片格式
+- quality/q 图片质量
+- rotate/r 旋转角度
+- blur/b 模糊
+- 
+
 
 
 ### BUG:  
@@ -101,7 +110,26 @@ server {
             proxy_pass http://127.0.0.1:6666;
         }
     }
-    
+
+    location ~ /upload/thumb/ {
+        set $makeurl "";
+        if (!-e $request_filename) {
+            set $makeurl $uri;
+        }
+
+        #生成缩略图
+        if ($makeurl ~* "^/upload/thumb/\d{2}/\d{2}/\d{2}/(\d{6}[a-z0-9]{16}\.(gif|jpg|jpeg|png|bmp))/((.*)\.(gif|jpg|jpeg|png))$" ) {
+            set $origin $1;
+            set $target $3;
+            rewrite . /api/thumb/make?origin=$origin&target=$target&$args last;
+        }
+        
+        #默认图片
+        if ($makeurl ~* "^/upload/thumb/(.*)\.(gif|jpg|jpeg|png)$" ) {
+            rewrite . /statics/img/gray.png last;
+        }
+    }
+
     location ~ [^/]\.php(/|$) {
         try_files $uri =404;
         #注意,以实际的php-cgi.sock路径为准,否则502,具体看/usr/local/php/etc/php-fpm.conf
