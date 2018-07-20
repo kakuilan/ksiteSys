@@ -95,7 +95,8 @@
                                                 <div class="dropdown btn-group">
                                                     <a class="btn btn-primary btn-more dropdown-toggle btn-disabled disabled" data-toggle="dropdown"><i class="fa fa-cog"></i> 更多</a>
                                                     <ul class="dropdown-menu text-left" role="menu">
-
+                                                        <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="is_auth=1"><i class="fa fa-check"></i>通过</a></li>
+                                                        <li><a class="btn btn-link btn-multi btn-disabled disabled" href="javascript:;" data-params="is_auth=-1"><i class="fa fa-close"></i>不通过</a></li>
                                                     </ul>
                                                 </div>
                                             </div>

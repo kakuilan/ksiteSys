@@ -262,7 +262,61 @@ class AttachController extends Controller {
      * @desc  -批量操作附件
      */
     public function multiAction() {
-        //TODO
+        $loginUid = $this->getLoginUid();
+        $ids = (array)$this->getPost('ids');
+        $ids = array_filter($ids, function ($v) {
+            if(!is_numeric($v) || $v<=0) return false;
+            return true;
+        });
+
+        $now = time();
+        $params = trim($this->getPost('params'));
+        $params = explode('=', $params);
+        $field = strtolower(trim($params[0]));
+        $value = intval($params[1]);
+        $idsNum = count($ids);
+        $sucNum = 0;
+
+        if($idsNum==0) {
+            return $this->fail('id不能为空');
+        }elseif ($idsNum>10) {
+            return $this->fail('每批最多只能操作10个');
+        }
+
+        switch ($field) {
+            default : case '' :
+                return $this->fail('参数错误');
+                break;
+            case 'is_auth' : //审核
+                $rows = Attach::getList(['is_auth'=>0, 'id' => $ids], Attach::$defaultFields);
+                $list = $rows->toArray();
+                $delArr = ArrayHelper::arraySearchMutilItem($list, ['is_del'=>1]);
+                if(!empty($delArr)) {
+                    return $this->fail('待审核附件不能包含已删除');
+                }elseif (!in_array($value, [-1, 1])) {
+                    return $this->fail('参数错误');
+                }
+
+                foreach ($rows as $row) {
+                    if($row->is_del) continue;
+
+                    $data = [
+                        'is_auth' => $value,
+                        'update_time' => $now,
+                        'update_by' => $loginUid,
+                    ];
+                    $ret = Attach::upData($data, ['id'=>$row->id, 'is_auth'=>0, 'is_del'=>0]);
+                    if($ret) {
+                        $sucNum++;
+                    }
+                }
+
+                $faiNum = $idsNum - $sucNum;
+                return $this->success(null, "审核附件,成功{$sucNum}个,失败{$faiNum}个");
+                break;
+
+        }
+
         return $this->success();
     }
 
