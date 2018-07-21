@@ -128,6 +128,8 @@ server {
         if ($makeurl ~* "^/upload/thumb/(.*)\.(gif|jpg|jpeg|png)$" ) {
             rewrite . /statics/img/gray.png last;
         }
+        
+        access_log off;
     }
 
     location ~ [^/]\.php(/|$) {

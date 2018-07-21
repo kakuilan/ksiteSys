@@ -13,12 +13,45 @@ namespace Apps\Services;
 use Apps\Models\Attach;
 use Apps\Models\UserBase;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\FileHelper;
 use Lkk\Helpers\ValidateHelper;
 
 class ThumbService extends ServiceBase {
 
 
-    public static $savePathLongThumb = UPLODIR . 'thumb/'; //永久保存目录,缩略图
+    //永久保存目录,缩略图
+    public static $savePathLongThumb = UPLODIR . 'thumb/';
+
+    //默认图片
+    public static $defaultImage = WWWDIR . 'statics/img/gray.png';
+
+
+    /**
+     * 获取默认图片路径
+     * @return string
+     */
+    public static function getDefaultImagePath() {
+        return self::$defaultImage;
+    }
+
+
+    /**
+     * 获取默认图片内容
+     * @param bool $base64 是否用base64
+     *
+     * @return mixed
+     */
+    public static function getDefaultImageContent($base64=false) {
+        static $imgs = [];
+        $tag = $base64 ? 1 : 0;
+        if(!isset($imgs[$tag]) || empty($imgs[$tag])) {
+            $imgs[$tag] = $base64 ? FileHelper::img2Base64(self::$defaultImage) : file_get_contents(self::$defaultImage);
+        }
+
+        return $imgs[$tag];
+    }
+
+
 
 
 }

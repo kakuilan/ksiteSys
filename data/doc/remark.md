@@ -76,7 +76,8 @@ smtp_fromname	邮件服务发送者名称
 user_qps_limit 用户每秒访问次数限制,0为不限制
 user_pv_early_warning 用户每天访问次数预警,0为不限制,当大于N时,把该用户加入监控范围
 user_pv_day_limit 用户每天访问次数限制,0为不限制,当大于N时,返回错误信息
-
+comment_enable 是否开启评论 
+comment_hour_limit 每小时最多N次评论 
 
 
 

@@ -717,6 +717,18 @@ class UploadService extends ServiceBase {
     }
 
 
+    /**
+     * 获取附件的绝对路径
+     * @param string $filePath 附件路径
+     *
+     * @return string
+     */
+    public static function getAttachAbsolutePath($filePath='') {
+        if(empty($filePath)) return '';
+        return WWWDIR . ltrim($filePath);
+    }
+
+
 
     public static function moveAttach($oldFilePath='', $newDir='', $returnRelative=true) {
         if(empty($oldFilePath)) return false;
