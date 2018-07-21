@@ -28,6 +28,7 @@ class RedisQueueService extends RedisQueue {
                 'port' => $redisCnf['port'] ?? '6379',
                 'password' => $redisCnf['auth'] ?? '',
                 'select' => $redisCnf['select'] ?? REDIS_QUEUE_DB,
+                'wait_timeout' => ($redisCnf['wait_timeout'] ?? 120),
             ];
         }else{
             $conf = parent::$defaultCnf;

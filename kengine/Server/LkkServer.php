@@ -192,7 +192,7 @@ class LkkServer extends SwooleServer {
         $_uri = $request->get['_url'] ?? $request->server['request_uri'];
         //当前模块名
         $curModName = strtolower(Engine::getModuleNameByUri($_uri));
-        getLogger()->info('request:', [
+        /*getLogger()->info('request:', [
             '$curModName' => $curModName,
             'header' => $request->header ?? '',
             'server' => $request->server ?? '',
@@ -200,7 +200,7 @@ class LkkServer extends SwooleServer {
             'post' => $request->post ?? '',
             'cookie' => $request->cookie ?? '',
             'request' => $request,
-        ]);
+        ]);*/
 
         //加密组件放在cookie和denAgent前面
         $crypt = LkkCmponent::crypt();
