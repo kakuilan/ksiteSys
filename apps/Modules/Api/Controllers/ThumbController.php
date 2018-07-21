@@ -30,8 +30,20 @@ use Lkk\Helpers\ValidateHelper;
 
 class ThumbController extends Controller {
 
+    //已缓存的图片内容
+    public static $cacheImgs = [];
+    //要缓存的图片路径
+    public static $cachePaths = [];
+
+
     public function initialize () {
         parent::initialize();
+
+        if(empty(self::$cachePaths)) {
+            $defaultPath = ThumbService::getDefaultImagePath();
+            array_push(self::$cachePaths, $defaultPath);
+            unset($defaultPath);
+        }
 
     }
 
@@ -46,30 +58,58 @@ class ThumbController extends Controller {
 
 
     /**
+     * 获取输出图片的缓存内容
+     * @param string $path
+     *
+     * @return bool|mixed|string
+     */
+    final static function getImageContentCache($path='') {
+        if(empty($path)) return '';
+
+        if(in_array($path, self::$cachePaths)) {
+            $res = self::$cacheImgs[$path] ?? '';
+            if(empty($res)) {
+                $res = self::$cacheImgs[$path] = file_get_contents($path);
+            }
+        }else{
+            $res = file_get_contents($path);
+        }
+
+        return $res;
+    }
+
+
+
+    /**
      * 显示图片
      * @param string $path 图片路径
      *
-     * @return array|mixed|object|string
+     * @return string
      */
     protected function showImage($path='') {
         if(empty($path) || !file_exists($path)) $path = ThumbService::getDefaultImagePath();
 
+        $res = self::getImageContentCache($path);
         $mime = FileHelper::getFileMime($path);
         $mime .= ";text/html; charset=utf-8";
         $this->response->setHeader('Content-Type', $mime);
 
         $this->setHasView(false);
-        return $this->output(file_get_contents($path));
+        $this->output($res);
+
+        unset($path, $cachePath, $mime, $res);
+
+        return '';
     }
 
 
 
     /**
      * 显示默认图片
-     * @return array|mixed|object|string
+     * @return string
      */
     protected function showDefaultImage() {
-        return $this->showImage(ThumbService::getDefaultImagePath());
+        return $this->showImage(null);
     }
 
 

@@ -42,13 +42,9 @@ class ThumbService extends ServiceBase {
      * @return mixed
      */
     public static function getDefaultImageContent($base64=false) {
-        static $imgs = [];
-        $tag = $base64 ? 1 : 0;
-        if(!isset($imgs[$tag]) || empty($imgs[$tag])) {
-            $imgs[$tag] = $base64 ? FileHelper::img2Base64(self::$defaultImage) : file_get_contents(self::$defaultImage);
-        }
+        $res = $base64 ? FileHelper::img2Base64(self::$defaultImage) : file_get_contents(self::$defaultImage);
 
-        return $imgs[$tag];
+        return $res;
     }
 
 
