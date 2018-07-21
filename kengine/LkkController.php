@@ -162,6 +162,8 @@ abstract class LkkController extends Controller {
         }
 
         if(!is_array($data)) $data = (array)$data;
+        ksort($data);
+
         foreach ($data as $k=> &$v) {
             if(is_scalar($v)) { //标量
                 if(is_numeric($v)) {
@@ -179,31 +181,61 @@ abstract class LkkController extends Controller {
 
 
     /**
+     * 输出到浏览器
+     * @param string|array|mixed $data 数据
+     * @param bool   $isJson 是否为json
+     * @param string $callback js回调
+     * @param bool   $hasView 是否渲染视图
+     *
+     * @return array|mixed|object|string
+     */
+    public function output($data='', $isJson=false, $callback='', $hasView=true) {
+        $output = '';
+        $response = $this->response;
+        if($isJson && (is_array($data) || is_object($data))) {
+            $response = $this->response;
+            $response->setHeader("Content-Type", "application/json; charset=UTF-8");
+            $response->setHeader("Access-Control-Allow-Origin", "*");
+            $response->setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
+            $response->setHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
+            $response->setHeader("Access-Control-Allow-Credentials", "true");
+
+            $this->setJsonRes($data);
+            $this->setIsJson(true);
+            $output = $this->getJsonRes();
+            $output = self::reParseArrayNumToStr($output);
+            $output = json_encode($output);
+
+            if(empty($callback)) $callback = $this->getRequest('callback', '');
+            if($callback) $output = "{$callback}($output)";
+        }else{
+            $this->setHasView($hasView);
+            if (is_array($data)){
+                $output = var_export($data, true);
+            }elseif (!is_scalar($data)) {
+                $output = 'outpu data not scalar';
+            }else{
+                $output = strval($data);
+            }
+        }
+
+
+        //设置输出
+        $response->setContent($output);
+
+        unset($data, $callback, $response);
+        return $output;
+    }
+
+
+
+    /**
      * 输出json/jsonp
      * @param array  $res 要输出的结果数组
      * @param string $callback 是否有js回调
      */
     public function json($res=[], $callback='') {
-        $response = $this->response;
-        $response->setHeader("Content-Type", "application/json; charset=UTF-8");
-        $response->setHeader("Access-Control-Allow-Origin", "*");
-        $response->setHeader("Access-Control-Allow-Methods", "POST, GET, OPTIONS");
-        $response->setHeader("Access-Control-Allow-Headers", "x-requested-with,content-type");
-        $response->setHeader("Access-Control-Allow-Credentials", "true");
-
-        $this->setJsonRes($res);
-        $this->setJsonStatus(true);
-        $output = $this->getJsonRes();
-        $output = self::reParseArrayNumToStr($output);
-        $output = json_encode($output);
-
-        if(empty($callback)) $callback = $this->getRequest('callback', '');
-        if($callback) $output = "{$callback}($output)";
-
-        //设置输出
-        $response->setContent($output);
-
-        return $output;
+        return $this->output($res, true, $callback, false);
     }
 
 
