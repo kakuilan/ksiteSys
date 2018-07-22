@@ -129,7 +129,7 @@ class ThumbController extends Controller {
             return $this->showDefaultImage();
         }
 
-        $typeArr = ['jpg', 'gif', 'png'];
+        $typeArr = ['jpg', 'jpeg', 'gif', 'png'];
         $target = strtolower($target);
         $ext = FileHelper::getFileExt($target);
         if(!in_array($ext, $typeArr)) {
