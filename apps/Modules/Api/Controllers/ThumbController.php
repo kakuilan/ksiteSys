@@ -120,6 +120,7 @@ class ThumbController extends Controller {
      */
     public function makeAction() {
         //getLogger('thumb')->info('make', ['swooleRequest'=>$this->swooleRequest]);
+        //return $this->success($this->swooleRequest);
 
         $origin = $this->getGet('origin'); //原图名称
         $target = $this->getGet('target'); //新图名称

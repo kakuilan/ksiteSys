@@ -36,6 +36,12 @@ class ConstService extends ServiceBase {
     const CACHE_SITE_INFO                       = 'site_info'; //站点信息,后跟站点ID
 
 
+    //服务器类型
+    const SERVER_TYPE_WEB                       = 'web'; //web服务
+    const SERVER_TYPE_IMG                       = 'img'; //图片服务
+    const SERVER_TYPE_RPC                       = 'rpc'; //RPC服务
+
+
     //消息流类型定义,命名以 MESSAGE_ 开头,值小写
     const MESSAGE_TYPE_DEFAULT                  =   'default'; //默认
     const MESSAGE_TYPE_MSG                      =   'msg'; //站内信

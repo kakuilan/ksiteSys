@@ -86,8 +86,12 @@ return [
         'backlog' => 128,
         //指定swoole错误日志文件
         'log_file' => SWOOLELOG,
-        //日志级别
+        //https://wiki.swoole.com/wiki/page/538.html
+        //日志级别:0 =>DEBUG,1 =>TRACE,2 =>INFO,3 =>NOTICE,4 =>WARNING,5 =>ERROR
         'log_level' => 0,
+        //https://wiki.swoole.com/wiki/page/936.html
+        //跟踪标签:SWOOLE_TRACE_ALL,SWOOLE_TRACE_SERVER,SWOOLE_TRACE_HTTP2
+        'trace_flags' => 0,
         //启用心跳检测,每隔N秒轮循一次
         'heartbeat_check_interval' => 5,
         //表示连接最大允许空闲的时间,需要比heartbeat_check_interval大

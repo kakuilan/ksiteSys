@@ -42,9 +42,8 @@ License
 - 用户头像因nginx缓存不能及时更新问题
 - 二进制上传 
 - 长时间附近页面不动,再上传无权限,token没刷新问题
-- 附件审核功能
 - 定时器里协程mysql内存一直增长问题(后面会回落)
-- 图片上传检查Mimes
+- 区别站点是web或img
 
 
 
@@ -118,9 +117,9 @@ server {
         }
 
         #生成缩略图
-        if ($makeurl ~* "^/upload/thumb/\d{2}/\d{2}/\d{2}/(\d{6}[a-z0-9]{16}\.(gif|jpg|jpeg|png|bmp))/((.*)\.(gif|jpg|jpeg|png))$" ) {
-            set $origin $1;
-            set $target $3;
+        if ($makeurl ~* "^/upload/thumb/(\d{2})/(\d{2})/(\d{2})/(\1\2\3[a-z0-9]{16}\.(gif|jpg|jpeg|png|bmp))/((.*)\.(gif|jpg|jpeg|png))$" ) {
+            set $origin $4;
+            set $target $6;
             rewrite . /api/thumb/make?origin=$origin&target=$target&$args last;
         }
         
