@@ -129,6 +129,15 @@ class ThumbController extends Controller {
             return $this->showDefaultImage();
         }
 
+        $typeArr = ['jpg', 'gif', 'png'];
+        $target = strtolower($target);
+        $ext = FileHelper::getFileExt($target);
+        if(!in_array($ext, $typeArr)) {
+            return $this->showDefaultImage();
+        }
+
+        //TODO 检查验证码
+
         //原图是否存在,否则输出默认图片
         //再加图片生成任务
         $row = yield Attach::getRowAsync(['is_del'=>0, 'file_name'=>$origin], Attach::$baseFields);
@@ -136,6 +145,9 @@ class ThumbController extends Controller {
         if(empty($row) || empty($path) || !file_exists($path)) {
             return $this->showDefaultImage();
         }
+
+
+
 
         //TODO 缩略图生成队列
 

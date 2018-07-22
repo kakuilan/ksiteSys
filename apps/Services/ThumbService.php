@@ -15,6 +15,9 @@ use Apps\Models\UserBase;
 use Lkk\Helpers\ArrayHelper;
 use Lkk\Helpers\FileHelper;
 use Lkk\Helpers\ValidateHelper;
+use Intervention\Image\ImageManager;
+use Intervention\Image\ImageManagerStatic as Image;
+
 
 class ThumbService extends ServiceBase {
 
@@ -46,6 +49,18 @@ class ThumbService extends ServiceBase {
 
         return $res;
     }
+
+
+
+    public static function thumb() {
+        //TODO
+    }
+
+
+    public static function watermark() {
+        //TODO
+    }
+
 
 
 
