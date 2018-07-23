@@ -767,7 +767,10 @@ class UserService extends ServiceBase {
         $ext = 'jpg';
         $avatarPath = self::getAvatarByUid($uid, $ext);
         $filePath = UPLODIR . 'avatar/' . ltrim($avatarPath, '/');
-        $direct = dir($filePath);
+        if(file_exists($filePath) && !$new) return $filePath;
+
+        $direct = dirname($filePath);
+        if(!is_dir($direct)) DirectoryHelper::mkdirDeep($direct);
 
         $faker = FakerFactory::create();
         if(!isset($param['length']) || empty($param['length'])) $param['length'] = 2; //字符长度
