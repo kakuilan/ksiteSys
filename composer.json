@@ -18,13 +18,14 @@
     "phpunit/phpunit": "^6.4",
     "guzzlehttp/guzzle": "^6.3",
     "overtrue/pinyin": "~3.0",
-    "fzaninotto/faker": "^1.6.0",
+    "fzaninotto/faker": "^1.8",
     "voku/portable-utf8": "^3.1",
     "voku/anti-xss": "^2.1",
     "bluem/tree": "^1.5",
     "gregwar/captcha": "1.*",
     "intervention/image": "^2.4",
-    "emojione/emojione": "^3.1"
+    "emojione/emojione": "^3.1",
+    "lasserafn/php-initial-avatar-generator": "^2.3"
   },
   "require-dev": {
     "kakuilan/kphplib": "dev-master",

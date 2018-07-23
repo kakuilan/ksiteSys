@@ -117,7 +117,7 @@ server {
         }
 
         #生成缩略图
-        if ($makeurl ~* "^/upload/thumb/(\d{2})/(\d{2})/(\d{2})/(\1\2\3[a-z0-9]{16}\.(gif|jpg|jpeg|png|bmp))/((.*)\.(gif|jpg|jpeg|png))$" ) {
+        if ($makeurl ~* "^/upload/thumb/(\d{2})/(\d{2})/(\d{2})/(\1\2\3[a-z0-9]{16}\.(gif|jpg|jpeg|png|bmp))/((.*)\.(gif|jpg|jpeg|png|webp))$" ) {
             set $origin $4;
             set $target $6;
             rewrite . /api/thumb/make?origin=$origin&target=$target&$args last;

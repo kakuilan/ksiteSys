@@ -17,6 +17,7 @@ use Lkk\Helpers\FileHelper;
 use Lkk\Helpers\ValidateHelper;
 use Intervention\Image\ImageManager;
 use Intervention\Image\ImageManagerStatic as Image;
+use LasseRafn\InitialAvatarGenerator\InitialAvatar;
 
 
 class ThumbService extends ServiceBase {
@@ -49,6 +50,9 @@ class ThumbService extends ServiceBase {
 
         return $res;
     }
+
+
+
 
 
 

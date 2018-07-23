@@ -13,7 +13,10 @@ namespace Apps\Services;
 use Apps\Models\AdmUser;
 use Apps\Models\Attach;
 use Apps\Models\UserBase;
+use Faker\Factory as FakerFactory;
+use LasseRafn\InitialAvatarGenerator\InitialAvatar;
 use Lkk\Helpers\ArrayHelper;
+use Lkk\Helpers\DirectoryHelper;
 use Lkk\Helpers\EncryptHelper;
 use Lkk\Helpers\ValidateHelper;
 use Lkk\Phalwoo\Phalcon\Session\Adapter\Redis as RedisSession;
@@ -745,6 +748,51 @@ class UserService extends ServiceBase {
         $res = $path . "{$uid}.{$ext}";
         return strtolower($res);
     }
+
+
+    /**
+     * 生成用户头像
+     * @param int $uid 用户ID
+     * @param array $param 参数
+     * @param bool $rand
+     * @param bool $new
+     * @return bool|\Intervention\Image\Image|string
+     */
+    public static function createUserAvatar($uid=0, $param=[], $rand=true, $new=false) {
+        if(empty($uid)) return false;
+
+        $user = UserBase::findFirst($uid);
+        $username = empty($user) ? $uid : $user->username;
+
+        $ext = 'jpg';
+        $avatarPath = self::getAvatarByUid($uid, $ext);
+        $filePath = UPLODIR . 'avatar/' . ltrim($avatarPath, '/');
+        $direct = dir($filePath);
+
+        $faker = FakerFactory::create();
+        if(!isset($param['length']) || empty($param['length'])) $param['length'] = 2; //字符长度
+        if(!isset($param['size']) || empty($param['size'])) $param['size'] = 200; //100x100
+        if(!isset($param['font']) || empty($param['font'])) $param['font'] = '/fonts/OpenSans-Regular.ttf';
+        if(!isset($param['fontsize']) || empty($param['fontsize'])) $param['fontsize'] = 0.5;
+        if(!isset($param['background']) || empty($param['background'])) $param['background'] = $faker->hexColor;
+        if(!isset($param['color']) || empty($param['color'])) $param['color'] = $faker->hexColor;
+
+        $avatar = new InitialAvatar();
+        $image = $avatar->name($username)
+            ->length($param['length'])
+            ->size($param['size'])
+            ->font($param['font'])
+            ->fontSize($param['fontsize'])
+            ->background($param['background'])
+            ->color($param['color'])
+            ->generate();
+
+        $ret = $image->save($filePath);
+        return $ret ? $filePath : $ret;
+    }
+
+
+
 
 
 

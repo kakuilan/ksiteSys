@@ -129,7 +129,7 @@ class ThumbController extends Controller {
             return $this->showDefaultImage();
         }
 
-        $typeArr = ['jpg', 'jpeg', 'gif', 'png'];
+        $typeArr = ['jpg', 'jpeg', 'gif', 'png', 'webp'];
         $target = strtolower($target);
         $ext = FileHelper::getFileExt($target);
         if(!in_array($ext, $typeArr)) {
@@ -146,12 +146,20 @@ class ThumbController extends Controller {
             return $this->showDefaultImage();
         }
 
-
-
-
         //TODO 缩略图生成队列
 
         return $this->showImage($path);
+    }
+
+
+    /**
+     * @title -用户头像
+     * @desc  -用户头像
+     */
+    public function avatarAction() {
+        $uid = intval($this->getGet('uid'));
+        $avatarPath = UserService::createUserAvatar($uid);
+        return $this->showImage($avatarPath);
     }
 
 
