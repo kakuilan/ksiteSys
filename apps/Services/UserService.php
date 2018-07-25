@@ -754,11 +754,10 @@ class UserService extends ServiceBase {
      * 生成用户头像
      * @param int $uid 用户ID
      * @param array $param 参数
-     * @param bool $rand
-     * @param bool $new
+     * @param bool $new 是否重新生成
      * @return bool|\Intervention\Image\Image|string
      */
-    public static function createUserAvatar($uid=0, $param=[], $rand=true, $new=false) {
+    public static function createUserAvatar($uid=0, $param=[], $new=false) {
         if(empty($uid)) return false;
 
         $user = UserBase::findFirst($uid);
@@ -791,6 +790,8 @@ class UserService extends ServiceBase {
             ->generate();
 
         $ret = $image->save($filePath);
+        unset($param, $user, $avatar, $image);
+
         return $ret ? $filePath : $ret;
     }
 

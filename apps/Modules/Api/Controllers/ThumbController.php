@@ -158,7 +158,7 @@ class ThumbController extends Controller {
      */
     public function avatarAction() {
         $uid = intval($this->getGet('uid'));
-        $avatarPath = UserService::createUserAvatar($uid);
+        $avatarPath = UserService::createUserAvatar($uid, [], true);
         return $this->showImage($avatarPath);
     }
 
