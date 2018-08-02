@@ -202,7 +202,12 @@ function getSiteUrl($param=null, $newInfo=false) {
         $param = UrlHelper::formatUrl($param);
         if(ValidateHelper::isUrl($param)) {
             $arr = parse_url($param);
-            $url = "{$arr['scheme']}://{$arr['host']}/";
+            $port = $arr['port'] ?? null;
+            if(!empty($port) && !in_array($port, [80, 443])) {
+                $url = "{$arr['scheme']}://{$arr['host']}:{$port}/";
+            }else{
+                $url = "{$arr['scheme']}://{$arr['host']}/";
+            }
             $url = strtolower($url);
         }
     }
