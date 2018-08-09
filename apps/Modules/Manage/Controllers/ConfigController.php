@@ -344,9 +344,9 @@ class ConfigController extends Controller {
         if($id) {
             $info = Config::findFirst($id);
             if(empty($info)) {
-                return $this->alert('该信息不存在或已删除');
+                return $this->fail('该信息不存在或已删除');
             }elseif ($info->key != $row['key']) {
-                return $this->alert('禁删除的配置键不能修改');
+                return $this->fail('禁删除的配置键不能修改');
             }
 
             $res = Config::upData($row, ['id'=>$id]);
